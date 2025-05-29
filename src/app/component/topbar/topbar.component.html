@@ -1,0 +1,16 @@
+<nav class="bg-sky-900 text-white px-6 py-3 flex justify-between items-center w-full">
+    <div class="text-white font-bold text-lg">
+        Nisira
+    </div>
+
+    <div>
+        <a [routerLink]="'/home'" class="flex items-center gap-2 text-white hover:text-sky-300 font-medium">
+            <i class="pi pi-home"></i>
+            <span>Inicio</span>
+        </a>
+    </div>
+
+    <div class="cursor-pointer hover:text-red-300" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+    </div>
+</nav>

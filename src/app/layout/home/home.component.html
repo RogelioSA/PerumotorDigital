@@ -1,0 +1,27 @@
+<!-- REPORTES -->
+<div class="min-h-screen bg-gray-100">
+    <app-topbar></app-topbar>
+
+    <div class="px-6 py-4">
+        <app-title 
+          [title]="'Inicio'" 
+          [subtitle]="'Revisa tus reportes guardados'">
+        </app-title>
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-sky-900">Logistica</h3>
+            
+            <div class="grid md:grid-cols-4 gap-4 mt-2">
+              <!-- Tarjeta 1 -->
+              <div 
+                class="bg-white shadow rounded p-4 text-sm cursor-pointer hover:bg-sky-50 transition"
+                (click)="handleCardClick(1)">
+                
+                <div class="font-semibold">Documentos a pagar</div>
+                <div class="text-gray-500 text-xs mb-1">2025-05-05</div>
+                <p>Generacion de borrador para la emision de documentos a pagar.</p>
+              </div>
+
+            </div>
+          </div>          
+      </div>
+</div>
