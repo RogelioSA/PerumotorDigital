@@ -179,8 +179,9 @@ export class BillingpaymentComponent implements AfterViewInit{
   mostrarVisor: boolean = false;
   archivoSeleccionadoUrl: string = '';
   archivoSeleccionadoNombre: string = '';
-
   safeUrl: SafeResourceUrl | null = null;
+  indiceArchivoActual: number = 0;
+
 
   mostrarDialogAprovisionar: boolean = false;
   ordenesCompra: any[] = [];
@@ -204,7 +205,10 @@ export class BillingpaymentComponent implements AfterViewInit{
   mostrarAyudaFinal: boolean = false;
 
   productoSeleccionadoResumen: any = null;
-
+  cargandoArchivo: boolean = false;
+  mostrarHistorial: boolean = false;
+  historialCambios: any[] = [];
+  
   constructor(private apiService: ApiService,
               private messageService: MessageService, 
               private route: ActivatedRoute,
@@ -238,6 +242,8 @@ export class BillingpaymentComponent implements AfterViewInit{
   // Variables ocultas (obtenidas automáticamente)
   idCarpetaPadre: number = 0;
   usuarioCreador: string = '';
+
+ 
 
   ngAfterViewInit() {
     // Esperamos un poco a que se renderice el input interno
@@ -484,7 +490,12 @@ export class BillingpaymentComponent implements AfterViewInit{
             }
           });
         }
-      }      
+      },
+      {
+        label: 'Ver historial',
+        icon: 'pi pi-bars',
+        command: () => this.mostrarHistorialDialog(idCarpeta)
+      },
       
     ];
     
@@ -542,6 +553,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   
     // Carpeta padre
     const idCarpetaPadre: number = this.carpetaActual.idCarpeta!;
+    const usuarioCreacion: string = this.cookieService.get('usuario') || 'Usuario';
   
     // Verificar si ya existe
     this.apiService.existeDocumento(this.idEmpresa, idCarpeta).subscribe({
@@ -555,7 +567,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           });
         } else {
           // No existe, se crea
-          this.apiService.crearDocumento(this.idEmpresa, idCarpeta, periodo, idCarpetaPadre).subscribe({
+          this.apiService.crearDocumento(this.idEmpresa, idCarpeta, periodo, idCarpetaPadre,usuarioCreacion).subscribe({
             next: () => {
               this.messageService.add({
                 severity: 'success',
@@ -777,11 +789,12 @@ export class BillingpaymentComponent implements AfterViewInit{
       const now = new Date();
       const periodo = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
       const idCarpetaPadre: number = this.carpetaActual.idCarpeta!;
+      const usuarioCreacion: string = this.cookieService.get('usuario') || 'Usuario';
       this.apiService.existeDocumento(this.idEmpresa, idCarpeta).subscribe({
         next: (res) => {
           if (res.success === false) {
             // Crear carpeta si no existe
-            this.apiService.crearDocumento(this.idEmpresa, idCarpeta, periodo, idCarpetaPadre).subscribe({
+            this.apiService.crearDocumento(this.idEmpresa, idCarpeta, periodo, idCarpetaPadre,usuarioCreacion).subscribe({
               next: () => {
                 // Subir todos los archivos
                 carpeta.files.forEach(file => {
@@ -931,22 +944,26 @@ export class BillingpaymentComponent implements AfterViewInit{
         cleanedData[key] = value;
       }
     }
-  // ✅ Validación del campo "periodo"
+  
+    // ✅ Solo validar el campo "periodo" si fue modificado
+    if ('periodo' in e.newData) {
       const periodo = cleanedData['periodo'];
       const esPeriodoValido = /^\d{6}$/.test(periodo);
       const anio = parseInt(periodo?.substring(0, 4), 10);
       const mes = parseInt(periodo?.substring(4, 6), 10);
-
+  
       if (!esPeriodoValido || anio < 2000 || anio > 2100 || mes < 1 || mes > 12) {
         this.messageService.add({
           severity: 'error',
           summary: 'Periodo inválido',
           detail: 'El periodo debe tener 6 dígitos: AAAAMM (año entre 2000 y 2100, mes entre 01 y 12).'
         });
-
+  
         e.cancel = true;
         return;
       }
+    }
+  
     // Comparar usando triple igual con conversión explícita
     const oldIgv = String(e.oldData['srIgv']);
     const newIgv = String(e.newData['srIgv']);
@@ -973,11 +990,11 @@ export class BillingpaymentComponent implements AfterViewInit{
         const index = this.products.findIndex(p => p.id === cleanedData.id);
         if (index !== -1) {
           this.products[index].importeNeto = nuevoImporteNeto;
-          this.products[index].srIgv = tipoIgv; // asegurarse de reflejar el cambio también aquí
+          this.products[index].srIgv = tipoIgv;
         }
       }
     }
-  
+    cleanedData['usuarioModificacion'] = this.cookieService.get('usuario') || 'Usuario';;
     this.cargandoc = true;
     this.apiService.editarDocumento(cleanedData).subscribe({
       next: () => {
@@ -988,7 +1005,6 @@ export class BillingpaymentComponent implements AfterViewInit{
           detail: 'Documento actualizado correctamente.'
         });
   
-        // Solo refrescar si existe el ID de carpeta
         const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
         if (idCarpeta) {
           this.apiService.filtrarDocumentos(idCarpeta).subscribe({
@@ -1014,6 +1030,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
+  
   
 
   cerrarVistaArchivos() {
@@ -1136,17 +1153,39 @@ export class BillingpaymentComponent implements AfterViewInit{
   }
 
 
-  verArchivo(url: string, name: string) {
-    this.archivoSeleccionadoUrl = url;
+  verArchivo(url: string, name: string , index: number) {
+    this.cargandoArchivo = true;
+    this.indiceArchivoActual = index;
     this.archivoSeleccionadoNombre = name;
+    this.archivoSeleccionadoUrl = url;
+    
     this.mostrarVisor = true;
     if (this.esPDF(url) || this.esImagen(url)) {
       this.safeUrl = this.getSafeUrl(url);
     } else {
       this.safeUrl = null;
     }
+    setTimeout(() => {
+      this.cargandoArchivo = false;
+      this.mostrarVisor = true;
+    }, 500);
   }
 
+  verSiguiente() {
+    if (this.indiceArchivoActual < this.archivosCarpeta.length - 1) {
+      const nuevo = this.archivosCarpeta[this.indiceArchivoActual + 1];
+      console.log(nuevo)
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual + 1);
+    }
+  }
+  
+  verAnterior() {
+    if (this.indiceArchivoActual > 0) {
+      const nuevo = this.archivosCarpeta[this.indiceArchivoActual - 1];
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual - 1);
+    }
+  }
+  
   esImagen(url: string): boolean {
     return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   }
@@ -1342,9 +1381,10 @@ export class BillingpaymentComponent implements AfterViewInit{
     );
   
     const observacion = productoRelacionado?.observacionesGlosa || '';
-  
+    
     this.productosSeleccionados = this.seleccionadosTabla2.map((item, index) => {
-  
+      const regimen = this.productoSeleccionadoResumen.regimen;
+      const destino = regimen === '01' ? '001' : regimen === '02' ? '002' : regimen === '03' ? '003' : '';
       return {
         idCarpeta: index + 1,
         item: item.item,
@@ -1352,12 +1392,13 @@ export class BillingpaymentComponent implements AfterViewInit{
         observaciones: observacion,
         costos: '',
         descripcioncc: '',
-        destino: '',
+        destino: destino,
         importe: '',
         descripcionp: item.descripcion,
         cantidad: item.Cantidad || item.cantidad,
         producto: item.idProducto,
         referencia: item.referencia,
+        idVehiculo: item.idVehiculo,
       };
     });
   
@@ -1792,7 +1833,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <descripcion>${p.descripcionp}</descripcion>
               <idestadoproducto>0</idestadoproducto>
               <idlote/>
-              <idserie/>
+              <idserie>${p.idVehiculo?p.idVehiculo:''}</idserie>
               <idreferencia>${p.referencia}</idreferencia>
               <origen/>
               <idmovrefer/>
@@ -2154,5 +2195,20 @@ export class BillingpaymentComponent implements AfterViewInit{
     this.dialogoVisible = false;
   }
   
+  mostrarHistorialDialog(id: string) {
+    this.idCarpeta = id;
+    this.mostrarHistorial = true;
+  
+    this.apiService.historialDocumento(id).subscribe({
+      next: (response) => {
+        this.historialCambios = response.data ?? [];
+        console.log(response.data)
+      },
+      error: (err) => {
+        console.error('Error al obtener historial', err);
+        this.historialCambios = [];
+      }
+    });
+  }
   
 }
