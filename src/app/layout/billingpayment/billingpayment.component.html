@@ -8,19 +8,27 @@
     <div class="flex justify-between items-center mt-1">
       <app-title [title]="'Documentos a pagar'" [subtitle]="'Sube o revisa documentos a pagar'"></app-title>
       <div class="flex gap-2">
-        <button *ngIf="!mostrarTablaCarpetas" (click)="mostrarCardCrearCarpeta = true" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i class="pi pi-plus text-sm"></i>Crear Carpeta</button>
-        <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardCrear = true" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i class="pi pi-plus text-sm"></i>Crear</button>
-        <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardSubir = true" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i class="pi pi-upload text-sm"></i>Subir en masa</button>
+        <button *ngIf="!mostrarTablaCarpetas" (click)="mostrarCardCrearCarpeta = true"
+          class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
+            class="pi pi-plus text-sm"></i>Crear Carpeta</button>
+        <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardCrear = true"
+          class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
+            class="pi pi-plus text-sm"></i>Crear</button>
+        <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardSubir = true"
+          class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
+            class="pi pi-upload text-sm"></i>Subir en masa</button>
       </div>
     </div>
-    
+
     <div class="flex justify-between mt-0 items-end" *ngIf="mostrarTablaCarpetas">
 
       <div class="flex gap-2">
-        <button (click)="descargarExcel()" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i class="pi pi-file-excel text-sm"></i>Excel</button>
+        <button (click)="descargarExcel()"
+          class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
+            class="pi pi-file-excel text-sm"></i>Excel</button>
       </div>
     </div>
-    
+
   </div>
 
   <!-- Tabla de carpetas raíz -->
@@ -28,17 +36,14 @@
     <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
 
       <div class="p-4" *ngIf="!mostrarTablaCarpetas">
-        <p-button 
-          label="Regresar" 
-          icon="pi pi-angle-left" 
-          variant="text" 
-          (click)="verDetalle(carpetaActual.idCarpetaPadre)"
-        ></p-button>
+        <p-button label="Regresar" icon="pi pi-angle-left" variant="text"
+          (click)="verDetalle(carpetaActual.idCarpetaPadre)"></p-button>
       </div>
       <p-progressSpinner *ngIf="cargando" styleClass="w-12 h-12 block mx-auto my-6" strokeWidth="4"></p-progressSpinner>
-      <p-progressSpinner *ngIf="cargandoc" styleClass="w-12 h-12 block mx-auto my-6" strokeWidth="4"></p-progressSpinner>
+      <p-progressSpinner *ngIf="cargandoc" styleClass="w-12 h-12 block mx-auto my-6"
+        strokeWidth="4"></p-progressSpinner>
       <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-800"
-      *ngIf="!mostrarTablaCarpetas  && !cargandoc ">
+        *ngIf="!mostrarTablaCarpetas  && !cargandoc ">
         <thead class="bg-gray-50 text-xs font-semibold text-gray-600 tracking-wider">
           <tr>
             <th class="px-6 py-3">Nombre</th>
@@ -49,11 +54,8 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr 
-            *ngFor="let carpeta of carpetasRaiz" 
-            class="hover:bg-blue-50 cursor-pointer transition"
-            (click)="verDetalle(carpeta.idCarpeta)"
-          >
+          <tr *ngFor="let carpeta of carpetasRaiz" class="hover:bg-blue-50 cursor-pointer transition"
+            (click)="verDetalle(carpeta.idCarpeta)">
             <td *ngIf="!carpeta.esOrigen" class="px-6 py-4 font-medium">{{ carpeta.nombreCarpeta }}</td>
             <td *ngIf="!carpeta.esOrigen" class="px-6 py-4">{{ carpeta.fechaCreacion | date:'yyyy-MM-dd HH:mm' }}</td>
             <td *ngIf="!carpeta.esOrigen" class="px-6 py-4">{{ carpeta.usuarioCreador }}</td>
@@ -66,104 +68,63 @@
       </table>
     </div>
   </div>
-  
-  
+
+
 
   <!-- Tabla de reportes -->
-  <div class="mt-2 px-6" >
+  <div class="mt-2 px-6">
     <div class="max-w-8xl mx-auto">
-      <p-button 
-      *ngIf=" mostrarTablaCarpetas "
-      label="Regresar" icon="pi pi-angle-left" variant="text" (click)="cerrarVistaCarpeta()"></p-button>
-      <dx-data-grid
-        *ngIf="mostrarTablaCarpetas && !cargando"
-        class="bg-white rounded-xl shadow-sm border border-gray-200"
-        [dataSource]="products"
-        keyExpr="idCarpeta"
-        [selection]="{ mode: 'single' }"
-        [showBorders]="false"
-        [rowAlternationEnabled]="true"
-        [columnAutoWidth]="true"
-        [hoverStateEnabled]="true"
-        [showColumnLines]="false"
-        [showRowLines]="true"
-        (onRowDblClick)="onVerClick($event)"
-        (onRowUpdating)="onEditarDocumento($event)"
-        noDataText="No hay elementos, ajusta tus filtros"
-      >
-      <dxo-search-panel
-        [visible]="true"
-        [highlightCaseSensitive]="true"
-      ></dxo-search-panel>
-      <dxo-paging [pageSize]="100"></dxo-paging>
-      <dxo-header-filter [visible]="true"></dxo-header-filter>
-      <dxo-pager
-        [visible]="true"
-        [allowedPageSizes]="[100, 250, 500, 1000]"
-        [displayMode]="'full'"
-        [showPageSizeSelector]="true"
-        [showInfo]="true"
-        [showNavigationButtons]="true"
-      >
-      </dxo-pager>
+      <p-button *ngIf=" mostrarTablaCarpetas " label="Regresar" icon="pi pi-angle-left" variant="text"
+        (click)="cerrarVistaCarpeta()"></p-button>
+      <dx-data-grid *ngIf="mostrarTablaCarpetas && !cargando"
+        class="bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
+        [selection]="{ mode: 'single' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+        [hoverStateEnabled]="true" [showColumnLines]="false" [showRowLines]="true" (onRowDblClick)="onVerClick($event)"
+        (onRowUpdating)="onEditarDocumento($event)" noDataText="No hay elementos, ajusta tus filtros">
+        <dxo-search-panel [visible]="true" [highlightCaseSensitive]="true"></dxo-search-panel>
+        <dxo-paging [pageSize]="100"></dxo-paging>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-pager [visible]="true" [allowedPageSizes]="[100, 250, 500, 1000]" [displayMode]="'full'"
+          [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true">
+        </dxo-pager>
 
-        <dxo-editing
-          mode="cell"
-          [allowUpdating]="true"
-          [useIcons]="true"
-        ></dxo-editing>
+        <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true"></dxo-editing>
 
         <dxi-column type="buttons" [width]="60" caption="">
           <dxi-button name="edit" icon="edit"></dxi-button>
           <dxi-button name="save" icon="save"></dxi-button>
           <dxi-button name="cancel" icon="revert"></dxi-button>
         </dxi-column>
-        
+
         <dxo-selection mode="single"></dxo-selection>
 
         <!-- Nombre con ícono tipo carpeta -->
-        <dxi-column
-          dataField="idCarpeta"
-          [allowFiltering]="true"
-          [allowSorting]="false"
-          cellTemplate="cellTemplate"
-          caption="Nombre"
-          [allowEditing]="false"
-          [width]="220"
-        >
-        <dxo-header-filter [allowSelectAll]="false">
-          <dxo-search [enabled]="true"></dxo-search>
-        </dxo-header-filter>
-      </dxi-column>
-        
+        <dxi-column dataField="idCarpeta" [allowFiltering]="true" [allowSorting]="false" cellTemplate="cellTemplate"
+          caption="Nombre" [allowEditing]="false" [width]="220">
+          <dxo-header-filter [allowSelectAll]="false">
+            <dxo-search [enabled]="true"></dxo-search>
+          </dxo-header-filter>
+        </dxi-column>
+
         <div *dxTemplate="let data of 'cellTemplate'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
-          <a
-            #contextAnchor
-            (click)="verArchivos(data.value)"
-            (contextmenu)="onRightClick($event, data.value, cm)"
-            class="flex items-center space-x-2 text-gray-700 hover:text-blue-700 font-medium cursor-pointer"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+          <a #contextAnchor (click)="verArchivos(data.value)" (contextmenu)="onRightClick($event, data.value, cm)"
+            class="flex items-center space-x-2 text-gray-700 hover:text-blue-700 font-medium cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="currentColor"
+              viewBox="0 0 20 20">
               <path
-                d="M2 4.5A1.5 1.5 0 0 1 3.5 3h5.672a1.5 1.5 0 0 1 1.06.44l1.828 1.828A1.5 1.5 0 0 0 13.12 6H16.5A1.5 1.5 0 0 1 18 7.5v7A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5v-10z"
-              />
+                d="M2 4.5A1.5 1.5 0 0 1 3.5 3h5.672a1.5 1.5 0 0 1 1.06.44l1.828 1.828A1.5 1.5 0 0 0 13.12 6H16.5A1.5 1.5 0 0 1 18 7.5v7A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5v-10z" />
             </svg>
             <span class="truncate">{{ data.value }}</span>
           </a>
-          <p-contextMenu 
-            #cm 
-            [model]="menuItems" 
-            [target]="contextAnchor" 
-            [baseZIndex]="10000"
-            [appendTo]="'body'">
+          <p-contextMenu #cm [model]="menuItems" [target]="contextAnchor" [baseZIndex]="10000" [appendTo]="'body'">
           </p-contextMenu>
         </div>
 
         <!-- Resto de columnas -->
-        <dxi-column dataField="idCobrarPagarDoc" caption="CobrarPagarDoc">
+        <dxi-column dataField="idCobrarPagarDoc" caption="Operación">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -304,7 +265,7 @@
           <dxo-lookup [dataSource]="clasificacionLE" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="observacionesGlosa" caption="Observaciones">
+        <dxi-column dataField="observacionesGlosa" caption="Glosa Contable">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -321,119 +282,125 @@
         </dxi-column>
       </dx-data-grid>
 
-      <p-drawer
-          [(visible)]="mostrarTablaArchivos"
-          (onHide)="cerrarVistaArchivos()"
-          position="right"
-          styleClass="!w-full md:!w-80 lg:!w-[30rem]">
-          <ng-template pTemplate="header">
-            <div class="flex items-center p-3">
-                <i class="pi pi-folder-open mr-3 text-2xl text-amber-500"></i>
-                <h2 class="text-xl font-semibold">
-                    <ng-container *ngIf="carpetaSeleccionada; else soloArchivosTitulo">
-                        <span class="text-slate-700">Archivos en: </span>
-                        <span class="font-bold text-sky-600">{{ carpetaSeleccionada }}</span>
-                    </ng-container>
-                    <ng-template #soloArchivosTitulo>
-                        <span class="text-slate-700">Archivos</span>
-                    </ng-template>
-                </h2>
-            </div>
+      <p-drawer [(visible)]="mostrarTablaArchivos" (onHide)="cerrarVistaArchivos()" position="right"
+        styleClass="!w-full md:!w-80 lg:!w-[30rem]">
+        <ng-template pTemplate="header">
+          <div class="flex items-center p-3">
+            <i class="pi pi-folder-open mr-3 text-2xl text-amber-500"></i>
+            <h2 class="text-xl font-semibold">
+              <ng-container *ngIf="carpetaSeleccionada; else soloArchivosTitulo">
+                <span class="text-slate-700">Archivos en: </span>
+                <span class="font-bold text-sky-600">{{ carpetaSeleccionada }}</span>
+              </ng-container>
+              <ng-template #soloArchivosTitulo>
+                <span class="text-slate-700">Archivos</span>
+              </ng-template>
+            </h2>
+          </div>
         </ng-template>
 
         <ng-template pTemplate="content">
-            <div class="relative h-full flex flex-col p-3"
-                (dragover)="onDragOver($event)"
-                (dragleave)="onDragLeave($event)"
-                (drop)="onFileDrop($event)">
+          <div class="relative h-full flex flex-col p-3" (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)">
 
-                <div class="absolute top-0 left-0 right-0 bottom-0 z-10 bg-white bg-opacity-80 border-4 border-dashed border-sky-600 flex items-center justify-center text-sky-700 font-semibold text-lg transition-opacity duration-200 pointer-events-none"
-                    [ngClass]="{ 'opacity-100': dropActive, 'opacity-0': !dropActive }">
-                    <i class="pi pi-upload text-3xl mr-2"></i> Suelta los archivos aquí para subirlos
-                </div>
-
-                <div class="flex-grow flex flex-col">
-
-                    <div *ngIf="cargandoArchivos" class="flex-grow flex items-center justify-center">
-                        <p-progressSpinner strokeWidth="4" animationDuration=".5s" styleClass="w-12 h-12"></p-progressSpinner>
-                        </div>
-
-                    <div *ngIf="!cargandoArchivos" class="archivos-list overflow-y-auto flex-grow pt-1">
-                      <div *ngIf="archivosCarpeta && archivosCarpeta.length > 0; else noArchivosTemplateDrawer">
-                        <p-card *ngFor="let archivo of archivosCarpeta"
-                                styleClass="mb-0 shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer" 
-                                (click)="verArchivo(archivo.url, archivo.name)">
-
-                            <ng-template pTemplate="title">
-                                <div class="flex items-center pt-1 pb-0">
-                                    <i class="pi pi-file mr-1.5 text-base text-sky-600"></i>
-
-                                    <span class="truncate text-sm font-medium text-slate-700" [title]="archivo.name">{{ archivo.name }}</span>
-                                    <button 
-                                    type="button"
-                                    class="align-end end text-red-600 hover:text-red-800 text-xs bg-white rounded-full shadow"
-                                    (click)="eliminarArchivo($event, idCarpeta, archivo.name)">
-                                    <i class="pi pi-trash"></i>
-                                  </button>
-                                </div>
-                            </ng-template>
-                            <ng-template pTemplate="content">
-                                <div class="flex justify-between items-center text-xs text-slate-500 pt-0.5 pb-1">
-                                    <span class="mr-2 whitespace-nowrap">{{ formatSize(archivo) }}</span>
-                                    <span class="whitespace-nowrap">{{ archivo.lastModified | date:'dd/MM/yy HH:mm' }}</span>
-                                </div>
-                            </ng-template>
-                        </p-card>
-                    </div>
-                    
-
-                        <ng-template #noArchivosTemplateDrawer>
-                            <div class="text-center py-10 text-gray-500" *ngIf="!dropActive">
-                                <i class="pi pi-inbox text-4xl mb-3"></i>
-                                <p class="font-semibold">Aquí no hay archivos.</p>
-                                <p class="text-sm">Arrastra y suelta archivos en esta área para subirlos.</p>
-                            </div>
-                        </ng-template>
-                    </div>
-                </div>
+            <div
+              class="absolute top-0 left-0 right-0 bottom-0 z-10 bg-white bg-opacity-80 border-4 border-dashed border-sky-600 flex items-center justify-center text-sky-700 font-semibold text-lg transition-opacity duration-200 pointer-events-none"
+              [ngClass]="{ 'opacity-100': dropActive, 'opacity-0': !dropActive }">
+              <i class="pi pi-upload text-3xl mr-2"></i> Suelta los archivos aquí para subirlos
             </div>
+
+            <div class="flex-grow flex flex-col">
+
+              <div *ngIf="cargandoArchivos" class="flex-grow flex items-center justify-center">
+                <p-progressSpinner strokeWidth="4" animationDuration=".5s" styleClass="w-12 h-12"></p-progressSpinner>
+              </div>
+
+              <div *ngIf="!cargandoArchivos" class="archivos-list overflow-y-auto flex-grow pt-1">
+                <div *ngIf="archivosCarpeta && archivosCarpeta.length > 0; else noArchivosTemplateDrawer">
+                  <p-card *ngFor="let archivo of archivosCarpeta; let i = index"
+                    styleClass="mb-0 shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+                    (click)="verArchivo(archivo.url, archivo.name, i)">
+
+                    <ng-template pTemplate="title">
+                      <div class="flex items-center pt-1 pb-0">
+                        <i class="pi pi-file mr-1.5 text-base text-sky-600"></i>
+
+                        <span class="truncate text-sm font-medium text-slate-700" [title]="archivo.name">{{ archivo.name
+                          }}</span>
+                        <button type="button"
+                          class="align-end end text-red-600 hover:text-red-800 text-xs bg-white rounded-full shadow"
+                          (click)="eliminarArchivo($event, idCarpeta, archivo.name)">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </ng-template>
+                    <ng-template pTemplate="content">
+                      <div class="flex justify-between items-center text-xs text-slate-500 pt-0.5 pb-1">
+                        <span class="mr-2 whitespace-nowrap">{{ formatSize(archivo) }}</span>
+                        <span class="whitespace-nowrap">{{ archivo.lastModified | date:'dd/MM/yy HH:mm' }}</span>
+                      </div>
+                    </ng-template>
+                  </p-card>
+                </div>
+
+
+                <ng-template #noArchivosTemplateDrawer>
+                  <div class="text-center py-10 text-gray-500" *ngIf="!dropActive">
+                    <i class="pi pi-inbox text-4xl mb-3"></i>
+                    <p class="font-semibold">Aquí no hay archivos.</p>
+                    <p class="text-sm">Arrastra y suelta archivos en esta área para subirlos.</p>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
         </ng-template>
 
-</p-drawer>
+      </p-drawer>
 
-<p-dialog [(visible)]="mostrarVisor" [modal]="true" [style]="{width: '80vw'}" 
-  [closable]="false" [resizable]="false">
+      <p-dialog [(visible)]="mostrarVisor" [modal]="true" [style]="{width: '80vw'}" [closable]="false"
+        [resizable]="false">
 
-  <ng-template pTemplate="header">
-    <div class="flex justify-between items-center w-full">
-      <span>{{ archivoSeleccionadoNombre }}</span>
-      <div class="flex items-center gap-2">
-        <button pButton type="button" icon="pi pi-download" label="Descargar" 
-          class="p-button-sm p-button-success" 
-          (click)="descargarArchivo()"></button>
+        <ng-template pTemplate="header">
 
-        <button type="button" class="p-dialog-header-icon p-link" (click)="mostrarVisor = false" aria-label="Cerrar">
-          <span class="pi pi-times"></span>
-        </button>
-      </div>
-    </div>
-  </ng-template>
+          <div class="flex justify-between items-center w-full">
+            <span>{{ archivoSeleccionadoNombre }}</span>
+            <div class="flex items-center gap-2">
+              <button pButton type="button" icon="pi pi-download" label="Descargar" class="p-button-sm p-button-success"
+                (click)="descargarArchivo()"></button>
+              <button type="button" class="p-dialog-header-icon p-link" (click)="mostrarVisor = false"
+                aria-label="Cerrar">
+                <span class="pi pi-times"></span>
+              </button>
+            </div>
+          </div>
+        </ng-template>
 
-  <ng-container *ngIf="archivoSeleccionadoUrl">
-    <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl" style="max-width: 100%; max-height: 70vh;" />
-
-    <iframe *ngIf="esPDF(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="470px"></iframe>
-
-    <iframe *ngIf="esWord(archivoSeleccionadoUrl)" [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%" height="500px"></iframe>
-
-    <p *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
-      Tipo de archivo no soportado para vista previa.
-    </p>
-  </ng-container>
-</p-dialog>
-
-
-  
+        <div class="flex justify-between items-center">
+          <!-- Flecha izquierda -->
+          <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="verAnterior()"
+            [disabled]="indiceArchivoActual === 0"></button>
+      
+          <!-- Contenido del visor -->
+          <div class="flex-1 text-center">
+            <div *ngIf="cargandoArchivo" class="flex justify-center items-center h-[300px]">
+              <p-progressSpinner></p-progressSpinner>
+            </div>
+            <ng-container *ngIf="archivoSeleccionadoUrl && !cargandoArchivo">
+              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl" style="max-width: 100%; max-height: 70vh;" />
+              <iframe *ngIf="esPDF(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="470px"></iframe>
+              <iframe *ngIf="esWord(archivoSeleccionadoUrl)" [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%" height="500px"></iframe>
+              <p *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
+                Tipo de archivo no soportado para vista previa.
+              </p>
+            </ng-container>
+          </div>
+      
+          <!-- Flecha derecha -->
+          <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="verSiguiente()"
+            [disabled]="indiceArchivoActual === archivosCarpeta.length - 1"></button>
+        </div>
+      </p-dialog>
     </div>
   </div>
 </div>
@@ -465,19 +432,15 @@
 
     <div class="flex justify-end gap-2 mt-3">
       <button pButton label="Cancelar" (click)="mostrarCardCrear = false" class="p-button-secondary"></button>
-      <button pButton label="Guardar" (click)="crearDocumento()" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"></button>
+      <button pButton label="Guardar" (click)="crearDocumento()"
+        class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"></button>
     </div>
 
   </div>
 </p-dialog>
 
 
-<p-dialog 
-  header="Crear carpeta" 
-  [(visible)]="mostrarCardCrearCarpeta" 
-  [modal]="true" 
-  [style]="{width: '450px'}"
->
+<p-dialog header="Crear carpeta" [(visible)]="mostrarCardCrearCarpeta" [modal]="true" [style]="{width: '450px'}">
   <div class="flex flex-col gap-3 mt-1">
 
     <!-- Nombre -->
@@ -492,14 +455,8 @@
         <p-checkbox [(ngModel)]="final" binary="true"></p-checkbox>
         <label class="text-sm">Final</label>
       </div>
-      <button 
-        pButton 
-        type="button" 
-        icon="pi pi-question-circle" 
-        class="p-button-text text-sky-700 text-sm"
-        (click)="mostrarAyudaFinal = !mostrarAyudaFinal" 
-        title="¿Qué significa 'Final'?"
-      ></button>
+      <button pButton type="button" icon="pi pi-question-circle" class="p-button-text text-sky-700 text-sm"
+        (click)="mostrarAyudaFinal = !mostrarAyudaFinal" title="¿Qué significa 'Final'?"></button>
     </div>
     <div *ngIf="mostrarAyudaFinal" class="mt-1 text-xs text-gray-600">
       Marcar como <strong>Final</strong> significa que ya no se podrán editar los archivos ni modificar la carpeta.
@@ -508,7 +465,8 @@
     <!-- Footer -->
     <div class="flex justify-end gap-2 mt-3">
       <button pButton label="Cancelar" (click)="mostrarCardCrearCarpeta = false" class="p-button-secondary"></button>
-      <button pButton label="Guardar" (click)="crearCarpeta()" class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"></button>
+      <button pButton label="Guardar" (click)="crearCarpeta()"
+        class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"></button>
     </div>
 
   </div>
@@ -521,9 +479,7 @@
     Arrastra carpetas o selecciónalas desde tu equipo
   </div>
 
-  <div
-    class="border-dashed border-2 border-gray-400 p-6 text-center cursor-pointer"
-    (drop)="handleDrop($event)"
+  <div class="border-dashed border-2 border-gray-400 p-6 text-center cursor-pointer" (drop)="handleDrop($event)"
     (dragover)="allowDrop($event)">
     Arrastra carpetas aquí
   </div>
@@ -542,7 +498,9 @@
 
   <div class="mt-4 flex justify-end gap-2">
     <button pButton label="Cancelar" icon="pi pi-times" class="p-button-secondary" (click)="cancelarSubida()"></button>
-    <button (click)="subirCarpetas()"class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block "><i class="pi pi-upload text-sm"></i>Subir</button>
+    <button (click)="subirCarpetas()"
+      class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block "><i
+        class="pi pi-upload text-sm"></i>Subir</button>
   </div>
 
 </p-dialog>
@@ -551,15 +509,19 @@
 
 
 
-<p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true" [style]="{width: '80vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
+<p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true"
+  [style]="{width: '80vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
   <!-- Contenedor principal con distribución horizontal -->
   <div class="flex gap-4 mb-4 items-start">
-    
+
     <!-- Columna izquierda con botones -->
     <div class="flex flex-col gap-2">
-      <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48" (click)="abrirDialogo('GRP')"></button>
-      <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48" (click)="abrirDialogo('OCO')"></button>
-      <button pButton type="button" label="+ Orden de servicio" class="p-button-outlined p-button-secondary w-48" (click)="abrirDialogo('OSR')"></button>
+      <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48"
+        (click)="abrirDialogo('GRP')"></button>
+      <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48"
+        (click)="abrirDialogo('OCO')"></button>
+      <button pButton type="button" label="+ Orden de servicio" class="p-button-outlined p-button-secondary w-48"
+        (click)="abrirDialogo('OSR')"></button>
     </div>
 
     <!-- Columna derecha con el Card -->
@@ -580,69 +542,55 @@
         </div>
       </ng-template>
     </p-card>
-    
+
     <p-card header="Resumen de Productos Seleccionados" styleClass="w-full md:w-100">
       <ng-template pTemplate="content">
         <div *ngIf="productoSeleccionadoResumen">
           <p>
             <strong>Moneda:</strong>
-            {{ productoSeleccionadoResumen.moneda.trim() }} - 
+            {{ productoSeleccionadoResumen.moneda.trim() }} -
             {{ getDescripcionMoneda(productoSeleccionadoResumen.moneda.trim()) }}
           </p>
           <p>
             <strong>Régimen:</strong>
-            {{ productoSeleccionadoResumen.regimen.trim() }} - 
+            {{ productoSeleccionadoResumen.regimen.trim() }} -
             {{ getDescripcionRegimen(productoSeleccionadoResumen.regimen.trim()) }}
           </p>
           <p><strong>Base Imponible:</strong> {{ productoSeleccionadoResumen.baseImponible || 0 | number: '1.2-2' }}</p>
           <p>
             <strong>Impuestos:</strong>
-            {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} - 
+            {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
             S/ {{ getMontoImpuesto() | number: '1.2-2' }}
           </p>
-          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.baseImponible + this.getMontoImpuesto() | number: '1.2-2' }}</p>
+          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.baseImponible + this.getMontoImpuesto()
+            | number: '1.2-2' }}</p>
         </div>
         <ng-template #sinProductos>
           <em>No hay productos seleccionados.</em>
         </ng-template>
       </ng-template>
     </p-card>
-    
-    
-    
+
+
+
 
   </div>
 
   <!-- Tabla -->
-  <dx-data-grid
-    [dataSource]="productosSeleccionados"
-    class="bg-white rounded-xl shadow-sm border border-gray-200 w-full"
-    [selection]="{ mode: 'single' }"
-    [showBorders]="false"
-    [rowAlternationEnabled]="true"
-    [columnAutoWidth]="true"
-    [hoverStateEnabled]="true"
-    [showColumnLines]="false"
-    [showRowLines]="true"
-    (onRowUpdating)="editar($event)"
-    noDataText="No hay elementos"
-  >
+  <dx-data-grid [dataSource]="productosSeleccionados"
+    class="bg-white rounded-xl shadow-sm border border-gray-200 w-full" [selection]="{ mode: 'single' }"
+    [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true" [hoverStateEnabled]="true"
+    [showColumnLines]="false" [showRowLines]="true" (onRowUpdating)="editar($event)" noDataText="No hay elementos">
     <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager
-      [visible]="true"
-      [allowedPageSizes]="[10, 20, 30, 50]"
-      [displayMode]="'full'"
-      [showPageSizeSelector]="true"
-      [showInfo]="true"
-      [showNavigationButtons]="true"
-    ></dxo-pager>
+    <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 30, 50]" [displayMode]="'full'"
+      [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true"></dxo-pager>
     <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true"></dxo-editing>
     <dxo-selection mode="single"></dxo-selection>
 
     <!-- Aquí van tus columnas -->
     <dxi-column dataField="item" caption="Item"></dxi-column>
     <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
-    <dxi-column dataField="observaciones"caption="Glosa"></dxi-column>
+    <dxi-column dataField="observaciones" caption="Glosa"></dxi-column>
     <dxi-column dataField="costos" caption="Centro de costos"></dxi-column>
     <dxi-column dataField="descripcioncc" caption="Descripción centro de costos."></dxi-column>
     <dxi-column dataField="destino" caption="Destino"></dxi-column>
@@ -659,134 +607,196 @@
     <dxo-summary>
       <dxi-total-item column="destino" summaryType="count"> </dxi-total-item>
 
-      <dxi-total-item
-        column="importe"
-        summaryType="sum"
-      >
+      <dxi-total-item column="importe" summaryType="sum">
       </dxi-total-item>
     </dxo-summary>
   </dx-data-grid>
   <div class="flex justify-end mt-5 mb-4">
-    <p-button 
-    label="Generar" 
-    icon="pi pi-file" 
-    class="p-button-primary"
-    [disabled]="generarDeshabilitado"
-    (onClick)="generar()">
-  </p-button>
+    <p-button label="Generar" icon="pi pi-file" class="p-button-primary" [disabled]="generarDeshabilitado"
+      (onClick)="generar()">
+    </p-button>
   </div>
 </p-dialog>
 
 
-<p-dialog header="{{ tituloDialogo }}" [(visible)]="dialogoVisible" [modal]="true" [style]="{ width: '80vw', height: '80vh'}" (onHide)="cerrarDialogos()">
+<p-dialog header="{{ tituloDialogo }}" [(visible)]="dialogoVisible" [modal]="true"
+  [style]="{ width: '80vw', height: '80vh'}" (onHide)="cerrarDialogos()">
   <!-- Primera tabla vacía -->
-  <p-table 
-  [value]="documentosPendientes" 
-  [(selection)]="seleccionadosTabla1" 
-  dataKey="id" 
-  [responsiveLayout]="'scroll'" 
-  (selectionChange)="onSeleccionarFila($event)"
-  class="mb-4"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width: 3em"><!-- Opcional: eliminar si no deseas seleccionar todos -->
-        <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
-      </th>
-      <th>Tipo documento</th>
-      <th>Serie</th>
-      <th>Número</th>
-      <th>Fecha</th>
-      <th>Razón social</th>
-      <th>Documento de origen</th>
-    </tr>
-  </ng-template>
+  <p-table [value]="documentosPendientes" [(selection)]="seleccionadosTabla1" dataKey="id" [responsiveLayout]="'scroll'"
+    (selectionChange)="onSeleccionarFila($event)" class="mb-4">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3em"><!-- Opcional: eliminar si no deseas seleccionar todos -->
+          <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
+        </th>
+        <th>Tipo documento</th>
+        <th>Serie</th>
+        <th>Número</th>
+        <th>Fecha</th>
+        <th>Razón social</th>
+        <th>Documento de origen</th>
+      </tr>
+    </ng-template>
 
-  <ng-template pTemplate="body" let-rowData>
-    <tr 
-      (click)="toggleFila(rowData)" 
-      [class.selected]="filaSeleccionada(rowData)"
-      style="cursor: pointer;"
-    >
-      <td>
-        <input 
-          type="checkbox" 
-          [checked]="filaSeleccionada(rowData)" 
-          (click)="$event.stopPropagation(); toggleFila(rowData)" 
-        />
-      </td>
-      <td>{{ tipoSeleccionado }}</td>
-      <td>{{ rowData.serie }}</td>
-      <td>{{ rowData.numero }}</td>
-      <td>{{ rowData.fecha }}</td>
-      <td>{{ rowData.nombre }}</td>
-      <td></td>
-    </tr>
-  </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr (click)="toggleFila(rowData)" [class.selected]="filaSeleccionada(rowData)" style="cursor: pointer;">
+        <td>
+          <input type="checkbox" [checked]="filaSeleccionada(rowData)"
+            (click)="$event.stopPropagation(); toggleFila(rowData)" />
+        </td>
+        <td>{{ tipoSeleccionado }}</td>
+        <td>{{ rowData.serie }}</td>
+        <td>{{ rowData.numero }}</td>
+        <td>{{ rowData.fecha }}</td>
+        <td>{{ rowData.nombre }}</td>
+        <td></td>
+      </tr>
+    </ng-template>
 
-  <ng-template pTemplate="emptymessage">
-    <tr>
-      <td colspan="7" class="text-center">No hay datos en la primera tabla</td>
-    </tr>
-  </ng-template>
-</p-table>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No hay datos en la primera tabla</td>
+      </tr>
+    </ng-template>
+  </p-table>
 
 
-<p-table 
-[value]="detallesTabla2" 
-dataKey="id" 
-[responsiveLayout]="'scroll'"
-class="mb-4"
->
-<ng-template pTemplate="header">
-  <tr>
-    <th style="width: 3em"></th>
-    <th>Item</th>
-    <th>Producto</th>
-    <th>Descripción</th>
-    <th>UM</th>
-    <th>Cantidad solicitada</th>
-    <th>Cantidad por atender</th>
-  </tr>
-</ng-template>
+  <p-table [value]="detallesTabla2" dataKey="id" [responsiveLayout]="'scroll'" class="mb-4">
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3em"></th>
+        <th>Item</th>
+        <th>Producto</th>
+        <th>Descripción</th>
+        <th>UM</th>
+        <th>Cantidad solicitada</th>
+        <th>Cantidad por atender</th>
+      </tr>
+    </ng-template>
 
-<ng-template pTemplate="body" let-rowData>
-  <tr 
-    (click)="toggleFila2(rowData)" 
-    [class.selected]="filaSeleccionada2(rowData)"
-    style="cursor: pointer;"
-  >
-    <td>
-      <input 
-        type="checkbox" 
-        [checked]="filaSeleccionada2(rowData)" 
-        (click)="$event.stopPropagation(); toggleFila2(rowData)" 
-      />
-    </td>
-    <td>{{ rowData.item }}</td>
-    <td>{{ rowData.idProducto }}</td>
-    <td>{{ rowData.descripcion }}</td>
-    <td>{{ rowData.idMedida }}</td>
-    <td>{{ rowData.Cantidad }}</td>
-    <td>{{ rowData.cantidad }}</td>
-  </tr>
-</ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr (click)="toggleFila2(rowData)" [class.selected]="filaSeleccionada2(rowData)" style="cursor: pointer;">
+        <td>
+          <input type="checkbox" [checked]="filaSeleccionada2(rowData)"
+            (click)="$event.stopPropagation(); toggleFila2(rowData)" />
+        </td>
+        <td>{{ rowData.item }}</td>
+        <td>{{ rowData.idProducto }}</td>
+        <td>{{ rowData.descripcion }}</td>
+        <td>{{ rowData.idMedida }}</td>
+        <td>{{ rowData.Cantidad }}</td>
+        <td>{{ rowData.cantidad }}</td>
+      </tr>
+    </ng-template>
 
-<ng-template pTemplate="emptymessage">
-  <tr>
-    <td colspan="7" class="text-center">No hay datos en la segunda tabla</td>
-  </tr>
-</ng-template>
-</p-table>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center">No hay datos en la segunda tabla</td>
+      </tr>
+    </ng-template>
+  </p-table>
 
-<p-button
-  label="Mostrar productos seleccionados"
-  icon="pi pi-check"
-  (onClick)="mostrarDatosEnGrid()"
-  styleClass="p-button-sm p-button-primary"
-/>
+  <p-button label="Mostrar productos seleccionados" icon="pi pi-check" (onClick)="mostrarDatosEnGrid()"
+    styleClass="p-button-sm p-button-primary" />
 
 
 
 </p-dialog>
 
+<p-dialog 
+  [(visible)]="mostrarHistorial" 
+  [modal]="true" 
+  [style]="{ width: '70vw' }" 
+  [closable]="true" 
+  [resizable]="false"
+  [baseZIndex]="1100">
+
+  <ng-template pTemplate="header">
+    <span class="text-lg font-semibold">Historial de Cambios: {{ idCarpeta }}</span>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <p-table [value]="historialCambios" *ngIf="historialCambios.length > 0" [responsiveLayout]="'scroll'">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Codigo</th>
+          <th>Operacion</th>
+          <th style="min-width: 170px;">Fecha</th>
+          <th>Usuario</th>
+          <th>Empresa</th>
+          <th>Carpeta</th>
+          <th>CobrarpagarDoc</th>
+          <th>Area</th>
+          <th>estado</th>
+          <th>rev Ctb</th>
+          <th style="min-width: 170px;">fecha Vcto</th>
+          <th style="min-width: 170px;">fecha Pago</th>
+          <th>comentario</th>
+          <th>rev Control</th>
+          <th>lca</th>
+          <th>documento</th>
+          <th>razon Social</th>
+          <th>sr igv</th>
+          <th>tipo Det</th>
+          <th>obs Contable</th>de
+          <th>regimen</th>
+          <th>importe Bruto</th>
+          <th>impuestos</th>
+          <th>importe Neto</th>
+          <th>moneda</th>
+          <th style="min-width: 170px;">fecha Prog</th>
+          <th style="min-width: 170px;">fecha Emision</th>
+          <th>periodo</th>
+          <th>tipo Movimiento</th>
+          <th>clasificacion Le</th>
+          <th>observaciones Glosa</th>
+          <th style="min-width: 170px;">fecha Creacion</th>
+          <th style="min-width: 170px;">fecha Modificacion</th>
+          <th>usuario Creacion</th>
+          <th>usuario Modificacion</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr >
+          <td>{{ row.audId }}</td>
+          <td>{{ row.audTipoOperacion }}</td>
+          <td>{{ row.audFecha | date: 'short' }}</td>
+          <td>{{ row.audUsuario }}</td>
+          <td>{{ row.idEmpresa }}</td>
+          <td>{{ row.idCarpeta }}</td>
+          <td>{{ row.idCobrarpagarDoc }}</td>
+          <td>{{ row.idArea }}</td>
+          <td>{{ row.estado }}</td>
+          <td>{{ row.revCtb }}</td>
+          <td>{{ row.fechaVcto | date: 'short' }}</td>
+          <td>{{ row.fechaPago | date: 'short' }}</td>
+          <td>{{ row.comentario }}</td>
+          <td>{{ row.revControl }}</td>
+          <td>{{ row.lca }}</td>
+          <td>{{ row.documento }}</td>
+          <td>{{ row.razonSocial }}</td>
+          <td>{{ row.srigv }}</td>
+          <td>{{ row.tipoDet }}</td>
+          <td>{{ row.onsContable }}</td>
+          <td>{{ row.regimen }}</td>
+          <td>{{ row.importeBruto }}</td>
+          <td>{{ row.impuestos }}</td>
+          <td>{{ row.importeNeto }}</td>
+          <td>{{ row.moneda }}</td>
+          <td>{{ row.fechaProg | date: 'short' }}</td>
+          <td>{{ row.fechaEmision | date: 'short' }}</td>
+          <td>{{ row.periodo }}</td>
+          <td>{{ row.tipoMovimiento }}</td>
+          <td>{{ row.clasificacionLe }}</td>
+          <td>{{ row.observacionesGlosa }}</td>
+          <td>{{ row.fechaCreacion | date: 'short' }}</td>
+          <td>{{ row.fechaModificacion | date: 'short' }}</td>
+          <td>{{ row.usuarioCreacion }}</td>
+          <td>{{ row.usuarioModificacion }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <p *ngIf="historialCambios.length === 0">No hay historial disponible.</p>
+  </ng-template>
+
+</p-dialog>
