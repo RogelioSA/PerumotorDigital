@@ -8,15 +8,15 @@ import { switchMap, catchError } from 'rxjs/operators';
 })
 export class ApiService {
 
-  private readonly apiUrl = 'https://localhost:8085/api';
-
+  //private readonly apiUrl = 'https://localhost:8085/api';
+  private readonly apiUrl = 'http://161.132.222.124:9697/api';
   constructor(private https: HttpClient) { }
 
   iniciarSesion(usuario: string, clave: string): Observable<any> {
     const params = new HttpParams()
       .set('usuario', usuario)
       .set('clave', clave);
-    
+
     return this.https.get(`${this.apiUrl}/AuthReport/IniciarSesion`, { params });
   }
 
@@ -29,18 +29,18 @@ export class ApiService {
       idCarpetaPadre,
       usuarioCreacion
     };
-  
+
     return this.https.post(`${this.apiUrl}/BillingPayment/crearDocumento`, body);
   }
 
   listarArchivosCarpeta(Carpeta: string): Observable<any> {
     const params = new HttpParams()
       .set('Carpeta', Carpeta);
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/listarArchivosDocumento`, { params });
   }
 
-  
+
   existeDocumento(idEmpresa: string, idCarpeta: string): Observable<any> {
     const params = new HttpParams()
       .set('idEmpresa', idEmpresa)
@@ -52,20 +52,20 @@ export class ApiService {
     if (!archivo) {
       return throwError(() => new Error('El archivo es nulo'));
     }
-  
+
     const MAX_SIZE = 10 * 1024 * 1024;
     if (archivo.size > MAX_SIZE) {
       return throwError(() => new Error('El archivo excede el tamaño máximo permitido de 10 MB.'));
     }
-  
+
     const extension = archivo.name.split('.').pop();
     const archivoNombreCompleto = `${nombreArchivo}.${extension}`;
-  
+
     const params = new HttpParams()
       .set('Carpeta', Carpeta)
       .set('nombreArchivo', archivoNombreCompleto)
       .set('tipoArchivo', archivo.type);
-  
+
     return this.https.get<{ url: string }>(`${this.apiUrl}/BillingPayment/subirArchivoDocumento`, { params }).pipe(
       switchMap(response => {
         const uploadUrl = response.url;
@@ -79,7 +79,7 @@ export class ApiService {
       })
     );
   }
-  
+
   editarDocumento(body: {
     idEmpresa: string;
     idCarpeta: string;
@@ -113,8 +113,8 @@ export class ApiService {
     usuarioModificacion: string;
   }): Observable<any> {
     return this.https.post(`${this.apiUrl}/BillingPayment/editarDocumento`, body);
-  }  
-  
+  }
+
   listarCarpeta(idCarpeta: string): Observable<any> {
     const params = new HttpParams().set('idCarpeta', idCarpeta);
     return this.https.get(`${this.apiUrl}/BillingPayment/listarCarpetas`, { params });
@@ -146,7 +146,7 @@ export class ApiService {
       .set('idEmpresa', idEmpresa)
       .set('ruc', ruc)
       .set('idDocumento', idDocumento)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/listarDocumentosPendientes`, { params });
   }
 
@@ -157,7 +157,7 @@ export class ApiService {
       .set('idDocumento', idDocumento)
       .set('serie', serie)
       .set('numero', numero)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/detalleDocumentosPendientes`, { params });
   }
 
@@ -165,7 +165,7 @@ export class ApiService {
     const params = new HttpParams()
       .set('idEmpresa', idEmpresa)
       .set('idCarpeta', idCarpeta)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/generarIdCobrarPagarDoc`, { params });
   }
 
@@ -181,14 +181,14 @@ export class ApiService {
 
   }): Observable<any> {
     return this.https.post(`${this.apiUrl}/BillingPayment/grabarCobrarPagarDoc`, body);
-  }  
+  }
 
   ConsultarRefGuia(idDocumento: string, serie:string, numero:string): Observable<any> {
     const params = new HttpParams()
       .set('idDocumento', idDocumento)
       .set('serie', serie)
       .set('numero', numero)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/ConsultarRefGuia`, { params });
   }
 
@@ -200,11 +200,11 @@ export class ApiService {
     final: boolean;
   }): Observable<any> {
     return this.https.post(`${this.apiUrl}/BillingPayment/crearCarpeta`, body);
-  } 
+  }
 
 
   eliminarDocumento(idEmpresa: string, idCarpeta:string): Observable<any> {
-  
+
     return this.https.post(`${this.apiUrl}/BillingPayment/eliminarDocumento?idEmpresa=${idEmpresa}&idCarpeta=${idCarpeta}`, null);
   }
 
@@ -212,7 +212,7 @@ export class ApiService {
     const params = new HttpParams()
       .set('carpeta', carpeta)
       .set('nombreArchivo', nombreArchivo)
-  
+
     return this.https.delete(`${this.apiUrl}/BillingPayment/eliminarArchivoDocumento`, { params });
   }
 
@@ -220,14 +220,14 @@ export class ApiService {
     const params = new HttpParams()
       .set('idEmpresa', idEmpresa)
       .set('idCuenta', idCuenta)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/ValidarCuenta`, { params });
   }
 
   validarDestino(idDestino: string): Observable<any> {
     const params = new HttpParams()
       .set('idDestino', idDestino)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/ValidarDestino`, { params });
   }
 
@@ -235,14 +235,14 @@ export class ApiService {
     const params = new HttpParams()
       .set('idEmpresa', idEmpresa)
       .set('idCentroCosto', idCentroCosto)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/ValidarCentroCosto`, { params });
   }
 
   historialDocumento(idDocumento: string): Observable<any> {
     const params = new HttpParams()
       .set('idDocumento', idDocumento)
-  
+
     return this.https.get(`${this.apiUrl}/BillingPayment/HistorialDocumento`, { params });
   }
 
