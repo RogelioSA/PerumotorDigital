@@ -297,6 +297,18 @@
               </ng-template>
             </h2>
           </div>
+          <label
+            class="cursor-pointer text-blue-600 hover:text-blue-800"
+          >
+            <i class="pi pi-upload text-xl"></i>
+            <input
+              type="file"
+              class="hidden"
+              (change)="onFileSelect($event)"
+            />
+          </label>
+        
+
         </ng-template>
 
         <ng-template pTemplate="content">
@@ -562,8 +574,7 @@
             {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
             S/ {{ getMontoImpuesto() | number: '1.2-2' }}
           </p>
-          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.baseImponible + this.getMontoImpuesto()
-            | number: '1.2-2' }}</p>
+          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}</p>
         </div>
         <ng-template #sinProductos>
           <em>No hay productos seleccionados.</em>

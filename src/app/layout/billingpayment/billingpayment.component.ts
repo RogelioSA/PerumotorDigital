@@ -1103,6 +1103,30 @@ export class BillingpaymentComponent implements AfterViewInit{
 
     }
   }
+
+  onFileSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const archivo = input.files[0];
+      const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "");
+      const tipo = archivo.type;
+  
+      this.apiService.subirArchivoCarpeta(
+        this.carpetaSeleccionada.trim().replace(/\s+/g, '_'),
+        nombreSinExtension,
+        tipo,
+        archivo
+      ).subscribe({
+        next: () => {
+          this.verArchivos(this.carpetaSeleccionada.trim().replace(/\s+/g, '_'));
+        },
+        error: err => {
+          console.error('Error al subir:', err);
+        }
+      });
+    }
+  }
+  
   
   verArchivos(idDocumento: string) {
     const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
@@ -2179,6 +2203,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     const moneda = productoRelacionado.moneda || '';
     const regimen = productoRelacionado.regimen || '';
     const baseImponible = productoRelacionado.importeNeto || '';
+    const totalProvisionado = productoRelacionado.importeBruto || '';
     const total = productoRelacionado.total || '';
     const impuestos = productoRelacionado.impuestos || '';
   
@@ -2187,7 +2212,8 @@ export class BillingpaymentComponent implements AfterViewInit{
       regimen,
       baseImponible,
       impuestos,
-      total
+      total,
+      totalProvisionado
     };
   
     this.mostrarTablaSeleccionados = true;
