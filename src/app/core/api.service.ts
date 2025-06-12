@@ -8,8 +8,8 @@ import { switchMap, catchError } from 'rxjs/operators';
 })
 export class ApiService {
 
-  //private readonly apiUrl = 'https://localhost:8085/api';
-  private readonly apiUrl = 'http://161.132.222.124:9697/api';
+  private readonly apiUrl = 'https://localhost:8085/api';
+  //private readonly apiUrl = 'http://161.132.222.124:9697/api';
 
   constructor(private https: HttpClient) { }
 

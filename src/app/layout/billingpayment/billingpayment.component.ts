@@ -1269,18 +1269,18 @@ export class BillingpaymentComponent implements AfterViewInit{
       console.error('No se ha definido idCarpeta.');
       return;
     }
-  
-    // Extraer solo el RUC (antes del "_")
+
     const ruc = this.idCarpeta.split('_')[0];
-    const idDocumento = tipo.toUpperCase(); // GRP, OCO, OSR
+    const idDocumento = tipo.toUpperCase();
   
     this.apiService.listarDocumentosPendientes(this.idEmpresa, ruc, idDocumento).subscribe({
       next: (respuesta) => {
+        this.tipoSeleccionado = tipo;
         this.documentosPendientes = (respuesta?.data || []).map((doc: any) => ({
           ...doc,
+          tipo: this.tipoSeleccionado,
           id: `${doc.serie}-${doc.numero}`
-        })); // si necesitas mostrarlos
-        this.tipoSeleccionado = tipo;
+        }));
         this.tituloDialogo = `Detalles de ${tipo}`;
         this.dialogoVisible = true;
       },
@@ -1400,31 +1400,42 @@ export class BillingpaymentComponent implements AfterViewInit{
   }
 
   mostrarDatosEnGrid() {
+    console.log(this.productosSeleccionados)
+    console.log(this.seleccionadosTabla2)
     const productoRelacionado = this.products.find(
       (prod: any) => prod.idCarpeta === this.idCarpeta
     );
   
     const observacion = productoRelacionado?.observacionesGlosa || '';
     
-    this.productosSeleccionados = this.seleccionadosTabla2.map((item, index) => {
-      const regimen = this.productoSeleccionadoResumen.regimen;
-      const destino = regimen === '01' ? '001' : regimen === '02' ? '002' : regimen === '03' ? '003' : '';
-      return {
-        idCarpeta: index + 1,
-        item: item.item,
-        cuenta: '',
-        observaciones: observacion,
-        costos: '',
-        descripcioncc: '',
-        destino: destino,
-        importe: '',
-        descripcionp: item.descripcion,
-        cantidad: item.Cantidad || item.cantidad,
-        producto: item.idProducto,
-        referencia: item.referencia,
-        idVehiculo: item.idVehiculo,
-      };
-    });
+    this.productosSeleccionados = [
+      ...this.productosSeleccionados,
+      ...this.seleccionadosTabla2.map((item, index) => {
+        const regimen = this.productoSeleccionadoResumen.regimen;
+        const destino =
+          regimen === '01' ? '001' :
+          regimen === '02' ? '002' :
+          regimen === '03' ? '003' :
+          '';
+    
+        return {
+          idCarpeta: this.productosSeleccionados.length + index + 1, // continúa la numeración
+          item: item.item,
+          cuenta: '',
+          observaciones: observacion,
+          costos: '',
+          descripcioncc: '',
+          destino: destino,
+          importe: '',
+          descripcionp: item.descripcion,
+          cantidad: item.Cantidad || item.cantidad,
+          producto: item.idProducto,
+          referencia: item.referencia,
+          idVehiculo: item.idVehiculo,
+        };
+      })
+    ];
+    
   
     this.mostrarTablaSeleccionados = true;
     this.documentosConfirmados = [...this.seleccionadosTabla1];
@@ -1535,7 +1546,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   
   generar() {
     this.confirmationService.confirm({
-      message: '¿Estás segura que deseas generar el aprovisionamiento?',
+      message: '¿Estás seguro que deseas generar el aprovisionamiento?',
       header: 'Confirmar generación',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí',
@@ -1543,10 +1554,10 @@ export class BillingpaymentComponent implements AfterViewInit{
       acceptButtonStyleClass: 'p-button-success',
       rejectButtonStyleClass: 'p-button-secondary',
       accept: () => {
-        this.grabar(); // Llama a la función que realiza la acción
+        this.grabar();
       },
       reject: () => {
-        // Opcional: puedes mostrar un mensaje o dejar vacío
+        
       }
     });
   }
@@ -1565,24 +1576,24 @@ export class BillingpaymentComponent implements AfterViewInit{
   this.tipoSeleccionado === 'GRP' ? 'INGRESOSALIDAALM' :
   this.tipoSeleccionado === 'OCO' ? 'ORDENCOMPRA' :
   this.tipoSeleccionado === 'OSR' ? 'ORDENSERVICIO' :
+  this.tipoSeleccionado === 'OPA' ? 'ORDENPAGO' :
+  this.tipoSeleccionado === 'FAC' ? 'COBRARPAGARDOC' :
   '';
   const tipo = this.tipoSeleccionado?.toUpperCase() || '';
     this.apiService.generarIdCobrarPagarDoc(this.idEmpresa, this.idCarpeta).subscribe({
       next: (response) => {
         this.generarDeshabilitado = true;
   
-        // Mostramos mensaje de éxito de la primera acción
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
           detail: 'Asignado con éxito'
         });
   
-        // Llamamos a la segunda API después del éxito de la primera
         const body = {
 
           lcEmpresa: this.idEmpresa,
-          lcId: response.data[0]?.idCobrarPagarDoc,  // Ajusta si tu API retorna el ID generado
+          lcId: response.data[0]?.idCobrarPagarDoc,
           idCarpeta: this.idCarpeta,
           xmlData: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
           <VFPData>
@@ -1838,7 +1849,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <nro_rem_trans/>
               <esgdeducible>0</esgdeducible>
             </cobrarpagardoc>
-          </VFPData>`,  // Reemplaza con los datos reales que tengas
+          </VFPData>`,
           xmlDeta: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
           <VFPData>
           ${this.productosSeleccionados.map((p, index) => `
@@ -2068,6 +2079,7 @@ export class BillingpaymentComponent implements AfterViewInit{
             </dcobrarpagardoc_a>
           </VFPData>`
         };
+        console.log(body);
         /*this.apiService.grabarCobrarPagarDoc(body).subscribe({
           next: () => {
             this.messageService.add({
