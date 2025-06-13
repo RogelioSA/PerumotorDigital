@@ -297,6 +297,18 @@
               </ng-template>
             </h2>
           </div>
+          <label
+            class="cursor-pointer text-blue-600 hover:text-blue-800"
+          >
+            <i class="pi pi-upload text-xl"></i>
+            <input
+              type="file"
+              class="hidden"
+              (change)="onFileSelect($event)"
+            />
+          </label>
+        
+
         </ng-template>
 
         <ng-template pTemplate="content">
@@ -522,6 +534,10 @@
         (click)="abrirDialogo('OCO')"></button>
       <button pButton type="button" label="+ Orden de servicio" class="p-button-outlined p-button-secondary w-48"
         (click)="abrirDialogo('OSR')"></button>
+      <button pButton type="button" label="+ Orden de pago" class="p-button-outlined p-button-secondary w-48"
+        (click)="abrirDialogo('OPA')"></button>
+      <button pButton type="button" label="+ Factura" class="p-button-outlined p-button-secondary w-48"
+        (click)="abrirDialogo('FAC')"></button>
     </div>
 
     <!-- Columna derecha con el Card -->
@@ -530,7 +546,7 @@
         <div *ngIf="documentosConfirmados.length">
           <ul>
             <li *ngFor="let doc of documentosConfirmados">
-              <strong>Tipo:</strong> {{ tipoSeleccionado }} |
+              <strong>Tipo:</strong> {{ doc.tipo }} |
               <strong>Serie:</strong> {{ doc.serie }} |
               <strong>Número:</strong> {{ doc.numero }} |
               <strong>Fecha:</strong> {{ doc.fecha }}
@@ -562,8 +578,7 @@
             {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
             S/ {{ getMontoImpuesto() | number: '1.2-2' }}
           </p>
-          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.baseImponible + this.getMontoImpuesto()
-            | number: '1.2-2' }}</p>
+          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}</p>
         </div>
         <ng-template #sinProductos>
           <em>No hay productos seleccionados.</em>
@@ -587,7 +602,7 @@
     <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true"></dxo-editing>
     <dxo-selection mode="single"></dxo-selection>
 
-    <!-- Aquí van tus columnas -->
+
     <dxi-column dataField="item" caption="Item"></dxi-column>
     <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
     <dxi-column dataField="observaciones" caption="Glosa"></dxi-column>
@@ -598,7 +613,7 @@
     <dxi-column dataField="descripcionp" caption="Descripción producto"></dxi-column>
     <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
     <dxi-column dataField="producto" caption="Producto"></dxi-column>
-    <!-- Botones de edición -->
+
     <dxi-column type="buttons" [width]="60">
       <dxi-button name="edit" icon="edit"></dxi-button>
       <dxi-button name="save" icon="save"></dxi-button>
@@ -621,12 +636,11 @@
 
 <p-dialog header="{{ tituloDialogo }}" [(visible)]="dialogoVisible" [modal]="true"
   [style]="{ width: '80vw', height: '80vh'}" (onHide)="cerrarDialogos()">
-  <!-- Primera tabla vacía -->
   <p-table [value]="documentosPendientes" [(selection)]="seleccionadosTabla1" dataKey="id" [responsiveLayout]="'scroll'"
     (selectionChange)="onSeleccionarFila($event)" class="mb-4">
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 3em"><!-- Opcional: eliminar si no deseas seleccionar todos -->
+        <th style="width: 3em">
           <!-- <p-tableHeaderCheckbox></p-tableHeaderCheckbox> -->
         </th>
         <th>Tipo documento</th>
@@ -644,7 +658,7 @@
           <input type="checkbox" [checked]="filaSeleccionada(rowData)"
             (click)="$event.stopPropagation(); toggleFila(rowData)" />
         </td>
-        <td>{{ tipoSeleccionado }}</td>
+        <td>{{ rowData.tipo }}</td>
         <td>{{ rowData.serie }}</td>
         <td>{{ rowData.numero }}</td>
         <td>{{ rowData.fecha }}</td>
@@ -655,7 +669,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="text-center">No hay datos en la primera tabla</td>
+        <td colspan="7" class="text-center">No hay documentos pendientes de este tipo</td>
       </tr>
     </ng-template>
   </p-table>
@@ -691,7 +705,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7" class="text-center">No hay datos en la segunda tabla</td>
+        <td colspan="7" class="text-center">Seleccione un documento para ver su detalle</td>
       </tr>
     </ng-template>
   </p-table>
