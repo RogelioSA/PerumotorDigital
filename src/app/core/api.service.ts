@@ -209,11 +209,9 @@ export class ApiService {
   }
 
   eliminarArchivoDocumento(carpeta: string, nombreArchivo:string): Observable<any> {
-    const params = new HttpParams()
-      .set('carpeta', carpeta)
-      .set('nombreArchivo', nombreArchivo)
-
-    return this.https.delete(`${this.apiUrl}/BillingPayment/eliminarArchivoDocumento`, { params });
+    carpeta = carpeta.trim();
+    nombreArchivo = nombreArchivo.trim();
+    return this.https.post(`${this.apiUrl}/BillingPayment/eliminarArchivoDocumento?carpeta=${carpeta}&nombreArchivo=${nombreArchivo}`, null);
   }
 
   validarCuenta(idEmpresa: string, idCuenta:string): Observable<any> {
