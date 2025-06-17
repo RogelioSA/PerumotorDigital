@@ -2080,7 +2080,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           </VFPData>`
         };
         console.log(body);
-        /*this.apiService.grabarCobrarPagarDoc(body).subscribe({
+        this.apiService.grabarCobrarPagarDoc(body).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -2096,7 +2096,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               detail: 'No se pudo registrar el cobro/pago.'
             });
           }
-        });*/
+        });
       },
       error: (err) => {
         console.error('Error al generar:', err);
