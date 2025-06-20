@@ -81,7 +81,7 @@ interface Carpeta {
 export class BillingpaymentComponent implements AfterViewInit{
   @ViewChild('dt') table!: Table;
   @ViewChild('fileUploader') fileUploader!: FileUpload;
-  
+
   menuItems: MenuItem[] = [];
 
 
@@ -102,7 +102,7 @@ export class BillingpaymentComponent implements AfterViewInit{
 
   products: any[] = [];
   selectedProduct: any;
-  
+
   estructuraCarpeta: Carpeta[] = [];
   idEmpresa = '001';
 
@@ -208,12 +208,12 @@ export class BillingpaymentComponent implements AfterViewInit{
   cargandoArchivo: boolean = false;
   mostrarHistorial: boolean = false;
   historialCambios: any[] = [];
-  
+
   constructor(private apiService: ApiService,
-              private messageService: MessageService, 
+              private messageService: MessageService,
               private route: ActivatedRoute,
               private sanitizer: DomSanitizer,
-              private router: Router, 
+              private router: Router,
               private confirmationService: ConfirmationService,
               private cookieService: CookieService) {
 
@@ -243,7 +243,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   idCarpetaPadre: number = 0;
   usuarioCreador: string = '';
 
- 
+
 
   ngAfterViewInit() {
     // Esperamos un poco a que se renderice el input interno
@@ -280,15 +280,15 @@ export class BillingpaymentComponent implements AfterViewInit{
         });
         return;
       }
-  
+
       // Lógica anterior si solo hay idCarpeta
       if (idCarpeta) {
         this.apiService.listarCarpeta(idCarpeta).subscribe((res) => {
           // Verifico si carpetasRaiz está vacío antes de asignar
           const estabaVacio = !this.carpetasRaiz || this.carpetasRaiz.length === 0;
-      
+
           this.carpetasRaiz = res.data;
-      
+
           if (estabaVacio && this.carpetasRaiz.length > 0) {
             this.verDetalle(this.carpetasRaiz[0].idCarpeta);
           }
@@ -296,12 +296,12 @@ export class BillingpaymentComponent implements AfterViewInit{
       } else {
         this.cargarCarpetas();
       }
-      
+
     });
     this.usuarioCreador = this.cookieService.get('usuario');
 
     this.setupLicenseObserver();
-    
+
     this.apiService.opcionArea().subscribe(res => {
     this.area = res.data;
   });
@@ -321,7 +321,7 @@ export class BillingpaymentComponent implements AfterViewInit{
 
   cargarCarpetas() {
     this.apiService.listarCarpeta('').subscribe((res) => {
-      this.carpetasRaiz = res.data; 
+      this.carpetasRaiz = res.data;
     });
   }
 
@@ -335,7 +335,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         });
       });
     });
-  
+
     observer.observe(document.body, {
       childList: true,
       subtree: true,
@@ -345,7 +345,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   onRightClick(event: MouseEvent, idCarpeta: any, contextMenu: any) {
     event.preventDefault();
     event.stopPropagation(); // Evita que el evento se propague
-    
+
     this.menuItems = [
       {
         label: 'Ver detalles',
@@ -353,7 +353,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         command: () => this.verArchivos(idCarpeta)
       },
       {
-        label: 'Aprovisionar',
+        label: 'Provisionar',
         icon: 'pi pi-file',
         command: () => {
 
@@ -387,7 +387,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         icon: 'pi pi-eraser',
         command: () => {
           const documento = this.products.find(p => p.idCarpeta === idCarpeta);
-      
+
           if (documento?.idCobrarPagarDoc) {
             this.messageService.add({
               severity: 'warn',
@@ -396,7 +396,7 @@ export class BillingpaymentComponent implements AfterViewInit{
             });
             return;
           }
-      
+
           this.confirmationService.confirm({
             message: '¿Estás segura de que deseas eliminar este documento?',
             header: 'Confirmar eliminación',
@@ -434,7 +434,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         command: () => {
           // Suponiendo que tienes el idCarpeta del documento a aprobar (ejemplo: this.selectedIdCarpeta)
           const documento = this.products.find(p => p.idCarpeta === idCarpeta);
-      
+
           if (!documento) {
             this.messageService.add({
               severity: 'warn',
@@ -443,7 +443,7 @@ export class BillingpaymentComponent implements AfterViewInit{
             });
             return;
           }
-      
+
           // Puedes incluir confirmación si quieres
           this.confirmationService.confirm({
             message: '¿Estás seguro que deseas aprobar este documento?',
@@ -457,7 +457,7 @@ export class BillingpaymentComponent implements AfterViewInit{
                 ...documento,
                 estado: `APROBADO POR ${usuario}`
               };
-      
+
               this.cargandoc = true;
               this.apiService.editarDocumento(datosParaEditar).subscribe({
                 next: () => {
@@ -467,7 +467,7 @@ export class BillingpaymentComponent implements AfterViewInit{
                     summary: 'Éxito',
                     detail: 'Documento aprobado correctamente.'
                   });
-      
+
                   // Refrescar la tabla igual que en eliminar
                   if (!this.idCarpetaPadre || this.idCarpetaPadre === 0) {
                     this.apiService.listarCarpeta('').subscribe((res) => {
@@ -496,12 +496,12 @@ export class BillingpaymentComponent implements AfterViewInit{
         icon: 'pi pi-bars',
         command: () => this.mostrarHistorialDialog(idCarpeta)
       },
-      
+
     ];
-    
+
     // Usamos el componente directamente pasado como parámetro
     contextMenu.show(event);
-    
+
     // Opcional: prevenir el scroll
     const container = event.currentTarget as HTMLElement;
     container.addEventListener('scroll', this.preventScroll, { passive: false });
@@ -520,7 +520,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       const index = this.products.findIndex(p => p.id === this.productoEditando?.id);
       this.onRowEditCancel(this.productoEditando, index);
     }
-  
+
     // Guardas copia por si cancela
     this.clonedProducts[product.id as string] = { ...product };
     this.productoEditando = product;
@@ -533,7 +533,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       this.productoEditando = null;
     }
   }
-  
+
   onRowEditCancel(product: Product, index: number) {
     this.products[index] = this.clonedProducts[product.id as string];
     delete this.clonedProducts[product.id as string];
@@ -543,18 +543,18 @@ export class BillingpaymentComponent implements AfterViewInit{
   crearDocumento() {
 
     const numeroSinCeros = parseInt(this.nuevoDocumento.numero, 10).toString();
-  
+
     // Crear idCarpeta (ej. RUC_SERIE-NUMERO)
     const idCarpeta = `${this.nuevoDocumento.ruc}_${this.nuevoDocumento.serie}-${numeroSinCeros}`;
-  
+
     // Obtener periodo actual (ej. 202505)
     const now = new Date();
     const periodo = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
-  
+
     // Carpeta padre
     const idCarpetaPadre: number = this.carpetaActual.idCarpeta!;
     const usuarioCreacion: string = this.cookieService.get('usuario') || 'Usuario';
-  
+
     // Verificar si ya existe
     this.apiService.existeDocumento(this.idEmpresa, idCarpeta).subscribe({
       next: (res) => {
@@ -581,7 +581,7 @@ export class BillingpaymentComponent implements AfterViewInit{
 
             if (idCarpetaDesdeUrl) {
               this.apiService.filtrarDocumentos(idCarpetaDesdeUrl).subscribe({
-                
+
                 next: (res) => {
                   this.products = res.data;
                   this.mostrarTablaCarpetas = true;
@@ -615,12 +615,12 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
-  
+
+
   cerrarCardCrear() {
     this.mostrarCardCrear = false;
   }
-  
+
   subirArchivos(event: any) {
     this.messageService.add({
       severity: 'success',
@@ -629,16 +629,16 @@ export class BillingpaymentComponent implements AfterViewInit{
     });
     this.cerrarCardSubir();
   }
-  
+
   cerrarCardSubir() {
     this.mostrarCardSubir = false;
     this.estructuraCarpetas = [];
   }
-  
-  
+
+
   descargarExcel() {
     const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || '';
-  
+
     forkJoin({
       documentos: this.apiService.filtrarDocumentos(idCarpeta),
       areas: this.apiService.opcionArea(),
@@ -657,9 +657,9 @@ export class BillingpaymentComponent implements AfterViewInit{
         const monedaDesc = this.moneda.find(m => m.idMoneda === doc.moneda?.trim())?.descripcion || '';
         const tipoMovDesc = tipoMov.data.find((t: any) => t.idTipoMov === doc.tipoMovimiento)?.descripcion || '';
         const clasDesc = clasificacion.data.find((c: any) => c.idClasificacionLE === doc.clasificacionLe?.trim())?.descripcion || '';
-  
+
         const enlace = `${window.location.origin}/billingpayment?idCarpeta=${doc.idCarpetaPadre}&idDocumento=${doc.idCarpeta?.trim()}`;
-  
+
         return {
           ...doc,
           idArea: areaDesc,
@@ -675,7 +675,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           enlace
         };
       });
-  
+
       const worksheet = XLSX.utils.json_to_sheet(data);
       const workbook = { Sheets: { 'Documentos': worksheet }, SheetNames: ['Documentos'] };
       const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -683,13 +683,13 @@ export class BillingpaymentComponent implements AfterViewInit{
       FileSaver.saveAs(blob, 'documentos.xlsx');
     });
   }
-  
-  
+
+
 
   manejarArchivos(event: any) {
     const archivos: FileList = event.target.files;
     const archivosArray: File[] = Array.from(archivos);
-  
+
     archivosArray.forEach(archivo => {
       console.log('Archivo:', archivo.webkitRelativePath || archivo.name, 'Tipo:', archivo.type);
       // Aquí puedes hacer lo que desees con los archivos, como subirlos a un backend
@@ -720,18 +720,18 @@ export class BillingpaymentComponent implements AfterViewInit{
 
     this.estructuraCarpetas = [...this.estructuraCarpetas, ...carpetasConvertidas];
   }
-  
+
   allowDrop(event: DragEvent) {
     event.preventDefault();
   }
-  
+
   handleDrop(event: DragEvent) {
     event.preventDefault();
     const items = event.dataTransfer?.items;
-  
+
     if (items) {
       const nuevasCarpetas: { [key: string]: { archivos: string[], files: File[] } } = {};
-  
+
       const promesas = [];
       for (let i = 0; i < items.length; i++) {
         const item = items[i].webkitGetAsEntry?.();
@@ -739,21 +739,21 @@ export class BillingpaymentComponent implements AfterViewInit{
           promesas.push(this.readDirectory(item, nuevasCarpetas));
         }
       }
-  
+
       Promise.all(promesas).then(() => {
         const estructura = Object.keys(nuevasCarpetas).map(nombre => ({
           nombre,
           archivos: nuevasCarpetas[nombre].archivos,
           files: nuevasCarpetas[nombre].files
         }));
-  
+
         this.estructuraCarpetas = estructura;
         this.estructuraCarpeta = estructura; // 🛠️ Aquí sí se llena para el upload
       });
     }
   }
-  
-  
+
+
   readDirectory(item: any, carpetaMap: { [key: string]: { archivos: string[], files: File[] } }): Promise<void> {
     return new Promise((resolve) => {
       const reader = item.createReader();
@@ -777,12 +777,12 @@ export class BillingpaymentComponent implements AfterViewInit{
             return Promise.resolve();
           }
         });
-  
+
         Promise.all(promises).then(() => resolve());
       });
     });
   }
-  
+
   subirCarpetas(): void {
     this.estructuraCarpeta.forEach(carpeta => {
       const idCarpeta = carpeta.nombre;
@@ -800,7 +800,7 @@ export class BillingpaymentComponent implements AfterViewInit{
                 carpeta.files.forEach(file => {
                   const nombreArchivo = file.name.split('.').slice(0, -1).join('.') || file.name;
                   const tipoArchivo = file.type;
-  
+
                   this.apiService.subirArchivoCarpeta(idCarpeta, nombreArchivo, tipoArchivo, file).subscribe({
                     next: () => {
                       this.messageService.add({
@@ -836,11 +836,11 @@ export class BillingpaymentComponent implements AfterViewInit{
         }
       });
     });
-  
+
     this.mostrarCardSubir = false; // Cierra el diálogo
   }
-  
-  
+
+
   cancelarSubida() {
     this.estructuraCarpetas = [];
     this.mostrarCardSubir = false; // Cierra el diálogo
@@ -856,19 +856,19 @@ export class BillingpaymentComponent implements AfterViewInit{
 
   onVerClick(e: any): void {
     this.verArchivos(e.data?.idCarpeta);
-  }  
+  }
 
   verDetalle(idCarpeta: any, idDocumento?: any) {
 
     const carpeta = this.carpetasRaiz.find(c => c.idCarpeta === idCarpeta);
     this.carpetaActual = carpeta? carpeta: { idCarpetaPadre: null, final: false };
-  
+
     if (!carpeta) {
       this.carpetaActual.final = false;
     }
     if (this.carpetaActual.final === true) {
       this.cargando = true;
-      
+
       this.apiService.filtrarDocumentos(idCarpeta).subscribe({
         next: (res) => {
           this.products = res.data;
@@ -895,7 +895,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       this.cargandoc = true;
       // Si no es final, usamos listarCarpeta
       this.apiService.listarCarpeta(idCarpeta===null?'':idCarpeta).subscribe({
-        
+
         next: (res) => {
           this.carpetasRaiz = res.data;
           this.mostrarTablaCarpetas = false;
@@ -914,12 +914,12 @@ export class BillingpaymentComponent implements AfterViewInit{
             detail: 'No se pudo listar la carpeta'
           });
           this.cargandoc = false;
-        }   
+        }
       });
-      
+
     }
   }
-  
+
 
   filtrarPorCarpeta(idCarpeta: string): void {
     this.apiService.filtrarDocumentos(idCarpeta).subscribe({
@@ -935,7 +935,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   onEditarDocumento(e: any) {
     // Combinar datos antiguos y nuevos
     const mergedData = { ...e.oldData, ...e.newData };
-  
+
     // Filtrar campos vacíos, null o undefined
     const cleanedData: any = {};
     for (const key in mergedData) {
@@ -944,38 +944,38 @@ export class BillingpaymentComponent implements AfterViewInit{
         cleanedData[key] = value;
       }
     }
-  
+
     // ✅ Solo validar el campo "periodo" si fue modificado
     if ('periodo' in e.newData) {
       const periodo = cleanedData['periodo'];
       const esPeriodoValido = /^\d{6}$/.test(periodo);
       const anio = parseInt(periodo?.substring(0, 4), 10);
       const mes = parseInt(periodo?.substring(4, 6), 10);
-  
+
       if (!esPeriodoValido || anio < 2000 || anio > 2100 || mes < 1 || mes > 12) {
         this.messageService.add({
           severity: 'error',
           summary: 'Periodo inválido',
           detail: 'El periodo debe tener 6 dígitos: AAAAMM (año entre 2000 y 2100, mes entre 01 y 12).'
         });
-  
+
         e.cancel = true;
         return;
       }
     }
-  
+
     // Comparar usando triple igual con conversión explícita
     const oldIgv = String(e.oldData['srIgv']);
     const newIgv = String(e.newData['srIgv']);
-  
+
     // Solo si cambió el srIgv
     if (oldIgv !== newIgv) {
       const tipoIgv = cleanedData['srIgv'];
       const importeBruto = parseFloat(cleanedData['importeBruto']);
-  
+
       if (!isNaN(importeBruto)) {
         let nuevoImporteNeto = importeBruto;
-  
+
         if (tipoIgv === '2') {
           const det = Math.floor(importeBruto * 0.12);
           nuevoImporteNeto = importeBruto - det;
@@ -983,9 +983,9 @@ export class BillingpaymentComponent implements AfterViewInit{
           const ret = parseFloat((importeBruto * 0.03).toFixed(2));
           nuevoImporteNeto = importeBruto - ret;
         }
-  
+
         cleanedData['importeNeto'] = nuevoImporteNeto;
-  
+
         // Actualizar producto en products
         const index = this.products.findIndex(p => p.id === cleanedData.id);
         if (index !== -1) {
@@ -1004,7 +1004,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           summary: 'Éxito',
           detail: 'Documento actualizado correctamente.'
         });
-  
+
         const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
         if (idCarpeta) {
           this.apiService.filtrarDocumentos(idCarpeta).subscribe({
@@ -1030,12 +1030,12 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
-  
+
+
 
   cerrarVistaArchivos() {
     this.mostrarTablaArchivos = false;
-    this.cargandoArchivos = false; 
+    this.cargandoArchivos = false;
     this.archivosCarpeta = [];
     this.carpetaSeleccionada = '';
     this.router.navigate([], {
@@ -1044,10 +1044,10 @@ export class BillingpaymentComponent implements AfterViewInit{
       queryParamsHandling: 'merge',
       replaceUrl: true
     });
-  
+
     if(this.products.length === 0){
       this.verDetalle(this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta'))
-    } 
+    }
   }
 
   abrirArchivo(e: any): void {
@@ -1060,7 +1060,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   formatSize(rowData: any): string {
     const size = rowData.size;
     if (size == null || isNaN(size)) return '0 bytes';
-  
+
     if (size < 1024) {
       return `${size} bytes`;
     } else if (size < 1024 * 1024) {
@@ -1076,22 +1076,22 @@ export class BillingpaymentComponent implements AfterViewInit{
     event.preventDefault();
     this.dropActive = true;
   }
-  
+
   onDragLeave(event: DragEvent) {
     event.preventDefault();
     this.dropActive = false;
   }
-  
+
   onFileDrop(event: DragEvent) {
     event.preventDefault();
     this.dropActive = false;
-  
+
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       const archivo = files[0];
       const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "");
       const tipo = archivo.type;
-  
+
       this.apiService.subirArchivoCarpeta(this.carpetaSeleccionada.trim().replace(/\s+/g, '_'), nombreSinExtension, tipo, archivo).subscribe({
         next: () => {
           this.verArchivos(this.carpetaSeleccionada.trim().replace(/\s+/g, '_'));
@@ -1110,7 +1110,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       const archivo = input.files[0];
       const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "");
       const tipo = archivo.type;
-  
+
       this.apiService.subirArchivoCarpeta(
         this.carpetaSeleccionada.trim().replace(/\s+/g, '_'),
         nombreSinExtension,
@@ -1126,13 +1126,13 @@ export class BillingpaymentComponent implements AfterViewInit{
       });
     }
   }
-  
-  
+
+
   verArchivos(idDocumento: string) {
     const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
     const documento = this.products.find(c => c.idCarpeta === idCarpeta);
     this.carpetaSeleccionada = idDocumento;
-  
+
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { idCarpeta: idCarpeta, idDocumento: idDocumento },
@@ -1148,7 +1148,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         this.archivosCarpeta = Array.isArray(response) ? response : [response];
         this.cargandoArchivos = false;
         this.mostrarTablaArchivos = true;
-        
+
       },
       error: (err) => {
         console.error('Error al obtener archivos:', err);
@@ -1157,7 +1157,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     });
     //this.mostrarTablaArchivos = true;
   }
-  
+
 
   cerrarVistaCarpeta() {
     const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
@@ -1182,7 +1182,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     this.indiceArchivoActual = index;
     this.archivoSeleccionadoNombre = name;
     this.archivoSeleccionadoUrl = url;
-    
+
     this.mostrarVisor = true;
     if (this.esPDF(url) || this.esImagen(url)) {
       this.safeUrl = this.getSafeUrl(url);
@@ -1202,22 +1202,22 @@ export class BillingpaymentComponent implements AfterViewInit{
       this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual + 1);
     }
   }
-  
+
   verAnterior() {
     if (this.indiceArchivoActual > 0) {
       const nuevo = this.archivosCarpeta[this.indiceArchivoActual - 1];
       this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual - 1);
     }
   }
-  
+
   esImagen(url: string): boolean {
     return /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   }
-  
+
   esPDF(url: string): boolean {
     return url.toLowerCase().endsWith('.pdf');
   }
-  
+
   esWord(url: string): boolean {
     return /\.(doc|docx)$/i.test(url);
   }
@@ -1229,12 +1229,12 @@ export class BillingpaymentComponent implements AfterViewInit{
   encodeURI(url: string): string {
     return encodeURIComponent(url);
   }
-  
+
   descargarArchivo() {
     const esImagen = (url: string): boolean => {
       return /\.(png|jpe?g|gif|bmp|webp|svg)$/i.test(url);
     };
-  
+
     if (esImagen(this.archivoSeleccionadoUrl)) {
       // CORS impide descarga directa, así que abrimos en nueva pestaña
       window.open(this.archivoSeleccionadoUrl, '_blank');
@@ -1264,7 +1264,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   }
 
   abrirDialogo(tipo: string): void {
-  
+
     if (!this.idCarpeta) {
       console.error('No se ha definido idCarpeta.');
       return;
@@ -1272,7 +1272,7 @@ export class BillingpaymentComponent implements AfterViewInit{
 
     const ruc = this.idCarpeta.split('_')[0];
     const idDocumento = tipo.toUpperCase();
-  
+
     this.apiService.listarDocumentosPendientes(this.idEmpresa, ruc, idDocumento).subscribe({
       next: (respuesta) => {
         this.tipoSeleccionado = tipo;
@@ -1289,7 +1289,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
+
 
   cerrarDialogo(): void {
     this.dialogoVisible = false;
@@ -1297,7 +1297,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     this.detallesTabla2 = [];
     this.previousSeleccionados = [];
     this.seleccionadosTabla2 = [];
-    this.productosSeleccionados = []; 
+    this.productosSeleccionados = [];
     this.documentosConfirmados = [];
   }
 
@@ -1307,7 +1307,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     this.detallesTabla2 = [];
     this.previousSeleccionados = [];
     this.seleccionadosTabla2 = [];
-    
+
   }
 
   toggleFila(row: any): void {
@@ -1319,7 +1319,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     }
     this.onSeleccionarFila([...this.seleccionadosTabla1]);
   }
-  
+
   filaSeleccionada(row: any): boolean {
     return this.seleccionadosTabla1.some(item => item.id === row.id);
   }
@@ -1327,19 +1327,19 @@ export class BillingpaymentComponent implements AfterViewInit{
   onSeleccionarFila(nuevaSeleccion: any[]): void {
     const agregados = nuevaSeleccion.filter(x => !this.previousSeleccionados.includes(x));
     const removidos = this.previousSeleccionados.filter(x => !nuevaSeleccion.includes(x));
-  
+
     if (!this.idCarpeta) {
       console.error('No se ha definido idCarpeta.');
       return;
     }
-  
+
     const ruc = this.idCarpeta.split('_')[0];
-  
+
     agregados.forEach((documento: any) => {
       const idDocumento = documento.tipoDocumento || this.tipoSeleccionado;
       const serie = documento.serie;
       const numero = documento.numero;
-  
+
       // Llamar API detalle
       this.apiService.detalleDocumentosPendientes(this.idEmpresa, ruc, idDocumento, serie, numero).subscribe({
         next: (detalle) => {
@@ -1354,7 +1354,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           console.error('Error al obtener detalle:', err);
         }
       });
-  
+
       // Si el tipo es GRP, llamar a ConsultarRefGuia
       if (idDocumento === 'GRP') {
         this.apiService.ConsultarRefGuia(idDocumento, serie, numero).subscribe({
@@ -1373,18 +1373,18 @@ export class BillingpaymentComponent implements AfterViewInit{
         });
       }
     });
-  
+
     removidos.forEach((documento: any) => {
       const serie = documento.serie;
       const numero = documento.numero;
       const clave = `${serie}-${numero}`;
       this.detallesTabla2 = this.detallesTabla2.filter(item => !item.id.startsWith(clave));
     });
-  
+
     this.previousSeleccionados = [...nuevaSeleccion];
   }
-  
-  
+
+
 
   toggleFila2(rowData: any) {
     const index = this.seleccionadosTabla2.findIndex(item => item.id === rowData.id);
@@ -1394,7 +1394,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       this.seleccionadosTabla2.push(rowData);
     }
   }
-  
+
   filaSeleccionada2(rowData: any): boolean {
     return this.seleccionadosTabla2.some(item => item.id === rowData.id);
   }
@@ -1405,9 +1405,9 @@ export class BillingpaymentComponent implements AfterViewInit{
     const productoRelacionado = this.products.find(
       (prod: any) => prod.idCarpeta === this.idCarpeta
     );
-  
+
     const observacion = productoRelacionado?.observacionesGlosa || '';
-    
+
     this.productosSeleccionados = [
       ...this.productosSeleccionados,
       ...this.seleccionadosTabla2.map((item, index) => {
@@ -1417,7 +1417,7 @@ export class BillingpaymentComponent implements AfterViewInit{
           regimen === '02' ? '002' :
           regimen === '03' ? '003' :
           '';
-    
+
         return {
           idCarpeta: this.productosSeleccionados.length + index + 1, // continúa la numeración
           item: item.item,
@@ -1435,27 +1435,27 @@ export class BillingpaymentComponent implements AfterViewInit{
         };
       })
     ];
-    
-  
+
+
     this.mostrarTablaSeleccionados = true;
     this.documentosConfirmados = [...this.seleccionadosTabla1];
     this.dialogoVisible = false;
   }
-  
-  
+
+
   editar(e: any) {
     const updatedData = e.newData;
     const oldData = e.oldData;
-  
+
     const index = this.productosSeleccionados.findIndex(item => item === oldData);
-  
+
     const aplicarCambios = () => {
       if (index !== -1) {
         this.productosSeleccionados[index] = {
           ...this.productosSeleccionados[index],
           ...updatedData
         };
-  
+
         this.messageService.add({
           severity: 'success',
           summary: 'Cambios guardados',
@@ -1463,7 +1463,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         });
       }
     };
-  
+
     // Validar cuenta
     if (updatedData?.cuenta && updatedData.cuenta !== oldData.cuenta) {
       this.apiService.validarCuenta(this.idEmpresa, updatedData.cuenta).subscribe(res => {
@@ -1473,7 +1473,7 @@ export class BillingpaymentComponent implements AfterViewInit{
             summary: 'Cuenta inválida',
             detail: 'Esa cuenta no existe, ingrese una correcta'
           });
-  
+
           if (index !== -1) this.productosSeleccionados[index].cuenta = '';
           e.cancel = true;
         } else {
@@ -1482,12 +1482,12 @@ export class BillingpaymentComponent implements AfterViewInit{
             summary: 'Cuenta válida',
             detail: 'La cuenta fue validada correctamente'
           });
-  
+
           aplicarCambios();
         }
       });
     }
-  
+
     // Validar destino
     else if (updatedData?.destino && updatedData.destino !== oldData.destino) {
       this.apiService.validarDestino(updatedData.destino).subscribe(res => {
@@ -1497,7 +1497,7 @@ export class BillingpaymentComponent implements AfterViewInit{
             summary: 'Destino inválido',
             detail: 'Ese destino no existe, ingrese uno correcto'
           });
-  
+
           if (index !== -1) this.productosSeleccionados[index].destino = '';
           e.cancel = true;
         } else {
@@ -1506,25 +1506,25 @@ export class BillingpaymentComponent implements AfterViewInit{
             summary: 'Destino válido',
             detail: 'El destino fue validado correctamente'
           });
-  
+
           aplicarCambios();
         }
       });
     }
-  
+
     // ✅ Validar centro de costos (campo 'costos')
     else if (updatedData?.costos && updatedData.costos !== oldData.costos) {
       this.apiService.validarCentroCosto(this.idEmpresa, updatedData.costos).subscribe(res => {
         if (res?.success && res.data?.[0]) {
           // ✅ Asignar descripción al campo 'descripcioncc'
           updatedData.descripcioncc = res.data[0];
-  
+
           this.messageService.add({
             severity: 'success',
             summary: 'Centro de costos válido',
             detail: `Centro de costos: ${res.data[0]}`
           });
-  
+
           aplicarCambios();
         } else {
           this.messageService.add({
@@ -1532,21 +1532,21 @@ export class BillingpaymentComponent implements AfterViewInit{
             summary: 'Centro de costos inválido',
             detail: 'No se encontró el centro de costos ingresado'
           });
-  
+
           if (index !== -1) {
             this.productosSeleccionados[index].costos = '';
             this.productosSeleccionados[index].descripcioncc = '';
           }
-  
+
           e.cancel = true;
         }
       });
     }
-  }  
-  
+  }
+
   generar() {
     this.confirmationService.confirm({
-      message: '¿Estás seguro que deseas generar el aprovisionamiento?',
+      message: '¿Estás seguro que deseas generar la provisión?',
       header: 'Confirmar generación',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí',
@@ -1557,7 +1557,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         this.grabar();
       },
       reject: () => {
-        
+
       }
     });
   }
@@ -1572,7 +1572,7 @@ export class BillingpaymentComponent implements AfterViewInit{
     const ruc = this.idCarpeta?.split('_')[0] ?? '';
     const serie = this.idCarpeta?.split('_')[1]?.split('-')[0] ?? '';
     const numero = this.idCarpeta?.split('-')[1] ?? '';
-    const tipoTabla = 
+    const tipoTabla =
   this.tipoSeleccionado === 'GRP' ? 'INGRESOSALIDAALM' :
   this.tipoSeleccionado === 'OCO' ? 'ORDENCOMPRA' :
   this.tipoSeleccionado === 'OSR' ? 'ORDENSERVICIO' :
@@ -1583,13 +1583,24 @@ export class BillingpaymentComponent implements AfterViewInit{
     this.apiService.generarIdCobrarPagarDoc(this.idEmpresa, this.idCarpeta).subscribe({
       next: (response) => {
         this.generarDeshabilitado = true;
-  
+        // Validación de productos del detalle antes de continuar
+        for (const [i, p] of this.productosSeleccionados.entries()) {
+          if (p.importe === null || isNaN(Number(p.importe))||p.importe === '') {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error en producto',
+              detail: `El detalle item ${i + 1} no tiene un importe válido.`
+            });
+            return;
+          }
+
+        }
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
           detail: 'Asignado con éxito'
         });
-  
+
         const body = {
 
           lcEmpresa: this.idEmpresa,
@@ -1603,7 +1614,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <idemisor>${this.idEmpresa}</idemisor>
               <periodo>${carpeta?.periodo}</periodo>
               <idoperacion>PPFC</idoperacion>
-              <numoperacion>0000000660</numoperacion>
+              <numoperacion>9999900660</numoperacion>
               <idsubdiario/>
               <voucher/>
               <fecharegistro>${carpeta?.fechaCreacion}</fecharegistro>
@@ -1618,7 +1629,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <numero>${numero}</numero>
               <fecha>${carpeta?.fechaCreacion}</fecha>
               <dias>0</dias>
-              <vencimiento>${carpeta?.fechaVcto}</vencimiento>
+              <vencimiento>${carpeta?.fechaVcto ? carpeta?.fechaVcto  : ''}</vencimiento>
               <tcambio>3.662000</tcambio>
               <idclieprov>${ruc}</idclieprov>
               <direccion/>
@@ -1864,7 +1875,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <iddestino>${p.destino}</iddestino>
               <idtipotransaccion/>
               <idproducto>${p.producto}</idproducto>
-              <idmedida>PZA</idmedida>
+              <idmedida>UNID</idmedida>
               <descripcion>${p.descripcionp}</descripcion>
               <idestadoproducto>0</idestadoproducto>
               <idlote/>
@@ -2018,15 +2029,11 @@ export class BillingpaymentComponent implements AfterViewInit{
               <subitem/>
               <valor>${response.data[0]?.impuestos === '027'? '10.00':'18.00'}</valor>
               <baseimponible>${
-                (p.importe - 
-                  (response.data[0]?.impuestos === '027' 
-                    ? p.importe * 0.10 
-                    : p.importe * 0.18)
-                ).toFixed(2)
+                Number(p.importe).toFixed(2)
               }</baseimponible>
-              <impuesto>${response.data[0]?.impuestos === '027' 
-                ? (p.importe * 0.10).toFixed(2) 
-                : (p.importe * 0.18).toFixed(2)}</impuesto>
+              <impuesto>${response.data[0]?.impuestos === '027'
+                ? (Number(p.importe) * 0.10).toFixed(2)
+                : (Number(p.importe)* 0.18).toFixed(2)}</impuesto>
               <idcuenta/>
               <idccosto/>
               <orden>0</orden>
@@ -2085,15 +2092,15 @@ export class BillingpaymentComponent implements AfterViewInit{
             this.messageService.add({
               severity: 'success',
               summary: 'Éxito',
-              detail: 'Cobro/Pago registrado correctamente.'
+              detail: 'Provisión registrada correctamente.'
             });
           },
           error: (err) => {
-            console.error('Error al grabar CobrarPagar:', err);
+            console.error('Error al grabar Provision:', err);
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'No se pudo registrar el cobro/pago.'
+              detail: 'No se pudo registrar el Provisión.'
             });
           }
         });
@@ -2106,13 +2113,13 @@ export class BillingpaymentComponent implements AfterViewInit{
           detail: 'No se pudo crear el documento'
         });
       }
-      
+
     });
   }
-  
+
   crearCarpeta() {
     const carpetaRaiz = !this.idCarpetaPadre || this.idCarpetaPadre === 0;
-  
+
     const body = {
       nombreCarpeta: this.nombreCarpeta,
       idCarpetaPadre: this.idCarpetaPadre,
@@ -2120,7 +2127,7 @@ export class BillingpaymentComponent implements AfterViewInit{
       usuarioCreador: this.usuarioCreador,
       final: this.final
     };
-  
+
     this.apiService.crearCarpeta(body).subscribe({
       next: () => {
         this.mostrarCardCrearCarpeta = false;
@@ -2130,7 +2137,7 @@ export class BillingpaymentComponent implements AfterViewInit{
         if (!this.idCarpetaPadre) {
           // idCarpetaPadre es null, undefined, 0 o falsy
           this.apiService.listarCarpeta('').subscribe((res) => {
-            this.carpetasRaiz = res.data; 
+            this.carpetasRaiz = res.data;
           });
         } else {
           this.verDetalle(this.idCarpetaPadre);
@@ -2141,17 +2148,17 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
-  
+
+
 
   mensajeAyudaFinal() {
     alert('Si marcas esta opción, la carpeta se creará como definitiva (Final).');
   }
-  
-  
+
+
   eliminarArchivo(event: MouseEvent, idCarpeta: string, nombreArchivo: string) {
     event.stopPropagation(); // Previene que se ejecute verArchivo
-  
+
     this.confirmationService.confirm({
       message: `¿Deseas eliminar el archivo "${nombreArchivo}"?`,
       header: 'Confirmación',
@@ -2173,12 +2180,12 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
+
   getDescripcionMoneda(id: string): string {
     const monedaEncontrada = this.moneda.find(m => m.idMoneda === id);
     return monedaEncontrada ? monedaEncontrada.descripcion : 'Desconocida';
   }
-  
+
   getDescripcionRegimen(id: string): string {
     const regimenEncontrado = this.regimen.find(r => r.idRegimen === id);
     return regimenEncontrado ? regimenEncontrado.descripcion : 'Desconocido';
@@ -2192,7 +2199,7 @@ export class BillingpaymentComponent implements AfterViewInit{
   getMontoImpuesto(): number {
     const id = this.productoSeleccionadoResumen?.impuestos?.trim();
     const total = this.productoSeleccionadoResumen?.baseImponible || 0;
-  
+
     if (id === '027') {
       return total * 0.10;
     } else if (id === '003') {
@@ -2201,8 +2208,8 @@ export class BillingpaymentComponent implements AfterViewInit{
       return 0;
     }
   }
-  
-  cargarResumenProducto(idCarpeta: string) {  
+
+  cargarResumenProducto(idCarpeta: string) {
 
     const productoRelacionado = this.products.find(
       (prod: any) => prod.idCarpeta === idCarpeta
@@ -2212,13 +2219,16 @@ export class BillingpaymentComponent implements AfterViewInit{
       console.warn('No se encontró producto con idCarpeta:', idCarpeta);
       return;
     }
+    console.log(productoRelacionado);
     const moneda = productoRelacionado.moneda || '';
     const regimen = productoRelacionado.regimen || '';
-    const baseImponible = productoRelacionado.importeNeto || '';
+    const baseImponible = productoRelacionado.impuestos === '003'
+                          ? productoRelacionado.importeBruto / 1.18
+                          : productoRelacionado.importeBruto / 1.10;
     const totalProvisionado = productoRelacionado.importeBruto || '';
     const total = productoRelacionado.total || '';
     const impuestos = productoRelacionado.impuestos || '';
-  
+
     this.productoSeleccionadoResumen = {
       moneda,
       regimen,
@@ -2227,16 +2237,16 @@ export class BillingpaymentComponent implements AfterViewInit{
       total,
       totalProvisionado
     };
-  
+
     this.mostrarTablaSeleccionados = true;
     this.documentosConfirmados = [...this.seleccionadosTabla1];
     this.dialogoVisible = false;
   }
-  
+
   mostrarHistorialDialog(id: string) {
     this.idCarpeta = id;
     this.mostrarHistorial = true;
-  
+
     this.apiService.historialDocumento(id).subscribe({
       next: (response) => {
         this.historialCambios = response.data ?? [];
@@ -2248,5 +2258,5 @@ export class BillingpaymentComponent implements AfterViewInit{
       }
     });
   }
-  
+
 }
