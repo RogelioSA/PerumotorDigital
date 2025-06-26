@@ -1871,7 +1871,7 @@ export class BillingpaymentComponent implements AfterViewInit{
               <itemliquidacion/>
               <idclieprov/>
               <idcuenta>${p.cuenta}</idcuenta>
-              <idconsumidor/>
+              <idconsumidor>${p.costos} </idconsumidor>
               <iddestino>${p.destino}</iddestino>
               <idtipotransaccion/>
               <idproducto>${p.producto}</idproducto>
