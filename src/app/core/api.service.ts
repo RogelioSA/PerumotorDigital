@@ -111,6 +111,8 @@ export class ApiService {
     fechaCreacion: string;
     fechaModificacion: string;
     usuarioModificacion: string;
+    idCarpetaPadre: number;
+    validado: boolean
   }): Observable<any> {
     return this.https.post(`${this.apiUrl}/BillingPayment/editarDocumento`, body);
   }

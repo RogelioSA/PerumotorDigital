@@ -79,6 +79,18 @@ interface Carpeta {
   styleUrl: './billingpayment.component.css'
 })
 export class BillingpaymentComponent implements AfterViewInit{
+
+  cuentasDisponibles: any[] = [];
+mostrarSelectorCuentas: boolean = false;
+cuentaSeleccionada: any = null;
+filaEditandoCuenta: number | undefined;
+
+centrosCostoDisponibles: any[] = [];
+mostrarSelectorCentroCosto: boolean = false;
+filaEditandoCentroCosto: number | undefined;
+centroCostoSeleccionado: any = null;
+
+
   @ViewChild('dt') table!: Table;
   @ViewChild('fileUploader') fileUploader!: FileUpload;
 
@@ -1029,6 +1041,126 @@ export class BillingpaymentComponent implements AfterViewInit{
         e.cancel = true;
       }
     });
+
+
+    const idCarpeta = e.oldData?.idCarpeta ?? e.newData?.idCarpeta;
+
+    if (!idCarpeta) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se encontró el idCarpeta del documento editado.'
+      });
+      return;
+    }
+
+    // Usamos directamente el idCarpeta para extraer datos
+    const partes = idCarpeta.split('_');
+    if (partes.length < 2) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Formato inválido',
+        detail: `El idCarpeta no tiene el formato esperado: ${idCarpeta}`
+      });
+      return;
+    }
+
+    const ruc_emisor = partes[0];
+    const parteSerieNumero = partes[1]; // Ej: E002-234
+    const [serie_documento, numero_documento] = parteSerieNumero.split('-') ?? [];
+
+    if (!serie_documento || !numero_documento) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error en formato',
+        detail: `No se pudo extraer serie o número de documento de: ${parteSerieNumero}`
+      });
+      return;
+    }
+
+    // Determinar el tipo de documento según la letra inicial de la serie
+    const letraSerie = serie_documento[0];
+    let codigo_tipo_documento = '';
+
+    if (letraSerie === 'F') {
+      codigo_tipo_documento = '01'; // Factura
+    } else if (letraSerie === 'B' || letraSerie === 'E') {
+      codigo_tipo_documento = '03'; // Boleta
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Tipo desconocido',
+        detail: `Letra de serie no reconocida: ${letraSerie}`
+      });
+      return;
+    }
+
+    // Buscar en products el producto con este idCarpeta
+    const documento = this.products.find(p => String(p.idCarpeta) === String(idCarpeta));
+
+    if (!documento) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No encontrado',
+        detail: `No se encontró el documento con idCarpeta: ${idCarpeta}`
+      });
+      return;
+    }
+
+    // Obtener campos restantes
+    const fecha_emision = documento.fechaEmision;
+    const total = documento.importeBruto;
+
+    if (!fecha_emision || !total) {
+      const faltan = [];
+      if (!fecha_emision) faltan.push('fecha de emisión');
+      if (!total) faltan.push('importe bruto');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos faltantes',
+        detail: `Faltan ${faltan.join(', ')} para enviar el documento ${idCarpeta}`
+      });
+      return;
+    }
+
+    // Enviar a Factiliza
+    const payload = {
+      ruc_emisor,
+      codigo_tipo_documento,
+      serie_documento,
+      numero_documento,
+      fecha_emision,
+      total: total.toString()
+    };
+    
+    this.apiService.enviarAFactiliza(payload).subscribe({
+      next: (res) => {
+        const estado = res?.cpe?.data?.comprobante_estado_codigo;
+    
+        if (estado === '1') {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'SUNAT',
+            detail: `Documento ${idCarpeta} validado por SUNAT.`
+          });
+        } else {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'No validado',
+            detail: `Documento ${idCarpeta} NO está validado por SUNAT`
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error al enviar a verificar:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error de envío',
+          detail: `No se pudo enviar el documento ${idCarpeta} a verificar.`
+        });
+      }
+    });
+    
   }
 
 
@@ -2259,4 +2391,80 @@ export class BillingpaymentComponent implements AfterViewInit{
     });
   }
 
+  onEditorPreparing(e: any): void {
+    if (e.parentType === 'dataRow') {
+      if (e.dataField === 'cuenta') {
+        e.editorOptions.onKeyDown = (args: any) => {
+          if (args?.event?.key === 'F2') {
+            args.event.preventDefault();
+            this.abrirSelectorCuenta(e);
+          }
+        };
+      }
+  
+      if (e.dataField === 'costos') {
+        e.editorOptions.onKeyDown = (args: any) => {
+          if (args?.event?.key === 'F2') {
+            args.event.preventDefault();
+            this.abrirSelectorCentroCosto(e);
+          }
+        };
+      }
+    }
+  }
+  
+
+  abrirSelectorCuenta(e: any): void {
+    this.apiService.listaCuentas().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.cuentasDisponibles = res.data;
+  
+          // Puedes usar un DialogService, un PrimeNG DynamicDialog o simplemente un flag
+          this.mostrarSelectorCuentas = true;
+          this.filaEditandoCuenta = e.row?.rowIndex; // Guarda qué fila está editando
+        }
+      },
+      error: (err) => {
+        console.error('Error al listar cuentas:', err);
+      }
+    });
+  }
+
+  seleccionarCuenta(cuenta: any): void {
+    if (this.filaEditandoCuenta !== undefined) {
+      this.productosSeleccionados[this.filaEditandoCuenta].cuenta = cuenta.id.trim();
+      this.mostrarSelectorCuentas = false;
+      this.cuentaSeleccionada = null;
+      this.filaEditandoCuenta = undefined;
+    }
+  }
+
+  abrirSelectorCentroCosto(e: any): void {
+    this.apiService.listaCentrosCosto().subscribe({
+      next: (res) => {
+        if (res?.success && res.data) {
+          this.centrosCostoDisponibles = res.data;
+          this.filaEditandoCentroCosto = e.row?.rowIndex;
+          this.mostrarSelectorCentroCosto = true;
+          this.centroCostoSeleccionado = null;
+        }
+      },
+      error: (err) => {
+        console.error('Error al listar centros de costo:', err);
+      }
+    });
+  }  
+
+  seleccionarCentroCosto(costo: any): void {
+    if (this.filaEditandoCentroCosto !== undefined) {
+      const fila = this.productosSeleccionados[this.filaEditandoCentroCosto];
+      fila.costos = costo.id.trim();
+      fila.descripcioncc = costo.descripcion;
+      this.mostrarSelectorCentroCosto = false;
+      this.centroCostoSeleccionado = null;
+      this.filaEditandoCentroCosto = undefined;
+    }
+  }
+  
 }
