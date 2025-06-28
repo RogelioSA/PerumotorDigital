@@ -99,12 +99,18 @@
         <dxo-selection mode="single"></dxo-selection>
 
         <!-- Nombre con ícono tipo carpeta -->
+
         <dxi-column dataField="idCarpeta" [allowFiltering]="true" [allowSorting]="false" cellTemplate="cellTemplate"
           caption="Nombre" [allowEditing]="false" [width]="220">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
+
+        <dxi-column dataField="validado" caption="" [width]="40" [allowFiltering]="false" [allowSorting]="false"
+          [calculateCellValue]="formatValidado">
+        </dxi-column>
+
 
         <div *dxTemplate="let data of 'cellTemplate'">
           <dxo-header-filter [allowSelectAll]="false">
@@ -282,6 +288,17 @@
         </dxi-column>
       </dx-data-grid>
 
+      <ng-template #validadoTemplate let-data>
+        <ng-container *ngIf="data.data.validado === true">
+          <i class="pi pi-check" style="color: green; font-size: 1.2rem;"></i>
+        </ng-container>
+        <ng-container *ngIf="data.data.validado === false">
+          <i class="pi pi-times" style="color: red; font-size: 1.2rem;"></i>
+        </ng-container>
+        <!-- No se muestra nada si es null o undefined -->
+      </ng-template>
+
+
       <p-drawer [(visible)]="mostrarTablaArchivos" (onHide)="cerrarVistaArchivos()" position="right"
         styleClass="!w-full md:!w-80 lg:!w-[30rem]">
         <ng-template pTemplate="header">
@@ -297,17 +314,11 @@
               </ng-template>
             </h2>
           </div>
-          <label
-            class="cursor-pointer text-blue-600 hover:text-blue-800"
-          >
+          <label class="cursor-pointer text-blue-600 hover:text-blue-800">
             <i class="pi pi-upload text-xl"></i>
-            <input
-              type="file"
-              class="hidden"
-              (change)="onFileSelect($event)"
-            />
+            <input type="file" class="hidden" (change)="onFileSelect($event)" />
           </label>
-        
+
 
         </ng-template>
 
@@ -392,22 +403,26 @@
           <!-- Flecha izquierda -->
           <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="verAnterior()"
             [disabled]="indiceArchivoActual === 0"></button>
-      
+
           <!-- Contenido del visor -->
           <div class="flex-1 text-center">
             <div *ngIf="cargandoArchivo" class="flex justify-center items-center h-[300px]">
               <p-progressSpinner></p-progressSpinner>
             </div>
             <ng-container *ngIf="archivoSeleccionadoUrl && !cargandoArchivo">
-              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl" style="max-width: 100%; max-height: 70vh;" />
+              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
+                style="max-width: 100%; max-height: 70vh;" />
               <iframe *ngIf="esPDF(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="470px"></iframe>
-              <iframe *ngIf="esWord(archivoSeleccionadoUrl)" [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%" height="500px"></iframe>
-              <p *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
+              <iframe *ngIf="esWord(archivoSeleccionadoUrl)"
+                [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%"
+                height="500px"></iframe>
+              <p
+                *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
                 Tipo de archivo no soportado para vista previa.
               </p>
             </ng-container>
           </div>
-      
+
           <!-- Flecha derecha -->
           <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="verSiguiente()"
             [disabled]="indiceArchivoActual === archivosCarpeta.length - 1"></button>
@@ -578,7 +593,8 @@
             {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
             S/ {{ getMontoImpuesto() | number: '1.2-2' }}
           </p>
-          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}</p>
+          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}
+          </p>
         </div>
         <ng-template #sinProductos>
           <em>No hay productos seleccionados.</em>
@@ -636,8 +652,19 @@
 
 <p-dialog header="{{ tituloDialogo }}" [(visible)]="dialogoVisible" [modal]="true"
   [style]="{ width: '80vw', height: '80vh'}" (onHide)="cerrarDialogos()">
-  <p-table [value]="documentosPendientes" [(selection)]="seleccionadosTabla1" dataKey="id" [responsiveLayout]="'scroll'"
-    (selectionChange)="onSeleccionarFila($event)" class="mb-4">
+  <p-table #dt2 [value]="documentosPendientes" [(selection)]="seleccionadosTabla1" dataKey="id" [responsiveLayout]="'scroll'"
+    (selectionChange)="onSeleccionarFila($event)" class="mb-4" [globalFilterFields]="['tipo', 'serie', 'numero', 'status']">
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <input
+          #searchInput
+          pInputText
+          type="text"
+          (input)="dt2.filterGlobal(searchInput.value, 'contains')"
+          placeholder="Buscar"
+        />
+      </div>
+    </ng-template>
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 3em">
@@ -717,13 +744,8 @@
 
 </p-dialog>
 
-<p-dialog 
-  [(visible)]="mostrarHistorial" 
-  [modal]="true" 
-  [style]="{ width: '70vw' }" 
-  [closable]="true" 
-  [resizable]="false"
-  [baseZIndex]="1100">
+<p-dialog [(visible)]="mostrarHistorial" [modal]="true" [style]="{ width: '70vw' }" [closable]="true"
+  [resizable]="false" [baseZIndex]="1100">
 
   <ng-template pTemplate="header">
     <span class="text-lg font-semibold">Historial de Cambios: {{ idCarpeta }}</span>
@@ -771,7 +793,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-row>
-        <tr >
+        <tr>
           <td>{{ row.audId }}</td>
           <td>{{ row.audTipoOperacion }}</td>
           <td>{{ row.audFecha | date: 'short' }}</td>
@@ -832,14 +854,10 @@
   </p-table>
 </p-dialog>
 
-<p-dialog header="Seleccionar Centro de Costos"
-          [(visible)]="mostrarSelectorCentroCosto"
-          [modal]="true"
-          [style]="{width: '40vw'}">
+<p-dialog header="Seleccionar Centro de Costos" [(visible)]="mostrarSelectorCentroCosto" [modal]="true"
+  [style]="{width: '40vw'}">
 
-  <p-table [value]="centrosCostoDisponibles"
-           selectionMode="single"
-           [(selection)]="centroCostoSeleccionado">
+  <p-table [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado">
 
     <ng-template pTemplate="header">
       <tr>
@@ -857,4 +875,3 @@
 
   </p-table>
 </p-dialog>
-
