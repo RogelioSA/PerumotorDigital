@@ -90,6 +90,7 @@ mostrarSelectorCentroCosto: boolean = false;
 filaEditandoCentroCosto: number | undefined;
 centroCostoSeleccionado: any = null;
 
+validar = false;
 
   @ViewChild('dt') table!: Table;
   @ViewChild('fileUploader') fileUploader!: FileUpload;
@@ -870,6 +871,16 @@ centroCostoSeleccionado: any = null;
     this.verArchivos(e.data?.idCarpeta);
   }
 
+  formatValidado = (data: any): string => {
+    if (data.validado === true) {
+      return '✔️'; // Aspa
+    } else if (data.validado === false) {
+      return '❌'; // X
+    } else {
+      return '';
+    }
+  };
+
   verDetalle(idCarpeta: any, idDocumento?: any) {
 
     const carpeta = this.carpetasRaiz.find(c => c.idCarpeta === idCarpeta);
@@ -903,6 +914,7 @@ centroCostoSeleccionado: any = null;
           this.cargando = false;
         }
       });
+      
     } else {
       this.cargandoc = true;
       // Si no es final, usamos listarCarpeta
@@ -930,6 +942,7 @@ centroCostoSeleccionado: any = null;
       });
 
     }
+    
   }
 
 
@@ -1138,18 +1151,33 @@ centroCostoSeleccionado: any = null;
         const estado = res?.cpe?.data?.comprobante_estado_codigo;
     
         if (estado === '1') {
+          this.validar = true;
           this.messageService.add({
             severity: 'success',
             summary: 'SUNAT',
             detail: `Documento ${idCarpeta} validado por SUNAT.`
           });
         } else {
+          this.validar = false;
           this.messageService.add({
             severity: 'warn',
             summary: 'No validado',
             detail: `Documento ${idCarpeta} NO está validado por SUNAT`
           });
         }
+        this.apiService.editarDocumento({
+          idEmpresa: this.idEmpresa,
+          idCarpeta: idCarpeta,
+          validado: this.validar
+        } as any).subscribe({
+          next: (res) => {
+            console.log('Documento actualizado correctamente');
+          },
+          error: (err) => {
+            console.error('Error al actualizar el documento', err);
+          }
+        });
+        console.log(idCarpeta)
       },
       error: (err) => {
         console.error('Error al enviar a verificar:', err);
@@ -1558,7 +1586,7 @@ centroCostoSeleccionado: any = null;
           costos: '',
           descripcioncc: '',
           destino: destino,
-          importe: '',
+          importe: item.monto,
           descripcionp: item.descripcion,
           cantidad: item.Cantidad || item.cantidad,
           producto: item.idProducto,
@@ -1694,6 +1722,16 @@ centroCostoSeleccionado: any = null;
     });
   }
 
+  calcularImpuesto(carpeta: any): number {
+    const impuestoItem = this.impuestos.find(i => i.idImpuestos === carpeta?.impuestos);
+    if (!impuestoItem) return 0;
+  
+    const porcentaje = parseFloat(impuestoItem.descripcion.replace('%', '')) / 100;
+    const impuesto = carpeta.importeBruto * (porcentaje / (1 + porcentaje));
+  
+    return +impuesto.toFixed(2);
+  }
+  
   grabar() {
 
     if (!this.idCarpeta) {
@@ -1732,7 +1770,7 @@ centroCostoSeleccionado: any = null;
           summary: 'Éxito',
           detail: 'Asignado con éxito'
         });
-
+        const impuestoCalculado = this.calcularImpuesto(carpeta);
         const body = {
 
           lcEmpresa: this.idEmpresa,
@@ -1785,7 +1823,7 @@ centroCostoSeleccionado: any = null;
               <vventa>${carpeta?.importeBruto}</vventa>
               <inafecto>0.00</inafecto>
               <otros>0</otros>
-              <impuesto>${carpeta?.importeNeto - carpeta?.importeBruto}</impuesto>
+              <impuesto>${impuestoCalculado}</impuesto>
               <pimpuesto>18.0000</pimpuesto>
               <descuento>0.00</descuento>
               <pdescuento>0.0000</pdescuento>
