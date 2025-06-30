@@ -615,7 +615,7 @@
     <dxo-paging [pageSize]="10"></dxo-paging>
     <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 30, 50]" [displayMode]="'full'"
       [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true"></dxo-pager>
-    <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true"></dxo-editing>
+    <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true" [allowDeleting]="true" ></dxo-editing>
     <dxo-selection mode="single"></dxo-selection>
 
 
@@ -630,11 +630,6 @@
     <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
     <dxi-column dataField="producto" caption="Producto"></dxi-column>
 
-    <dxi-column type="buttons" [width]="60">
-      <dxi-button name="edit" icon="edit"></dxi-button>
-      <dxi-button name="save" icon="save"></dxi-button>
-      <dxi-button name="cancel" icon="revert"></dxi-button>
-    </dxi-column>
     <dxo-summary>
       <dxi-total-item column="destino" summaryType="count"> </dxi-total-item>
 
