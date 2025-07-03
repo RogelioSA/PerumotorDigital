@@ -509,6 +509,132 @@ validar = false;
         icon: 'pi pi-bars',
         command: () => this.mostrarHistorialDialog(idCarpeta)
       },
+      {
+        label: 'Validar',
+        icon: 'pi pi-search',
+        command: () => {
+          const partes = idCarpeta.split('_');
+          const ruc_emisor = partes[0];
+          const parteSerieNumero = partes[1];
+          const [serie_documento, numero_documentoRaw] = parteSerieNumero.split('-') ?? [];
+      
+          if (!serie_documento || !numero_documentoRaw) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error en formato',
+              detail: `No se pudo extraer serie o número de documento de: ${parteSerieNumero}`
+            });
+            return;
+          }
+      
+          const numero_documento = numero_documentoRaw.trim();
+          const letraSerie = serie_documento[0];
+          let codigo_tipo_documento = '';
+      
+          if (letraSerie === 'F') {
+            codigo_tipo_documento = '01';
+          } else if (letraSerie === 'B' || letraSerie === 'E') {
+            codigo_tipo_documento = '03';
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Tipo desconocido',
+              detail: `Letra de serie no reconocida: ${letraSerie}`
+            });
+            return;
+          }
+      
+          const documento = this.products.find(p => String(p.idCarpeta) === String(idCarpeta));
+      
+          if (!documento) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'No encontrado',
+              detail: `No se encontró el documento con idCarpeta: ${idCarpeta}`
+            });
+            return;
+          }
+      
+          const fecha_emision_original = documento.fechaEmision;
+          const total = documento.importeBruto;
+      
+          if (!fecha_emision_original || !total) {
+            const faltan = [];
+            if (!fecha_emision_original) faltan.push('fecha de emisión');
+            if (!total) faltan.push('importe bruto');
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Campos faltantes',
+              detail: `Faltan ${faltan.join(', ')} para enviar el documento ${idCarpeta}`
+            });
+            return;
+          }
+      
+          const fechaObj = new Date(fecha_emision_original);
+          const fecha_emision = `${fechaObj.getDate().toString().padStart(2, '0')}/${(fechaObj.getMonth() + 1).toString().padStart(2, '0')}/${fechaObj.getFullYear()}`;
+          const totalFormateado = Number(total).toFixed(2);
+      
+          const payload = {
+            ruc_emisor,
+            codigo_tipo_documento,
+            serie_documento,
+            numero_documento,
+            fecha_emision,
+            total: totalFormateado
+          };
+      
+          this.apiService.enviarAFactiliza(payload).subscribe({
+            next: (res) => {
+              const estado = res?.data?.comprobante_estado_codigo;
+              const validado = estado === '1';
+      
+              if (validado) {
+                this.messageService.add({
+                  severity: 'success',
+                  summary: 'SUNAT',
+                  detail: `Documento ${idCarpeta} validado por SUNAT.`
+                });
+              } else {
+                this.messageService.add({
+                  severity: 'warn',
+                  summary: 'No validado',
+                  detail: `Documento ${idCarpeta} NO está validado por SUNAT`
+                });
+              }
+      
+              // Actualizar backend
+              this.apiService.editarDocumento({
+                idEmpresa: this.idEmpresa,
+                idCarpeta: idCarpeta,
+                validado: validado
+              } as any).subscribe({
+                next: () => {
+                  // También actualizar localmente en this.products
+                  const index = this.products.findIndex(p => String(p.idCarpeta) === String(idCarpeta));
+                  if (index !== -1) {
+                    this.products[index].validado = validado;
+                  }
+                  console.log('Documento actualizado correctamente');
+                },
+                error: (err) => {
+                  console.error('Error al actualizar el documento', err);
+                }
+              });
+      
+              console.log('ID carpeta validado:', idCarpeta);
+            },
+            error: (err) => {
+              console.error('Error al enviar a verificar:', err);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Error de envío',
+                detail: `No se pudo enviar el documento ${idCarpeta} a verificar.`
+              });
+            }
+          });
+        }
+      }
+      
 
     ];
 
@@ -1054,149 +1180,8 @@ validar = false;
         e.cancel = true;
       }
     });
-
-
-    const idCarpeta = e.oldData?.idCarpeta ?? e.newData?.idCarpeta;
-
-    if (!idCarpeta) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se encontró el idCarpeta del documento editado.'
-      });
-      return;
-    }
-
-    // Usamos directamente el idCarpeta para extraer datos
-    const partes = idCarpeta.split('_');
-    if (partes.length < 2) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Formato inválido',
-        detail: `El idCarpeta no tiene el formato esperado: ${idCarpeta}`
-      });
-      return;
-    }
-
-    const ruc_emisor = partes[0];
-    const parteSerieNumero = partes[1]; // Ej: E002-234
-    const [serie_documento, numero_documentoRaw] = parteSerieNumero.split('-') ?? [];
-
-    if (!serie_documento || !numero_documentoRaw) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error en formato',
-        detail: `No se pudo extraer serie o número de documento de: ${parteSerieNumero}`
-      });
-      return;
-    }
-    const numero_documento = numero_documentoRaw.trim();
-    // Determinar el tipo de documento según la letra inicial de la serie
-    const letraSerie = serie_documento[0];
-    let codigo_tipo_documento = '';
-
-    if (letraSerie === 'F') {
-      codigo_tipo_documento = '01'; // Factura
-    } else if (letraSerie === 'B' || letraSerie === 'E') {
-      codigo_tipo_documento = '03'; // Boleta
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Tipo desconocido',
-        detail: `Letra de serie no reconocida: ${letraSerie}`
-      });
-      return;
-    }
-
-    // Buscar en products el producto con este idCarpeta
-    const documento = this.products.find(p => String(p.idCarpeta) === String(idCarpeta));
-
-    if (!documento) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'No encontrado',
-        detail: `No se encontró el documento con idCarpeta: ${idCarpeta}`
-      });
-      return;
-    }
-
-    // Obtener campos restantes
-    const fecha_emision_original = documento.fechaEmision;
-    const total = documento.importeBruto;
-
-    if (!fecha_emision_original || !total) {
-      const faltan = [];
-      if (!fecha_emision_original) faltan.push('fecha de emisión');
-      if (!total) faltan.push('importe bruto');
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Campos faltantes',
-        detail: `Faltan ${faltan.join(', ')} para enviar el documento ${idCarpeta}`
-      });
-      return;
-    }
-    // Formatear fecha a dd/mm/yyyy
-const fechaObj = new Date(fecha_emision_original);
-const fecha_emision = `${fechaObj.getDate().toString().padStart(2, '0')}/${(fechaObj.getMonth() + 1).toString().padStart(2, '0')}/${fechaObj.getFullYear()}`;
-
-const totalFormateado = Number(total).toFixed(2);
-
-    
-    // Enviar a Factiliza
-    const payload = {
-      ruc_emisor,
-      codigo_tipo_documento,
-      serie_documento,
-      numero_documento,
-      fecha_emision,
-      total: totalFormateado
-    };
-    
-    this.apiService.enviarAFactiliza(payload).subscribe({
-      next: (res) => {
-        const estado = res?.data?.comprobante_estado_codigo;
-    
-        if (estado === '1') {
-          this.validar = true;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'SUNAT',
-            detail: `Documento ${idCarpeta} validado por SUNAT.`
-          });
-        } else {
-          this.validar = false;
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'No validado',
-            detail: `Documento ${idCarpeta} NO está validado por SUNAT`
-          });
-        }
-        this.apiService.editarDocumento({
-          idEmpresa: this.idEmpresa,
-          idCarpeta: idCarpeta,
-          validado: this.validar
-        } as any).subscribe({
-          next: (res) => {
-            console.log('Documento actualizado correctamente');
-          },
-          error: (err) => {
-            console.error('Error al actualizar el documento', err);
-          }
-        });
-        console.log(idCarpeta)
-      },
-      error: (err) => {
-        console.error('Error al enviar a verificar:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error de envío',
-          detail: `No se pudo enviar el documento ${idCarpeta} a verificar.`
-        });
-      }
-    });
     
   }
-
 
 
   cerrarVistaArchivos() {
