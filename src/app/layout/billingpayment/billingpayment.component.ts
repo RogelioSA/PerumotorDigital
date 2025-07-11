@@ -468,7 +468,7 @@ validar = false;
               const usuario = this.cookieService.get('usuario') || 'Usuario';
               const datosParaEditar = {
                 ...documento,
-                estado: `APROBADO POR ${usuario}`
+                estado: `APROBADO ${usuario}`
               };
 
               this.cargandoc = true;
@@ -510,14 +510,14 @@ validar = false;
         command: () => this.mostrarHistorialDialog(idCarpeta)
       },
       {
-        label: 'Validar',
+        label: 'Validación SUNAT',
         icon: 'pi pi-search',
         command: () => {
           const partes = idCarpeta.split('_');
           const ruc_emisor = partes[0];
           const parteSerieNumero = partes[1];
           const [serie_documento, numero_documentoRaw] = parteSerieNumero.split('-') ?? [];
-      
+
           if (!serie_documento || !numero_documentoRaw) {
             this.messageService.add({
               severity: 'error',
@@ -526,11 +526,11 @@ validar = false;
             });
             return;
           }
-      
+
           const numero_documento = numero_documentoRaw.trim();
           const letraSerie = serie_documento[0];
           let codigo_tipo_documento = '';
-      
+
           if (letraSerie === 'F') {
             codigo_tipo_documento = '01';
           } else if (letraSerie === 'B' || letraSerie === 'E') {
@@ -543,9 +543,9 @@ validar = false;
             });
             return;
           }
-      
+
           const documento = this.products.find(p => String(p.idCarpeta) === String(idCarpeta));
-      
+
           if (!documento) {
             this.messageService.add({
               severity: 'error',
@@ -554,10 +554,10 @@ validar = false;
             });
             return;
           }
-      
+
           const fecha_emision_original = documento.fechaEmision;
           const total = documento.importeBruto;
-      
+
           if (!fecha_emision_original || !total) {
             const faltan = [];
             if (!fecha_emision_original) faltan.push('fecha de emisión');
@@ -569,11 +569,11 @@ validar = false;
             });
             return;
           }
-      
+
           const fechaObj = new Date(fecha_emision_original);
           const fecha_emision = `${fechaObj.getDate().toString().padStart(2, '0')}/${(fechaObj.getMonth() + 1).toString().padStart(2, '0')}/${fechaObj.getFullYear()}`;
           const totalFormateado = Number(total).toFixed(2);
-      
+
           const payload = {
             ruc_emisor,
             codigo_tipo_documento,
@@ -582,12 +582,12 @@ validar = false;
             fecha_emision,
             total: totalFormateado
           };
-      
+
           this.apiService.enviarAFactiliza(payload).subscribe({
             next: (res) => {
               const estado = res?.data?.comprobante_estado_codigo;
               const validado = estado === '1';
-      
+
               if (validado) {
                 this.messageService.add({
                   severity: 'success',
@@ -601,13 +601,14 @@ validar = false;
                   detail: `Documento ${idCarpeta} NO está validado por SUNAT`
                 });
               }
-      
-              // Actualizar backend
-              this.apiService.editarDocumento({
+              const datosParaEditar = {
+                ...documento,
                 idEmpresa: this.idEmpresa,
                 idCarpeta: idCarpeta,
                 validado: validado
-              } as any).subscribe({
+              };
+              // Actualizar backend
+              this.apiService.editarDocumento(datosParaEditar).subscribe({
                 next: () => {
                   // También actualizar localmente en this.products
                   const index = this.products.findIndex(p => String(p.idCarpeta) === String(idCarpeta));
@@ -620,7 +621,7 @@ validar = false;
                   console.error('Error al actualizar el documento', err);
                 }
               });
-      
+
               console.log('ID carpeta validado:', idCarpeta);
             },
             error: (err) => {
@@ -634,7 +635,7 @@ validar = false;
           });
         }
       }
-      
+
 
     ];
 
@@ -1040,7 +1041,7 @@ validar = false;
           this.cargando = false;
         }
       });
-      
+
     } else {
       this.cargandoc = true;
       // Si no es final, usamos listarCarpeta
@@ -1068,7 +1069,7 @@ validar = false;
       });
 
     }
-    
+
   }
 
 
@@ -1180,7 +1181,7 @@ validar = false;
         e.cancel = true;
       }
     });
-    
+
   }
 
 
@@ -1716,13 +1717,13 @@ validar = false;
   calcularImpuesto(carpeta: any): number {
     const impuestoItem = this.impuestos.find(i => i.idImpuestos === carpeta?.impuestos);
     if (!impuestoItem) return 0;
-  
+
     const porcentaje = parseFloat(impuestoItem.descripcion.replace('%', '')) / 100;
     const impuesto = carpeta.importeBruto * (porcentaje / (1 + porcentaje));
-  
+
     return +impuesto.toFixed(2);
   }
-  
+
   grabar() {
 
     if (!this.idCarpeta) {
@@ -2430,7 +2431,7 @@ validar = false;
           }
         };
       }
-  
+
       if (e.dataField === 'costos') {
         e.editorOptions.onKeyDown = (args: any) => {
           if (args?.event?.key === 'F2') {
@@ -2441,14 +2442,14 @@ validar = false;
       }
     }
   }
-  
+
 
   abrirSelectorCuenta(e: any): void {
     this.apiService.listaCuentas().subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.cuentasDisponibles = res.data;
-  
+
           // Puedes usar un DialogService, un PrimeNG DynamicDialog o simplemente un flag
           this.mostrarSelectorCuentas = true;
           this.filaEditandoCuenta = e.row?.rowIndex; // Guarda qué fila está editando
@@ -2483,7 +2484,7 @@ validar = false;
         console.error('Error al listar centros de costo:', err);
       }
     });
-  }  
+  }
 
   seleccionarCentroCosto(costo: any): void {
     if (this.filaEditandoCentroCosto !== undefined) {
@@ -2495,5 +2496,5 @@ validar = false;
       this.filaEditandoCentroCosto = undefined;
     }
   }
-  
+
 }
