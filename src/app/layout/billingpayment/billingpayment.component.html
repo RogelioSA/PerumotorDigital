@@ -17,17 +17,14 @@
         <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardSubir = true"
           class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
             class="pi pi-upload text-sm"></i>Subir en masa</button>
-      </div>
-    </div>
-
-    <div class="flex justify-between mt-0 items-end" *ngIf="mostrarTablaCarpetas">
-
-      <div class="flex gap-2">
         <button (click)="descargarExcel()"
           class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
             class="pi pi-file-excel text-sm"></i>Excel</button>
+
       </div>
     </div>
+
+
 
   </div>
 
@@ -101,7 +98,8 @@
         <!-- Nombre con ícono tipo carpeta -->
 
         <dxi-column dataField="idCarpeta" [allowFiltering]="true" [allowSorting]="false" cellTemplate="cellTemplate"
-          caption="Nombre" [allowEditing]="false" [width]="220">
+          caption="Nombre" [allowEditing]="false" [width]="230"  [fixed]="true"
+  fixedPosition="left">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -130,7 +128,7 @@
         </div>
 
         <!-- Resto de columnas -->
-        <dxi-column dataField="idCobrarPagarDoc" caption="Operación">
+        <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -153,12 +151,12 @@
           </dxo-header-filter>
           <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date">
+        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date">
+        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -175,7 +173,7 @@
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="lca" caption="LCA">
+        <dxi-column dataField="lca" caption="LCA" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -242,12 +240,12 @@
           <dxo-lookup [dataSource]="moneda" displayExpr="descripcion" valueExpr="idMoneda">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date">
+        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date">
+        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -276,12 +274,12 @@
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date">
+        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date">
+        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -799,7 +797,7 @@
           <td>{{ row.idArea }}</td>
           <td>{{ row.estado }}</td>
           <td>{{ row.revCtb }}</td>
-          <td>{{ row.fechaVcto | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ row.fechaVcto | date: 'short' }}</td>
           <td>{{ row.fechaPago | date: 'short' }}</td>
           <td>{{ row.comentario }}</td>
           <td>{{ row.revControl }}</td>
