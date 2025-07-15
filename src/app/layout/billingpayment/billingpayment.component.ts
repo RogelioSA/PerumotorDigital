@@ -1139,11 +1139,14 @@ validar = false;
         cleanedData['importeNeto'] = nuevoImporteNeto;
 
         // Actualizar producto en products
-        const index = this.products.findIndex(p => p.id === cleanedData.id);
-        if (index !== -1) {
-          this.products[index].importeNeto = nuevoImporteNeto;
-          this.products[index].srIgv = tipoIgv;
-        }
+     const index = this.products.findIndex(p => p.idCarpeta?.trim() === cleanedData.idCarpeta?.trim());
+    if (index !== -1) {
+      this.products[index] = {
+        ...this.products[index],
+        importeNeto: nuevoImporteNeto,
+        srIgv: tipoIgv
+      };
+    }
       }
     }
     cleanedData['usuarioModificacion'] = this.cookieService.get('usuario') || 'Usuario';;
