@@ -79,8 +79,8 @@ interface Carpeta {
   styleUrl: './billingpayment.component.css'
 })
 export class BillingpaymentComponent implements AfterViewInit{
-
-  cuentasDisponibles: any[] = [];
+loadingDialog: boolean = false;
+cuentasDisponibles: any[] = [];
 mostrarSelectorCuentas: boolean = false;
 cuentaSeleccionada: any = null;
 filaEditandoCuenta: number | undefined;
@@ -531,9 +531,9 @@ validar = false;
           const letraSerie = serie_documento[0];
           let codigo_tipo_documento = '';
 
-          if (letraSerie === 'F') {
+          if (letraSerie === 'F' || letraSerie === 'E') {
             codigo_tipo_documento = '01';
-          } else if (letraSerie === 'B' || letraSerie === 'E') {
+          } else if (letraSerie === 'B' ) {
             codigo_tipo_documento = '03';
           } else {
             this.messageService.add({
@@ -1424,7 +1424,7 @@ validar = false;
       console.error('No se ha definido idCarpeta.');
       return;
     }
-
+    this.loadingDialog = true;
     const ruc = this.idCarpeta.split('_')[0];
     const idDocumento = tipo.toUpperCase();
 
@@ -1438,6 +1438,7 @@ validar = false;
         }));
         this.tituloDialogo = `Detalles de ${tipo}`;
         this.dialogoVisible = true;
+        this.loadingDialog = false;
       },
       error: (error) => {
         console.error('Error al listar documentos pendientes:', error);

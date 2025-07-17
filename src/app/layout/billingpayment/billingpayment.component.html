@@ -446,7 +446,7 @@
     <div class="flex gap-3">
       <div class="flex flex-col w-1/2">
         <label for="serie" class="text-sm font-medium mb-1">Serie</label>
-        <input id="serie" pInputText [(ngModel)]="nuevoDocumento.serie" class="w-full" />
+        <input id="serie" pInputText [(ngModel)]="nuevoDocumento.serie" class="w-full uppercase" (ngModelChange)="nuevoDocumento.serie = $event?.toUpperCase()"/>
       </div>
 
       <div class="flex flex-col w-1/2">
@@ -541,6 +541,11 @@
 
     <!-- Columna izquierda con botones -->
     <div class="flex flex-col gap-2">
+        <!-- Spinner centrado sobre todos los botones -->
+      <div *ngIf="loadingDialog"
+          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+        <p-progressSpinner styleClass="w-6 h-6" strokeWidth="4"></p-progressSpinner>
+      </div>
       <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48"
         (click)="abrirDialogo('GRP')"></button>
       <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48"
@@ -830,8 +835,8 @@
 
 </p-dialog>
 
-<p-dialog header="Seleccionar cuenta" [(visible)]="mostrarSelectorCuentas" [modal]="true" [style]="{width: '40vw'}">
-  <p-table [value]="cuentasDisponibles" selectionMode="single" [(selection)]="cuentaSeleccionada">
+<p-dialog header="CUENTAS CONTABLES" [(visible)]="mostrarSelectorCuentas" [modal]="true" [style]="{width: '40vw'}">
+  <p-table [value]="cuentasDisponibles" selectionMode="single" [(selection)]="cuentaSeleccionada" class="tabla-compacta">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -847,10 +852,10 @@
   </p-table>
 </p-dialog>
 
-<p-dialog header="Seleccionar Centro de Costos" [(visible)]="mostrarSelectorCentroCosto" [modal]="true"
+<p-dialog header="CENTRO DE COSTOS" [(visible)]="mostrarSelectorCentroCosto" [modal]="true"
   [style]="{width: '40vw'}">
 
-  <p-table [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado">
+  <p-table [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado" class="tabla-compacta">
 
     <ng-template pTemplate="header">
       <tr>
