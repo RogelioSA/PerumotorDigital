@@ -256,20 +256,24 @@ export class ApiService {
   }): Observable<any> {
     const url = 'https://api.factiliza.com/v1/sunat/cpe';
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzODg5NyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImNvbnN1bHRvciJ9.1nvg8UKFQFIc2JNZkD5lmzCZsR4-_PH7aIHiRvPhkU0'; // ← Reemplaza por tu token real
-  
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-  
+
     return this.https.post(url, data, { headers });
   }
-  
+
   listaCuentas(): Observable<any>{
     return this.https.get(`${this.apiUrl}/BillingPayment/listaCuentas`,{});
   }
 
   listaCentrosCosto(): Observable<any>{
     return this.https.get(`${this.apiUrl}/BillingPayment/listaCentrosCosto`,{});
+  }
+
+  listarSucursales(): Observable<any>{
+    return this.https.get(`${this.apiUrl}/ResumeBySeller/GetSucursal`,{});
   }
 }

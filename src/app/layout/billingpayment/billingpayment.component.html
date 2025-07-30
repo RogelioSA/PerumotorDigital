@@ -250,6 +250,13 @@
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
+        <dxi-column dataField="sucursal" [width]="200" caption="Sucursal">
+          <dxo-header-filter [allowSelectAll]="false">
+            <dxo-search [enabled]="true"></dxo-search>
+          </dxo-header-filter>
+          <dxo-lookup [dataSource]="sucursal" displayExpr="descripcion" valueExpr="idSucursal">
+          </dxo-lookup>
+        </dxi-column>
         <dxi-column dataField="periodo" caption="Periodo">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
@@ -410,12 +417,12 @@
             <ng-container *ngIf="archivoSeleccionadoUrl && !cargandoArchivo">
               <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
                 style="max-width: 100%; max-height: 70vh;" />
-              <iframe *ngIf="esPDF(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="470px"></iframe>
-              <iframe *ngIf="esWord(archivoSeleccionadoUrl)"
-                [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%"
-                height="500px"></iframe>
+              <iframe *ngIf="!esImagen(archivoSeleccionadoUrl)"
+                  [src]="safeUrl"
+                  width="100%" height="500px"
+                  style="border: none;"></iframe>
               <p
-                *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
+                *ngIf="!esImagen(archivoSeleccionadoUrl) && !safeUrl">
                 Tipo de archivo no soportado para vista previa.
               </p>
             </ng-container>
@@ -611,7 +618,8 @@
   </div>
 
   <!-- Tabla -->
-  <dx-data-grid [dataSource]="productosSeleccionados" (onEditorPreparing)="onEditorPreparing($event)"
+  <dx-data-grid [dataSource]="productosSeleccionados"
+    (onEditorPreparing)="onEditorPreparing($event)" (onInitNewRow)="inicializarNuevaFila($event)"
     class="bg-white rounded-xl shadow-sm border border-gray-200 w-full" [selection]="{ mode: 'single' }"
     [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true" [hoverStateEnabled]="true"
     [showColumnLines]="false" [showRowLines]="true" (onRowUpdating)="editar($event)" noDataText="No hay elementos">
@@ -624,12 +632,11 @@
 
     <dxi-column dataField="item" caption="Item"></dxi-column>
     <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
-    <dxi-column dataField="observaciones" caption="Glosa"></dxi-column>
-    <dxi-column dataField="costos" caption="Centro de costos"></dxi-column>
-    <dxi-column dataField="descripcioncc" caption="Descripción centro de costos."></dxi-column>
+    <dxi-column dataField="descripcionp" caption="Descripción"></dxi-column>
+    <dxi-column dataField="costos" caption="C.Costos"></dxi-column>
+    <dxi-column dataField="descripcioncc" caption="Centro de Costos"></dxi-column>
     <dxi-column dataField="destino" caption="Destino"></dxi-column>
     <dxi-column dataField="importe" caption="Importe"></dxi-column>
-    <dxi-column dataField="descripcionp" caption="Descripción producto"></dxi-column>
     <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
     <dxi-column dataField="producto" caption="Producto"></dxi-column>
 
@@ -836,7 +843,17 @@
 </p-dialog>
 
 <p-dialog header="CUENTAS CONTABLES" [(visible)]="mostrarSelectorCuentas" [modal]="true" [style]="{width: '40vw'}">
-  <p-table [value]="cuentasDisponibles" selectionMode="single" [(selection)]="cuentaSeleccionada" class="tabla-compacta">
+  <!-- Buscador -->
+  <div class="mb-2">
+    <span class="p-input-icon-left w-full">
+      <i class="pi pi-search"></i>
+      <input #filtroCuentas type="text" pInputText placeholder="Buscar por cuenta o descripción..."
+             (input)="tablaCuentas.filterGlobal(filtroCuentas.value, 'contains')">
+    </span>
+  </div>
+  <p-table #tablaCuentas [value]="cuentasDisponibles"
+  [globalFilterFields]="['id', 'descripcion']"
+  selectionMode="single" [(selection)]="cuentaSeleccionada" class="tabla-compacta">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -852,24 +869,27 @@
   </p-table>
 </p-dialog>
 
-<p-dialog header="CENTRO DE COSTOS" [(visible)]="mostrarSelectorCentroCosto" [modal]="true"
-  [style]="{width: '40vw'}">
-
-  <p-table [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado" class="tabla-compacta">
-
+<p-dialog header="CENTRO DE COSTOS" [(visible)]="mostrarSelectorCentroCosto" [modal]="true" [style]="{width: '40vw'}">
+  <!-- Buscador -->
+  <div class="mb-2">
+    <span class="p-input-icon-left w-full">
+      <i class="pi pi-search"></i>
+      <input #filtroCentro type="text" pInputText placeholder="Buscar descripción..."
+             (input)="tablaCentros.filter(filtroCentro.value, 'descripcion', 'contains')">
+    </span>
+  </div>
+  <p-table #tablaCentros [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado" class="tabla-compacta">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
         <th>Descripción</th>
       </tr>
     </ng-template>
-
     <ng-template pTemplate="body" let-centro>
       <tr (dblclick)="seleccionarCentroCosto(centro)">
         <td>{{ centro.id.trim() }}</td>
         <td>{{ centro.descripcion }}</td>
       </tr>
     </ng-template>
-
   </p-table>
 </p-dialog>

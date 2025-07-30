@@ -81,6 +81,7 @@ interface Carpeta {
 export class BillingpaymentComponent implements AfterViewInit{
 loadingDialog: boolean = false;
 cuentasDisponibles: any[] = [];
+sucursal: any[] = [];
 mostrarSelectorCuentas: boolean = false;
 cuentaSeleccionada: any = null;
 filaEditandoCuenta: number | undefined;
@@ -329,6 +330,10 @@ validar = false;
 
   this.apiService.opcionClasificacionLE().subscribe(res => {
     this.clasificacionLE = res.data;
+  });
+
+    this.apiService.listarSucursales().subscribe(res => {
+    this.sucursal = res.data;
   });
   }
 
@@ -1341,6 +1346,10 @@ validar = false;
     this.mostrarVisor = true;
     if (this.esPDF(url) || this.esImagen(url)) {
       this.safeUrl = this.getSafeUrl(url);
+    } else if (this.esExcel(url) ||this.esWord(url) ) {
+       const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
+
     } else {
       this.safeUrl = null;
     }
@@ -1377,8 +1386,21 @@ validar = false;
     return /\.(doc|docx)$/i.test(url);
   }
 
+  esExcel(url: string): boolean {
+    return url.endsWith('.xls') || url.endsWith('.xlsx');
+  }
   getSafeUrl(url: string): SafeResourceUrl {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      const lowerUrl = url.toLowerCase();
+
+      if (lowerUrl.endsWith('.doc') || lowerUrl.endsWith('.docx') ||
+          lowerUrl.endsWith('.xls') || lowerUrl.endsWith('.xlsx') ||
+          lowerUrl.endsWith('.ppt') || lowerUrl.endsWith('.pptx')) {
+
+        const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        return this.sanitizer.bypassSecurityTrustResourceUrl(officeViewerUrl);
+      }
+
+  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   encodeURI(url: string): string {
@@ -1570,15 +1592,15 @@ validar = false;
         const regimen = this.productoSeleccionadoResumen.regimen;
         const destino =
           regimen === '01' ? '001' :
-          regimen === '02' ? '002' :
-          regimen === '03' ? '003' :
+          regimen === '02' ? '' :
+          regimen === '03' ? '004' :
           '';
 
         return {
           idCarpeta: this.productosSeleccionados.length + index + 1, // continúa la numeración
           item: item.item,
           cuenta: '',
-          observaciones: observacion,
+          observaciones: '',
           costos: '',
           descripcioncc: '',
           destino: destino,
@@ -1745,6 +1767,28 @@ validar = false;
   this.tipoSeleccionado === 'OPA' ? 'ORDENPAGO' :
   this.tipoSeleccionado === 'FAC' ? 'COBRARPAGARDOC' :
   '';
+  let totalAfecto = 0;
+  let totalInafecto = 0;
+
+  for (const fila of this.productosSeleccionados) {
+       const importe = Number(fila.importe) || 0;
+
+        if (fila.destino === '001') {
+          totalAfecto += importe;
+        } else if (fila.destino === '004') {
+          totalInafecto += importe;
+        }
+  }
+
+  const detalledet = this.tipoDet.find(t => t.id === carpeta?.tipoDet);
+
+  this.productosSeleccionados.forEach(item => {
+  const idSeleccionado = item.tipoDet;
+  const descripcion = this.tipoDet.find(x => x.id === idSeleccionado)?.descripcion || '';
+
+  console.log('Fila:', item, ' -> Tipo Det:', descripcion);
+  });
+
   const tipo = this.tipoSeleccionado?.toUpperCase() || '';
     this.apiService.generarIdCobrarPagarDoc(this.idEmpresa, this.idCarpeta).subscribe({
       next: (response) => {
@@ -1784,7 +1828,7 @@ validar = false;
               <idsubdiario/>
               <voucher/>
               <fecharegistro>${carpeta?.fechaCreacion}</fecharegistro>
-              <idsucursal>001</idsucursal>
+              <idsucursal>${carpeta?.sucursal}</idsucursal>
               <idalmacen/>
               <idcaja/>
               <idcontrol/>
@@ -1793,9 +1837,9 @@ validar = false;
               <iddocumento>FAC</iddocumento>
               <serie>${serie}</serie>
               <numero>${numero}</numero>
-              <fecha>${carpeta?.fechaCreacion}</fecha>
+              <fecha>${carpeta?.fechaEmision}</fecha>
               <dias>0</dias>
-              <vencimiento>${carpeta?.fechaVcto ? carpeta?.fechaVcto  : ''}</vencimiento>
+              <vencimiento>${carpeta?.fechaVcto ? carpeta?.fechaVcto  : carpeta?.fechaEmision}</vencimiento>
               <tcambio>3.662000</tcambio>
               <idclieprov>${ruc}</idclieprov>
               <direccion/>
@@ -1816,8 +1860,8 @@ validar = false;
               <idarea>${carpeta?.idArea}</idarea>
               <glosa>${carpeta?.observacionesGlosa}</glosa>
               <ocompra/>
-              <vventa>${carpeta?.importeBruto}</vventa>
-              <inafecto>0.00</inafecto>
+              <vventa>${carpeta?.importeBruto-impuestoCalculado-totalInafecto}</vventa>
+              <inafecto>${totalInafecto}</inafecto>
               <otros>0</otros>
               <impuesto>${impuestoCalculado}</impuesto>
               <pimpuesto>18.0000</pimpuesto>
@@ -1825,7 +1869,7 @@ validar = false;
               <pdescuento>0.0000</pdescuento>
               <descuentodoc>0.00</descuentodoc>
               <redondeo>0.000000</redondeo>
-              <importe>${carpeta?.importeNeto}</importe>
+              <importe>${carpeta?.importeBruto}</importe>
               <importemof>0</importemof>
               <importemex>0</importemex>
               <iddocdetrac/>
@@ -1869,7 +1913,7 @@ validar = false;
               <idtipocontenedor/>
               <idtipoprecio/>
               <idmovplanilla/>
-              <es_detraccion>0</es_detraccion>
+              <es_detraccion>${carpeta?.srIgv === 2? 1 : 0}</es_detraccion>
               <indicadorventa/>
               <con_retencion>0</con_retencion>
               <idplanilla/>
@@ -1990,7 +2034,7 @@ validar = false;
               <archivo_signed_ce/>
               <estado_ce>0</estado_ce>
               <idestadosunat/>
-              <idclasificacion_bs_sunat>001</idclasificacion_bs_sunat>
+              <idclasificacion_bs_sunat>${carpeta?.clasificacionLe}</idclasificacion_bs_sunat>
               <nro_autsunat/>
               <estado_autsunat/>
               <periodo_correccion/>
@@ -2037,6 +2081,7 @@ validar = false;
               <itemliquidacion/>
               <idclieprov/>
               <idcuenta>${p.cuenta}</idcuenta>
+              <idccosto>${p.costos} </idccosto>
               <idconsumidor>${p.costos} </idconsumidor>
               <iddestino>${p.destino}</iddestino>
               <idtipotransaccion/>
@@ -2072,7 +2117,7 @@ validar = false;
               <itemref>${p.item}</itemref>
               <tablaref>${tipoTabla}</tablaref>
               <idubicacion/>
-              <observaciones/>
+              <observaciones>DESDE PERUMOTOR DIGITAL</observaciones>
               <idactividad/>
               <idlabor/>
               <anniofabricacion/>
@@ -2235,6 +2280,22 @@ validar = false;
             </docreferencia_cp>
             `).join('')}
           </VFPData>`,
+          c_xml_ddet:carpeta?.srIgv === 2?`<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
+          <VFPData>
+            <det_detraccion>
+                <idempresa>001</idempresa>
+                <idcobrarpagardoc>${response.data[0]?.idCobrarPagarDoc}</idcobrarpagardoc>
+                <item>001</item>
+                <numerodetrac>000000000000000</numerodetrac>
+                <fechadetrac>${carpeta?.fechaCreacion}</fechadetrac>
+                <idtipodetra>${carpeta?.tipoDet}</idtipodetra>
+                <tipodetra/>
+                <tasadet>${detalledet.valor}</tasadet>
+                <valorrefe_mof>0.00</valorrefe_mof>
+                <valor_refe>0.00</valor_refe>
+                <idoperacion/>
+            </det_detraccion>
+          </VFPData>`: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?><VFPData/>`,
           c_xml_da: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
           <VFPData>
             <dcobrarpagardoc_a>
@@ -2500,5 +2561,42 @@ validar = false;
       this.filaEditandoCentroCosto = undefined;
     }
   }
+
+  inicializarNuevaFila(e: any): void {
+    //     const productoRelacionado = this.products.find(
+    //   (prod: any) => prod.idCarpeta === this.idCarpeta
+    // );
+
+    const observacion = this.productoSeleccionadoResumen?.observacionesGlosa || '';
+    const regimen = this.productoSeleccionadoResumen.regimen;
+    const destinocl =
+      regimen === '01' ? '001' :
+      regimen === '02' ? '' :
+      regimen === '03' ? '004' :
+      '';
+      // Calcular el siguiente valor para la columna ITEM (001, 002, 003...)
+      const itemsActuales = this.productosSeleccionados || [];
+
+      let siguienteItem = '001';
+      if (itemsActuales.length > 0) {
+        const itemsNumericos = itemsActuales
+          .map(x => x.item)
+          .filter(i => /^[0-9]+$/.test(i))
+          .map(i => parseInt(i, 10));
+
+        const maxItem = itemsNumericos.length > 0 ? Math.max(...itemsNumericos) : 0;
+        siguienteItem = (maxItem + 1).toString().padStart(3, '0');
+      }
+  // Aquí defines los valores por defecto para una nueva fila
+    e.data = {
+      item:siguienteItem,
+      destino: destinocl, // ejemplo: valor por defecto
+      importe: 0,
+      cantidad: 1,
+      descripcionp: observacion,
+      producto: ''
+    // puedes inicializar otros campos si deseas
+  };
+}
 
 }
