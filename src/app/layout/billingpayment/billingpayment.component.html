@@ -74,6 +74,7 @@
       <p-button *ngIf=" mostrarTablaCarpetas " label="Regresar" icon="pi pi-angle-left" variant="text"
         (click)="cerrarVistaCarpeta()"></p-button>
       <dx-data-grid *ngIf="mostrarTablaCarpetas && !cargando"
+        [filterRow]="{ visible: true, applyFilter: 'auto' }"
         class="bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
         [selection]="{ mode: 'single' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [hoverStateEnabled]="true" [showColumnLines]="false" [showRowLines]="true" (onRowDblClick)="onVerClick($event)"
@@ -99,7 +100,7 @@
 
         <dxi-column dataField="idCarpeta" [allowFiltering]="true" [allowSorting]="false" cellTemplate="cellTemplate"
           caption="Nombre" [allowEditing]="false" [width]="230"  [fixed]="true"
-  fixedPosition="left">
+          fixedPosition="left">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -128,168 +129,84 @@
         </div>
 
         <!-- Resto de columnas -->
-        <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="idArea" [width]="200" caption="Área">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="idArea" [width]="200" caption="Área" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="estado" caption="Estado">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="estado" caption="Estado" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="revCtb" caption="Rev. Cont.">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="comentario" caption="Comentario">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="comentario" caption="Comentario" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="revControl" caption="Rev. Control">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="revControl" caption="Rev. Control" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="lca" caption="LCA" [allowEditing]="false">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="lca" caption="LCA" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="documento" caption="Documento">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="documento" caption="Documento" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="razonSocial" caption="Razón Social">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="razonSocial" caption="Razón Social" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="srIgv" caption="Sr IGV">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="srIgv" caption="Sr IGV" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="igv" displayExpr="descripcion" valueExpr="idigv">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="tipoDet" [width]="200" caption="Tipo Det.">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="tipoDet" [width]="200" caption="Tipo Det." [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="tipoDet" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="onsContable" caption="Obs Contable">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="onsContable" caption="Obs Contable" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="obs" displayExpr="descripcion" valueExpr="idObs">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="regimen" caption="Régimen">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="regimen" caption="Régimen" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="regimen" displayExpr="descripcion" valueExpr="idRegimen">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="importeBruto" caption="Importe Bruto" dataType="number">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="importeBruto" caption="Importe Bruto" dataType="number" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="impuestos" caption="Impuestos">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="impuestos" caption="Impuestos" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="impuestos" displayExpr="descripcion" valueExpr="idImpuestos">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="importeNeto" caption="Importe Neto" dataType="number">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="importeNeto" caption="Importe Neto" dataType="number" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="moneda" caption="Moneda">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="moneda" caption="Moneda" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="moneda" displayExpr="descripcion" valueExpr="idMoneda">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date" [format]="'dd/MM/yyyy'">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date" [format]="'dd/MM/yyyy'">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="sucursal" [width]="200" caption="Sucursal">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="sucursal" [width]="200" caption="Sucursal" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="sucursal" displayExpr="descripcion" valueExpr="idSucursal">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="periodo" caption="Periodo">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="periodo" caption="Periodo" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="tipoMovimiento" [width]="200" caption="Tipo Movimiento">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="tipoMovimiento" [width]="200" caption="Tipo Movimiento" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="tipoMovimiento" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="clasificacionLe" [width]="200" caption="Clasificación LE">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="clasificacionLe" [width]="200" caption="Clasificación LE" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="clasificacionLE" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="observacionesGlosa" caption="Glosa Contable">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="observacionesGlosa" caption="Glosa Contable" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date" [format]="'dd/MM/yyyy'">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date" [format]="'dd/MM/yyyy'">
-          <dxo-header-filter [allowSelectAll]="false">
-            <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
       </dx-data-grid>
 
