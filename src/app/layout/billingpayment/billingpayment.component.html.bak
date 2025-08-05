@@ -17,17 +17,14 @@
         <button *ngIf="mostrarTablaCarpetas" (click)="mostrarCardSubir = true"
           class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
             class="pi pi-upload text-sm"></i>Subir en masa</button>
-      </div>
-    </div>
-
-    <div class="flex justify-between mt-0 items-end" *ngIf="mostrarTablaCarpetas">
-
-      <div class="flex gap-2">
         <button (click)="descargarExcel()"
           class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2 block mx-auto"><i
             class="pi pi-file-excel text-sm"></i>Excel</button>
+
       </div>
     </div>
+
+
 
   </div>
 
@@ -101,7 +98,8 @@
         <!-- Nombre con ícono tipo carpeta -->
 
         <dxi-column dataField="idCarpeta" [allowFiltering]="true" [allowSorting]="false" cellTemplate="cellTemplate"
-          caption="Nombre" [allowEditing]="false" [width]="220">
+          caption="Nombre" [allowEditing]="false" [width]="230"  [fixed]="true"
+  fixedPosition="left">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -130,7 +128,7 @@
         </div>
 
         <!-- Resto de columnas -->
-        <dxi-column dataField="idCobrarPagarDoc" caption="Operación">
+        <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -153,12 +151,12 @@
           </dxo-header-filter>
           <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date">
+        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date">
+        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -175,7 +173,7 @@
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="lca" caption="LCA">
+        <dxi-column dataField="lca" caption="LCA" [allowEditing]="false">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -242,15 +240,22 @@
           <dxo-lookup [dataSource]="moneda" displayExpr="descripcion" valueExpr="idMoneda">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date">
+        <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date">
+        <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
+        </dxi-column>
+        <dxi-column dataField="sucursal" [width]="200" caption="Sucursal">
+          <dxo-header-filter [allowSelectAll]="false">
+            <dxo-search [enabled]="true"></dxo-search>
+          </dxo-header-filter>
+          <dxo-lookup [dataSource]="sucursal" displayExpr="descripcion" valueExpr="idSucursal">
+          </dxo-lookup>
         </dxi-column>
         <dxi-column dataField="periodo" caption="Periodo">
           <dxo-header-filter [allowSelectAll]="false">
@@ -276,12 +281,12 @@
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date">
+        <dxi-column dataField="fechaCreacion" caption="Fecha Creación" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
         </dxi-column>
-        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date">
+        <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date" [format]="'dd/MM/yyyy'">
           <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
           </dxo-header-filter>
@@ -412,12 +417,12 @@
             <ng-container *ngIf="archivoSeleccionadoUrl && !cargandoArchivo">
               <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
                 style="max-width: 100%; max-height: 70vh;" />
-              <iframe *ngIf="esPDF(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="470px"></iframe>
-              <iframe *ngIf="esWord(archivoSeleccionadoUrl)"
-                [src]="'https://docs.google.com/gview?url=' + archivoSeleccionadoUrl + '&embedded=true'" width="100%"
-                height="500px"></iframe>
+              <iframe *ngIf="!esImagen(archivoSeleccionadoUrl)"
+                  [src]="safeUrl"
+                  width="100%" height="500px"
+                  style="border: none;"></iframe>
               <p
-                *ngIf="!esImagen(archivoSeleccionadoUrl) && !esPDF(archivoSeleccionadoUrl) && !esWord(archivoSeleccionadoUrl)">
+                *ngIf="!esImagen(archivoSeleccionadoUrl) && !safeUrl">
                 Tipo de archivo no soportado para vista previa.
               </p>
             </ng-container>
@@ -448,7 +453,7 @@
     <div class="flex gap-3">
       <div class="flex flex-col w-1/2">
         <label for="serie" class="text-sm font-medium mb-1">Serie</label>
-        <input id="serie" pInputText [(ngModel)]="nuevoDocumento.serie" class="w-full" />
+        <input id="serie" pInputText [(ngModel)]="nuevoDocumento.serie" class="w-full uppercase" (ngModelChange)="nuevoDocumento.serie = $event?.toUpperCase()"/>
       </div>
 
       <div class="flex flex-col w-1/2">
@@ -543,6 +548,11 @@
 
     <!-- Columna izquierda con botones -->
     <div class="flex flex-col gap-2">
+        <!-- Spinner centrado sobre todos los botones -->
+      <div *ngIf="loadingDialog"
+          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+        <p-progressSpinner styleClass="w-6 h-6" strokeWidth="4"></p-progressSpinner>
+      </div>
       <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48"
         (click)="abrirDialogo('GRP')"></button>
       <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48"
@@ -608,33 +618,28 @@
   </div>
 
   <!-- Tabla -->
-  <dx-data-grid [dataSource]="productosSeleccionados" (onEditorPreparing)="onEditorPreparing($event)"
+  <dx-data-grid [dataSource]="productosSeleccionados"
+    (onEditorPreparing)="onEditorPreparing($event)" (onInitNewRow)="inicializarNuevaFila($event)"
     class="bg-white rounded-xl shadow-sm border border-gray-200 w-full" [selection]="{ mode: 'single' }"
     [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true" [hoverStateEnabled]="true"
     [showColumnLines]="false" [showRowLines]="true" (onRowUpdating)="editar($event)" noDataText="No hay elementos">
     <dxo-paging [pageSize]="10"></dxo-paging>
     <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 30, 50]" [displayMode]="'full'"
       [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true"></dxo-pager>
-    <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true"></dxo-editing>
+    <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true" [allowDeleting]="true" ></dxo-editing>
     <dxo-selection mode="single"></dxo-selection>
 
 
     <dxi-column dataField="item" caption="Item"></dxi-column>
     <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
-    <dxi-column dataField="observaciones" caption="Glosa"></dxi-column>
-    <dxi-column dataField="costos" caption="Centro de costos"></dxi-column>
-    <dxi-column dataField="descripcioncc" caption="Descripción centro de costos."></dxi-column>
+    <dxi-column dataField="descripcionp" caption="Descripción"></dxi-column>
+    <dxi-column dataField="costos" caption="C.Costos"></dxi-column>
+    <dxi-column dataField="descripcioncc" caption="Centro de Costos"></dxi-column>
     <dxi-column dataField="destino" caption="Destino"></dxi-column>
     <dxi-column dataField="importe" caption="Importe"></dxi-column>
-    <dxi-column dataField="descripcionp" caption="Descripción producto"></dxi-column>
     <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
     <dxi-column dataField="producto" caption="Producto"></dxi-column>
 
-    <dxi-column type="buttons" [width]="60">
-      <dxi-button name="edit" icon="edit"></dxi-button>
-      <dxi-button name="save" icon="save"></dxi-button>
-      <dxi-button name="cancel" icon="revert"></dxi-button>
-    </dxi-column>
     <dxo-summary>
       <dxi-total-item column="destino" summaryType="count"> </dxi-total-item>
 
@@ -837,8 +842,18 @@
 
 </p-dialog>
 
-<p-dialog header="Seleccionar cuenta" [(visible)]="mostrarSelectorCuentas" [modal]="true" [style]="{width: '40vw'}">
-  <p-table [value]="cuentasDisponibles" selectionMode="single" [(selection)]="cuentaSeleccionada">
+<p-dialog header="CUENTAS CONTABLES" [(visible)]="mostrarSelectorCuentas" [modal]="true" [style]="{width: '40vw'}">
+  <!-- Buscador -->
+  <div class="mb-2">
+    <span class="p-input-icon-left w-full">
+      <i class="pi pi-search"></i>
+      <input #filtroCuentas type="text" pInputText placeholder="Buscar por cuenta o descripción..."
+             (input)="tablaCuentas.filterGlobal(filtroCuentas.value, 'contains')">
+    </span>
+  </div>
+  <p-table #tablaCuentas [value]="cuentasDisponibles"
+  [globalFilterFields]="['id', 'descripcion']"
+  selectionMode="single" [(selection)]="cuentaSeleccionada" class="tabla-compacta">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -854,24 +869,27 @@
   </p-table>
 </p-dialog>
 
-<p-dialog header="Seleccionar Centro de Costos" [(visible)]="mostrarSelectorCentroCosto" [modal]="true"
-  [style]="{width: '40vw'}">
-
-  <p-table [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado">
-
+<p-dialog header="CENTRO DE COSTOS" [(visible)]="mostrarSelectorCentroCosto" [modal]="true" [style]="{width: '40vw'}">
+  <!-- Buscador -->
+  <div class="mb-2">
+    <span class="p-input-icon-left w-full">
+      <i class="pi pi-search"></i>
+      <input #filtroCentro type="text" pInputText placeholder="Buscar descripción..."
+             (input)="tablaCentros.filter(filtroCentro.value, 'descripcion', 'contains')">
+    </span>
+  </div>
+  <p-table #tablaCentros [value]="centrosCostoDisponibles" selectionMode="single" [(selection)]="centroCostoSeleccionado" class="tabla-compacta">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
         <th>Descripción</th>
       </tr>
     </ng-template>
-
     <ng-template pTemplate="body" let-centro>
       <tr (dblclick)="seleccionarCentroCosto(centro)">
         <td>{{ centro.id.trim() }}</td>
         <td>{{ centro.descripcion }}</td>
       </tr>
     </ng-template>
-
   </p-table>
 </p-dialog>
