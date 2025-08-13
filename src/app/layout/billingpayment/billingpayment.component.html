@@ -75,7 +75,7 @@
         (click)="cerrarVistaCarpeta()"></p-button>
       <dx-data-grid *ngIf="mostrarTablaCarpetas && !cargando"
         [filterRow]="{ visible: true, applyFilter: 'auto' }"
-        class="bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
+        class="tabla-reducida bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
         [selection]="{ mode: 'single' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [hoverStateEnabled]="true" [showColumnLines]="false" [showRowLines]="true" (onRowDblClick)="onVerClick($event)"
         (onRowUpdating)="onEditarDocumento($event)" noDataText="No hay elementos, ajusta tus filtros">
@@ -131,7 +131,7 @@
         <!-- Resto de columnas -->
         <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="idArea" [width]="200" caption="Área" [allowHeaderFiltering]="false">
+        <dxi-column dataField="idArea" caption="Área" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
           </dxo-lookup>
         </dxi-column>
@@ -145,6 +145,8 @@
         <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
         <dxi-column dataField="comentario" caption="Comentario" [allowHeaderFiltering]="false">
+        </dxi-column>
+        <dxi-column dataField="idSerie" caption="Vehículo" [allowHeaderFiltering]="false">
         </dxi-column>
         <dxi-column dataField="revControl" caption="Rev. Control" [allowHeaderFiltering]="false">
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
@@ -184,6 +186,10 @@
           <dxo-lookup [dataSource]="moneda" displayExpr="descripcion" valueExpr="idMoneda">
           </dxo-lookup>
         </dxi-column>
+        <dxi-column dataField="idDocumento" caption="T.DOC" [allowHeaderFiltering]="false">
+          <dxo-lookup [dataSource]="docs" displayExpr="descripcion" valueExpr="iddoc">
+          </dxo-lookup>
+        </dxi-column>
         <dxi-column dataField="fechaProg" caption="Fecha Prog." dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
         <dxi-column dataField="fechaEmision" caption="Fecha Emisión" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
@@ -208,6 +214,11 @@
         </dxi-column>
         <dxi-column dataField="fechaModificacion" caption="Fecha Modificación" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
+        <dxi-column dataField="usuarioModificacion" caption="Modificado" [allowHeaderFiltering]="false">
+        </dxi-column>
+        <dxi-column dataField="usuarioCreacion" caption="Creado" [allowHeaderFiltering]="false">
+        </dxi-column>
+
       </dx-data-grid>
 
       <ng-template #validadoTemplate let-data>

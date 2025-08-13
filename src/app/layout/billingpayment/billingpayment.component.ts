@@ -136,9 +136,24 @@ validar = false;
   regimenSeleccionado: string = '';
 
   moneda = [
-    { idMoneda: '01', descripcion: 'Soles' },
-    { idMoneda: '02', descripcion: 'Dolares Americanos' },
-    { idMoneda: '03', descripcion: 'Euros' }
+    { idMoneda: '01', descripcion: 'S/' },
+    { idMoneda: '02', descripcion: '$' },
+    { idMoneda: '03', descripcion: 'E' }
+  ];
+
+  docs = [
+    { iddoc: 'FAC', descripcion: 'FAC' },
+    { iddoc: 'BOL', descripcion: 'BOL' },
+    { iddoc: 'NCR', descripcion: 'NCR' },
+    { iddoc: 'RHN', descripcion: 'RHN' },
+    { iddoc: 'BLA', descripcion: 'BLA' },
+    { iddoc: 'CPA', descripcion: 'CPA' },
+    { iddoc: 'INV', descripcion: 'INV' },
+    { iddoc: 'ODC', descripcion: 'ODC' },
+    { iddoc: 'RPA', descripcion: 'RPA' },
+    { iddoc: 'SPB', descripcion: 'SPB' },
+    { iddoc: 'TKT', descripcion: 'TKT' },
+    { iddoc: 'FAT', descripcion: 'FAT' }
   ];
   monedaSeleccionado: string = '';
 
@@ -2090,7 +2105,7 @@ validar = false;
               <descripcion>${p.descripcionp}</descripcion>
               <idestadoproducto>0</idestadoproducto>
               <idlote/>
-              <idserie>${p.idVehiculo?p.idVehiculo:''}</idserie>
+              <idserie>${response.data[0]?.idSerie}</idserie>
               <idreferencia>${p.referencia}</idreferencia>
               <origen/>
               <idmovrefer/>

@@ -1,3 +1,4 @@
+/* PARA LA BUSQUEDA DE CUENTAS CONTABLES Y CENTRO DE COSTOS*/
 ::ng-deep .tabla-compacta .p-datatable-tbody > tr > td,
 ::ng-deep .tabla-compacta .p-datatable-thead > tr > th {
   padding: 4px 6px !important;
@@ -6,3 +7,29 @@
 ::ng-deep .tabla-compacta .p-datatable-tbody > tr {
   height: 26px !important;
 }
+
+::ng-deep .tabla-reducida .dx-datagrid {
+  font-size: 12px !important;
+  line-height: 14px !important; /* Texto más compacto */
+}
+
+::ng-deep .tabla-reducida .dx-row > td {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+::ng-deep .tabla-reducida .dx-header-row > td {
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+
+::ng-deep .tabla-reducida .dx-row {
+  height: auto !important;      /* Que se ajuste al contenido */
+  min-height: 20px !important;  /* Altura mínima reducida */
+}
+
+::ng-deep .tabla-reducida .dx-datagrid-headers .dx-header-row {
+  height: auto !important;
+  min-height: 22px !important;
+}
+
