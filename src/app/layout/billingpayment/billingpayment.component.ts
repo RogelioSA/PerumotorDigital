@@ -1139,10 +1139,12 @@ validar = false;
     // Comparar usando triple igual con conversión explícita
     const oldIgv = String(e.oldData['srIgv']);
     const newIgv = String(e.newData['srIgv']);
+    const oldImporteB = String(e.oldData['importeBruto']);
+    const newImporteB = String(e.newData['importeBruto']);
 
-    // Solo si cambió el srIgv
-    if (oldIgv !== newIgv) {
-      const tipoIgv = cleanedData['srIgv'];
+    // Solo si cambió el srIgv or cambiaron importes
+    if (oldIgv !== newIgv || oldImporteB !== newImporteB) {
+      const tipoIgv = cleanedData['srIgv'].toString();
       const importeBruto = parseFloat(cleanedData['importeBruto']);
 
       if (!isNaN(importeBruto)) {
@@ -1796,12 +1798,21 @@ validar = false;
   }
 
   const detalledet = this.tipoDet.find(t => t.id === carpeta?.tipoDet);
-
+ const detret = this.tipoDet.find(t => t.id === carpeta?.srIGV);
+    if((carpeta?.srIgv).toString()==='2' && !detalledet)
+    {
+        this.messageService.add({
+                severity: 'error',
+                summary: 'Error en producto',
+                detail: `LA PROVISIÓN CUENTA CON DETRACCIÓN, SE DEBE ESPECIFICAR EL TIPO DE DETRACCIÓN`
+              });
+              return;
+    }
   this.productosSeleccionados.forEach(item => {
   const idSeleccionado = item.tipoDet;
   const descripcion = this.tipoDet.find(x => x.id === idSeleccionado)?.descripcion || '';
 
-  console.log('Fila:', item, ' -> Tipo Det:', descripcion);
+  //console.log('Fila:', item, ' -> Tipo Det:', descripcion);
   });
 
   const tipo = this.tipoSeleccionado?.toUpperCase() || '';
@@ -1849,7 +1860,7 @@ validar = false;
               <idcontrol/>
               <idpedidopv/>
               <origen>P</origen>
-              <iddocumento>FAC</iddocumento>
+              <iddocumento>${carpeta?.idDocumento}</iddocumento>
               <serie>${serie}</serie>
               <numero>${numero}</numero>
               <fecha>${carpeta?.fechaEmision}</fecha>

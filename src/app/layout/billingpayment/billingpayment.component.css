@@ -10,7 +10,9 @@
 
 ::ng-deep .tabla-reducida .dx-datagrid {
   font-size: 12px !important;
-  line-height: 14px !important; /* Texto más compacto */
+  line-height: 12px !important; /* Texto más compacto */
+  letter-spacing: -0.2px;    /* reduce espacio entre letras */
+  font-family: 'Arial Narrow', Arial, sans-serif; /* fuente más compacta */
 }
 
 ::ng-deep .tabla-reducida .dx-row > td {
@@ -28,8 +30,12 @@
   min-height: 20px !important;  /* Altura mínima reducida */
 }
 
-::ng-deep .tabla-reducida .dx-datagrid-headers .dx-header-row {
+::ng-deep .tabla-reducida .dx-datagrid-headers .dx-header-row > td,
+::ng-deep .tabla-reducida .dx-datagrid-headers .dx-datagrid-table-fixed .dx-header-row > td {
   height: auto !important;
   min-height: 22px !important;
+  font-weight: bold !important; /* 🔹 Negrita en encabezado */
+  background-color: black !important;  /* Fondo negro */
+  color: white !important;             /* Texto blanco */
 }
 
