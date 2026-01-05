@@ -551,7 +551,7 @@ validar = false;
           const letraSerie = serie_documento[0];
           let codigo_tipo_documento = '';
 
-          if (idDocumento ==='FAC') {
+          if (letraSerie ==='F') {
             codigo_tipo_documento = '01';
           } else if (letraSerie === 'B' ) {
             codigo_tipo_documento = '03';
