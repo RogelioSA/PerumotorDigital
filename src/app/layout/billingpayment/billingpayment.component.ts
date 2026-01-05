@@ -700,12 +700,29 @@ validar = false;
     this.productoEditando = null;
   }
 
-  crearDocumento() {
+  aplicarFormatoNumero() {
+    this.nuevoDocumento.numero = this.obtenerNumeroFormateado(this.nuevoDocumento.numero);
+  }
 
-    const numeroSinCeros = parseInt(this.nuevoDocumento.numero, 10).toString();
+  obtenerNumeroFormateado(numero: string): string {
+    const numeroLimpio = (numero || '').trim();
+
+    if (!numeroLimpio) {
+      return '';
+    }
+
+    if (numeroLimpio.length < 7) {
+      return numeroLimpio.padStart(7, '0');
+    }
+
+    return numeroLimpio;
+  }
+
+  crearDocumento() {
+    const numeroFormateado = this.obtenerNumeroFormateado(this.nuevoDocumento.numero);
 
     // Crear idCarpeta (ej. RUC_SERIE-NUMERO)
-    const idCarpeta = `${this.nuevoDocumento.ruc}_${this.nuevoDocumento.serie}-${numeroSinCeros}`;
+    const idCarpeta = `${this.nuevoDocumento.ruc}_${this.nuevoDocumento.serie}-${numeroFormateado}`;
 
     // Obtener periodo actual (ej. 202505)
     const now = new Date();

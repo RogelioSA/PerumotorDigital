@@ -386,7 +386,7 @@
 
       <div class="flex flex-col w-1/2">
         <label for="numero" class="text-sm font-medium mb-1">Número</label>
-        <input id="numero" pInputText [(ngModel)]="nuevoDocumento.numero" class="w-full" />
+        <input id="numero" pInputText [(ngModel)]="nuevoDocumento.numero" (blur)="aplicarFormatoNumero()" class="w-full" />
       </div>
     </div>
 
