@@ -1153,16 +1153,21 @@ validar = false;
       }
     }
 
-    // Comparar usando triple igual con conversión explícita
-    const oldIgv = String(e.oldData['srIgv']);
-    const newIgv = String(e.newData['srIgv']);
-    const oldImporteB = String(e.oldData['importeBruto']);
-    const newImporteB = String(e.newData['importeBruto']);
+    // Normalizar valores antes de comparar
+    const oldIgv = e.oldData['srIgv'];
+    const newIgv = 'srIgv' in e.newData ? e.newData['srIgv'] : e.oldData['srIgv'];
+    const oldImporteB = e.oldData['importeBruto'];
+    const newImporteB = 'importeBruto' in e.newData ? e.newData['importeBruto'] : e.oldData['importeBruto'];
 
-    // Solo si cambió el srIgv or cambiaron importes
-    if (oldIgv !== newIgv || oldImporteB !== newImporteB) {
-      const tipoIgv = cleanedData['srIgv'].toString();
-      const importeBruto = parseFloat(cleanedData['importeBruto']);
+    const normalizedOldIgv = oldIgv ?? '';
+    const normalizedNewIgv = newIgv ?? '';
+    const normalizedOldImporteB = oldImporteB ?? '';
+    const normalizedNewImporteB = newImporteB ?? '';
+
+    // Solo si cambió el srIgv o cambiaron importes
+    if (normalizedOldIgv !== normalizedNewIgv || normalizedOldImporteB !== normalizedNewImporteB) {
+      const tipoIgv = (cleanedData['srIgv'] ?? newIgv ?? '').toString();
+      const importeBruto = parseFloat(String(cleanedData['importeBruto'] ?? newImporteB));
 
       if (!isNaN(importeBruto)) {
         let nuevoImporteNeto = importeBruto;
