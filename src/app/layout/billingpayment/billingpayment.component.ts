@@ -551,18 +551,18 @@ validar = false;
           const letraSerie = serie_documento[0];
           let codigo_tipo_documento = '';
 
-          if (letraSerie ==='F') {
-            codigo_tipo_documento = '01';
-          } else if (letraSerie === 'B' ) {
-            codigo_tipo_documento = '03';
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Tipo desconocido',
-              detail: `Letra de serie no reconocida: ${letraSerie}`
-            });
-            return;
-          }
+          // if (letraSerie ==='F') {
+          //   codigo_tipo_documento = '01';
+          // } else if (letraSerie === 'B' ) {
+          //   codigo_tipo_documento = '03';
+          // } else {
+          //   this.messageService.add({
+          //     severity: 'error',
+          //     summary: 'Tipo desconocido',
+          //     detail: `Letra de serie no reconocida: ${letraSerie}`
+          //   });
+          //   return;
+          // }
 
           const documento = this.products.find(p => String(p.idCarpeta) === String(idCarpeta));
 
@@ -575,6 +575,16 @@ validar = false;
             return;
           }
 
+          const documentoSeleccionado = this.docs.find(d => d.iddoc === documento.idDocumento);
+
+          if (!documentoSeleccionado) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Tipo desconocido',
+              detail: `Se debe especificar T.DOC`
+            });
+            return;
+          }
           const fecha_emision_original = documento.fechaEmision;
           const total = documento.importeBruto;
 
@@ -593,6 +603,7 @@ validar = false;
           const fechaObj = new Date(fecha_emision_original);
           const fecha_emision = `${fechaObj.getDate().toString().padStart(2, '0')}/${(fechaObj.getMonth() + 1).toString().padStart(2, '0')}/${fechaObj.getFullYear()}`;
           const totalFormateado = Number(total).toFixed(2);
+          codigo_tipo_documento = (documentoSeleccionado.codigosunat || '').trim();
 
           const payload = {
             ruc_emisor,
