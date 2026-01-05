@@ -142,18 +142,18 @@ validar = false;
   ];
 
   docs = [
-    { iddoc: 'FAC', descripcion: 'FAC' },
-    { iddoc: 'BOL', descripcion: 'BOL' },
-    { iddoc: 'NCR', descripcion: 'NCR' },
-    { iddoc: 'RHN', descripcion: 'RHN' },
-    { iddoc: 'BLA', descripcion: 'BLA' },
-    { iddoc: 'CPA', descripcion: 'CPA' },
-    { iddoc: 'INV', descripcion: 'INV' },
-    { iddoc: 'ODC', descripcion: 'ODC' },
-    { iddoc: 'RPA', descripcion: 'RPA' },
-    { iddoc: 'SPB', descripcion: 'SPB' },
-    { iddoc: 'TKT', descripcion: 'TKT' },
-    { iddoc: 'FAT', descripcion: 'FAT' }
+    { iddoc: 'FAC', descripcion: 'FAC', codigosunat: '01' },
+    { iddoc: 'BOL', descripcion: 'BOL', codigosunat: '03' },
+    { iddoc: 'NCR', descripcion: 'NCR', codigosunat: '07' },
+    { iddoc: 'RHN', descripcion: 'RHN', codigosunat: 'R1' },
+    { iddoc: 'BLA', descripcion: 'BLA', codigosunat: '' },
+    { iddoc: 'CPA', descripcion: 'CPA', codigosunat: '' },
+    { iddoc: 'INV', descripcion: 'INV', codigosunat: '' },
+    { iddoc: 'ODC', descripcion: 'ODC', codigosunat: '' },
+    { iddoc: 'RPA', descripcion: 'RPA', codigosunat: '' },
+    { iddoc: 'SPB', descripcion: 'SPB', codigosunat: '' },
+    { iddoc: 'TKT', descripcion: 'TKT', codigosunat: '' },
+    { iddoc: 'FAT', descripcion: 'FAT', codigosunat: '' }
   ];
   monedaSeleccionado: string = '';
 
@@ -551,7 +551,7 @@ validar = false;
           const letraSerie = serie_documento[0];
           let codigo_tipo_documento = '';
 
-          if (letraSerie === 'F' || letraSerie === 'E') {
+          if (idDocumento ==='FAC') {
             codigo_tipo_documento = '01';
           } else if (letraSerie === 'B' ) {
             codigo_tipo_documento = '03';
