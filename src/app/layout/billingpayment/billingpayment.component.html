@@ -131,14 +131,14 @@
         <!-- Resto de columnas -->
         <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false" [allowHeaderFiltering]="false">
         </dxi-column>
-        <dxi-column dataField="idArea" caption="Área" [allowHeaderFiltering]="false">
-          <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
-          </dxo-lookup>
+        <dxi-column dataField="idArea" caption="Área" [allowHeaderFiltering]="false" [editorOptions]="{ dropDownOptions: { width: 200 } }">
+        <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
+        </dxo-lookup>
         </dxi-column>
         <dxi-column dataField="estado" caption="Estado" [allowHeaderFiltering]="false">
         </dxi-column>
         <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false">
-          <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
+        <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
         <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false">
         </dxi-column>
