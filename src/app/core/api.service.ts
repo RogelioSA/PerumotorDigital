@@ -61,16 +61,18 @@ export class ApiService {
     const extension = archivo.name.split('.').pop();
     const archivoNombreCompleto = `${nombreArchivo}.${extension}`;
 
+    const contentType = tipoArchivo || archivo.type || 'application/octet-stream';
+
     const params = new HttpParams()
       .set('Carpeta', Carpeta)
       .set('nombreArchivo', archivoNombreCompleto)
-      .set('tipoArchivo', archivo.type);
+      .set('tipoArchivo', contentType);
 
     return this.https.get<{ url: string }>(`${this.apiUrl}/BillingPayment/subirArchivoDocumento`, { params }).pipe(
       switchMap(response => {
         const uploadUrl = response.url;
         return this.https.put(uploadUrl, archivo, {
-          headers: { 'Content-Type': archivo.type }
+          headers: { 'Content-Type': contentType }
         });
       }),
       catchError(error => {

@@ -1300,7 +1300,7 @@ validar = false;
     if (files && files.length > 0) {
       const archivo = files[0];
       const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "");
-      const tipo = archivo.type;
+      const tipo = this.obtenerTipoArchivo(archivo);
 
       this.apiService.subirArchivoCarpeta(this.carpetaSeleccionada.trim().replace(/\s+/g, '_'), nombreSinExtension, tipo, archivo).subscribe({
         next: () => {
@@ -1319,7 +1319,7 @@ validar = false;
     if (input.files && input.files.length > 0) {
       const archivo = input.files[0];
       const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "");
-      const tipo = archivo.type;
+      const tipo = this.obtenerTipoArchivo(archivo);
 
       this.apiService.subirArchivoCarpeta(
         this.carpetaSeleccionada.trim().replace(/\s+/g, '_'),
@@ -1396,10 +1396,13 @@ validar = false;
     this.mostrarVisor = true;
     if (this.esPDF(url) || this.esImagen(url)) {
       this.safeUrl = this.getSafeUrl(url);
-    } else if (this.esExcel(url) ||this.esWord(url) ) {
+    } else if (this.esExcel(url) ||this.esWord(url)) {
        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
         this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
 
+    } else if (this.esMensajeOutlook(url)) {
+      const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
     } else {
       this.safeUrl = null;
     }
@@ -1439,6 +1442,25 @@ validar = false;
   esExcel(url: string): boolean {
     return url.endsWith('.xls') || url.endsWith('.xlsx');
   }
+
+  esMensajeOutlook(url: string): boolean {
+    return url.toLowerCase().endsWith('.msg');
+  }
+
+  obtenerTipoArchivo(archivo: File): string {
+    const extension = archivo.name.split('.').pop()?.toLowerCase();
+
+    if (archivo.type) {
+      return archivo.type;
+    }
+
+    switch (extension) {
+      case 'msg':
+        return 'application/vnd.ms-outlook';
+      default:
+        return 'application/octet-stream';
+    }
+  }
   getSafeUrl(url: string): SafeResourceUrl {
       const lowerUrl = url.toLowerCase();
 
@@ -1446,6 +1468,11 @@ validar = false;
           lowerUrl.endsWith('.xls') || lowerUrl.endsWith('.xlsx') ||
           lowerUrl.endsWith('.ppt') || lowerUrl.endsWith('.pptx')) {
 
+        const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+        return this.sanitizer.bypassSecurityTrustResourceUrl(officeViewerUrl);
+      }
+
+      if (this.esMensajeOutlook(url)) {
         const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
         return this.sanitizer.bypassSecurityTrustResourceUrl(officeViewerUrl);
       }
