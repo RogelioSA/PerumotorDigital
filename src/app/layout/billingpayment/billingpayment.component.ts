@@ -843,7 +843,8 @@ validar = false;
       clasificacion: this.apiService.opcionClasificacionLE()
     }).subscribe(({ documentos, areas, tipoDet, tipoMov, clasificacion }) => {
       const data = documentos.data.map((doc: any) => {
-        const areaDesc = areas.data.find((a: any) => a.idArea?.trim() === doc.idArea?.trim())?.descripcion || '';
+        const areaId = String(doc.idArea ?? '').trim();
+        const areaDesc = areas.data.find((a: any) => String(a.idArea ?? '').trim() === areaId)?.descripcion || areaId;
         const revDesc = this.rev.find(r => r.idRev === doc.revControl)?.descripcion || '';
         const igvDesc = this.igv.find(i => i.idigv === String(doc.srIgv))?.descripcion || '';
         const tipoDetDesc = tipoDet.data.find((t: any) => t.idTipoDet === doc.tipoDet)?.descripcion || '';
@@ -855,6 +856,10 @@ validar = false;
         const clasDesc = clasificacion.data.find((c: any) => c.idClasificacionLE === doc.clasificacionLe?.trim())?.descripcion || '';
 
         const enlace = `${window.location.origin}/billingpayment?idCarpeta=${doc.idCarpetaPadre}&idDocumento=${doc.idCarpeta?.trim()}`;
+        const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
+        const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
+        const fechaEmisionExcel = this.formatDateYMD(fechaEmisionSource);
+        const fechaVencimientoExcel = this.formatDateYMD(fechaVencimientoSource);
 
         return {
           ...doc,
@@ -868,16 +873,70 @@ validar = false;
           moneda: monedaDesc,
           tipoMovimiento: tipoMovDesc,
           clasificacionLe: clasDesc,
-          enlace
+          enlace,
+          fechaEmision: doc.fechaEmision ? fechaEmisionExcel : doc.fechaEmision,
+          FechaEmision: doc.FechaEmision ? fechaEmisionExcel : doc.FechaEmision,
+          fechaVencimiento: doc.fechaVencimiento ? fechaVencimientoExcel : doc.fechaVencimiento,
+          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto
         };
       });
 
       const worksheet = XLSX.utils.json_to_sheet(data);
+      const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
+      if (worksheetRange) {
+        const headerRow = worksheetRange.s.r;
+        const enlaceColumnIndex = this.getWorksheetColumnIndex(worksheet, headerRow, 'enlace');
+        if (enlaceColumnIndex !== null) {
+          for (let r = headerRow + 1; r <= worksheetRange.e.r; r += 1) {
+            const cellAddress = XLSX.utils.encode_cell({ r, c: enlaceColumnIndex });
+            const cell = worksheet[cellAddress];
+            if (cell?.v) {
+              worksheet[cellAddress] = {
+                t: 's',
+                v: cell.v,
+                l: { Target: String(cell.v), Tooltip: String(cell.v) }
+              };
+            }
+          }
+        }
+      }
       const workbook = { Sheets: { 'Documentos': worksheet }, SheetNames: ['Documentos'] };
       const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
       const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
       FileSaver.saveAs(blob, 'documentos.xlsx');
     });
+  }
+
+  private formatDateYMD(value: unknown): string {
+    if (!value) {
+      return '';
+    }
+    const dateValue = new Date(value as string);
+    if (Number.isNaN(dateValue.getTime())) {
+      return String(value);
+    }
+    const year = dateValue.getFullYear();
+    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+    const day = String(dateValue.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private getWorksheetColumnIndex(
+    worksheet: XLSX.WorkSheet,
+    headerRow: number,
+    headerName: string
+  ): number | null {
+    const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
+    if (!worksheetRange) {
+      return null;
+    }
+    for (let c = worksheetRange.s.c; c <= worksheetRange.e.c; c += 1) {
+      const headerCell = worksheet[XLSX.utils.encode_cell({ r: headerRow, c })];
+      if (headerCell?.v === headerName) {
+        return c;
+      }
+    }
+    return null;
   }
 
 
