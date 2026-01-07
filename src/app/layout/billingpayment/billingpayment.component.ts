@@ -182,7 +182,8 @@ validar = false;
   igv = [
     { idigv: '1', descripcion: 'NA' },
     { idigv: '2', descripcion: 'DET' },
-    { idigv: '3', descripcion: 'RET' }
+    { idigv: '3', descripcion: 'RET' },
+    { idigv: '4', descripcion: 'RE4TA' }
   ];
   igvSeleccionado: string = '';
 
