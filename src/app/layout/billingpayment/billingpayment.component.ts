@@ -287,6 +287,11 @@ validar = false;
   }
 
   ngOnInit() {
+    const usuario = this.cookieService.get('usuario');
+    if (!usuario) {
+      this.router.navigate(['']);
+      return;
+    }
 
     this.route.queryParams.subscribe(params => {
       this.idCarpetaPadre = +params['idcarpeta'];
@@ -328,7 +333,7 @@ validar = false;
       }
 
     });
-    this.usuarioCreador = this.cookieService.get('usuario');
+    this.usuarioCreador = usuario;
 
     this.setupLicenseObserver();
 
