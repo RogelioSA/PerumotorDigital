@@ -492,9 +492,10 @@ validar = false;
             rejectLabel: 'No',
             accept: () => {
               const usuario = this.cookieService.get('usuario') || 'Usuario';
+              const estadoAprobado = `APROBADO ${usuario}`;
               const datosParaEditar = {
                 ...documento,
-                estado: `APROBADO ${usuario}`
+                estado: estadoAprobado
               };
 
               this.cargandoc = true;
@@ -507,13 +508,14 @@ validar = false;
                     detail: 'Documento aprobado correctamente.'
                   });
 
-                  // Refrescar la tabla igual que en eliminar
-                  if (!this.idCarpetaPadre || this.idCarpetaPadre === 0) {
-                    this.apiService.listarCarpeta('').subscribe((res) => {
-                      this.carpetasRaiz = res.data;
-                    });
-                  } else {
-                    this.verDetalle(this.idCarpetaPadre);
+                  const index = this.products.findIndex(
+                    (producto) => String(producto.idCarpeta) === String(idCarpeta)
+                  );
+                  if (index !== -1) {
+                    this.products[index] = {
+                      ...this.products[index],
+                      estado: estadoAprobado
+                    };
                   }
                 },
                 error: (err) => {
