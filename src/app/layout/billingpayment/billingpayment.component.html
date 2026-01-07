@@ -136,7 +136,7 @@
         <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
         </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="estado" caption="Estado" [allowHeaderFiltering]="false" [allowSearch]="true">
+        <dxi-column dataField="estado" caption="Estado" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="true">
         </dxi-column>
         <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false" [allowSearch]="false">
         <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
