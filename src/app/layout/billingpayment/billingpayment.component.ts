@@ -844,7 +844,11 @@ validar = false;
     }).subscribe(({ documentos, areas, tipoDet, tipoMov, clasificacion }) => {
       const data = documentos.data.map((doc: any) => {
         const areaId = String(doc.idArea ?? '').trim();
-        const areaDesc = areas.data.find((a: any) => String(a.idArea ?? '').trim() === areaId)?.descripcion || areaId;
+        //const areaDesc = areas.data.find((a: any) => String(a.idArea ?? '').trim() === areaId)?.descripcion || areaId;
+        const areaDesc = areas.data.find((a: any) => {
+        const areaValue = String(a.id ?? a.idArea ?? a.codigo ?? '').trim();
+        return areaValue === areaId;
+        })?.descripcion || areaId;
         const revDesc = this.rev.find(r => r.idRev === doc.revControl)?.descripcion || '';
         const igvDesc = this.igv.find(i => i.idigv === String(doc.srIgv))?.descripcion || '';
         const tipoDetDesc = tipoDet.data.find((t: any) => t.idTipoDet === doc.tipoDet)?.descripcion || '';
