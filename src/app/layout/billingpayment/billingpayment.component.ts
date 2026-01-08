@@ -1240,22 +1240,29 @@ validar = false;
     const newIgv = 'srIgv' in e.newData ? e.newData['srIgv'] : e.oldData['srIgv'];
     const oldImporteB = e.oldData['importeBruto'];
     const newImporteB = 'importeBruto' in e.newData ? e.newData['importeBruto'] : e.oldData['importeBruto'];
+    const oldTipoDet = e.oldData['tipoDet'];
+    const newTipoDet = 'tipoDet' in e.newData ? e.newData['tipoDet'] : e.oldData['tipoDet'];
 
     const normalizedOldIgv = oldIgv ?? '';
     const normalizedNewIgv = newIgv ?? '';
     const normalizedOldImporteB = oldImporteB ?? '';
     const normalizedNewImporteB = newImporteB ?? '';
+    const normalizedOldTipoDet = oldTipoDet ?? '';
+    const normalizedNewTipoDet = newTipoDet ?? '';
 
     // Solo si cambió el srIgv o cambiaron importes
-    if (normalizedOldIgv !== normalizedNewIgv || normalizedOldImporteB !== normalizedNewImporteB) {
+    if (normalizedOldIgv !== normalizedNewIgv || normalizedOldImporteB !== normalizedNewImporteB || normalizedOldTipoDet !== normalizedNewTipoDet) {
       const tipoIgv = (cleanedData['srIgv'] ?? newIgv ?? '').toString();
+      const tipoDetId = cleanedData['tipoDet'] ?? newTipoDet;
+      const tipoDetSeleccionado = this.tipoDet.find(det => det.id === tipoDetId);
+      const porcentajeDet = tipoDetSeleccionado ? parseFloat(String(tipoDetSeleccionado.valor)) / 100 : 0;
       const importeBruto = parseFloat(String(cleanedData['importeBruto'] ?? newImporteB));
 
       if (!isNaN(importeBruto)) {
         let nuevoImporteNeto = importeBruto;
 
         if (tipoIgv === '2') {
-          const det = Math.floor(importeBruto * 0.12);
+          const det = Math.floor(importeBruto * (isNaN(porcentajeDet) ? 0 : porcentajeDet));
           nuevoImporteNeto = importeBruto - det;
         } else if (tipoIgv === '3') {
           const ret = parseFloat((importeBruto * 0.03).toFixed(2));
@@ -1270,7 +1277,8 @@ validar = false;
       this.products[index] = {
         ...this.products[index],
         importeNeto: nuevoImporteNeto,
-        srIgv: tipoIgv
+        srIgv: tipoIgv,
+        tipoDet: tipoDetId
       };
     }
       }
