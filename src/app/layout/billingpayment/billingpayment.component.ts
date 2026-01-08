@@ -396,10 +396,10 @@ validar = false;
         icon: 'pi pi-file',
         command: () => {
 
-          this.idCarpeta = idCarpeta;
+        this.idCarpeta = idCarpeta;
 
-          const carpeta = this.products.find(p => p.idCarpeta === idCarpeta);
-          const doc = carpeta?.idCobrarPagarDoc;
+        const carpeta = this.products.find(p => p.idCarpeta === idCarpeta);
+        const doc = carpeta?.idCobrarPagarDoc;
         if (doc && doc !== 'null' && doc !== 'undefined' && doc.trim() !== '') {
           this.generarDeshabilitado = true;
           this.mostrarDialogAprovisionar = false;
@@ -410,6 +410,10 @@ validar = false;
             detail: 'Este documento ya esta provisionado, revisar el ERP.'
           });
 
+          return;
+        }
+
+        if (!this.validarCamposAprovisionar(carpeta)) {
           return;
         }
 
@@ -1896,6 +1900,11 @@ validar = false;
   }
 
   generar() {
+    const carpeta = this.products.find(p => p.idCarpeta === this.idCarpeta);
+    if (!this.validarCamposAprovisionar(carpeta)) {
+      return;
+    }
+
     this.confirmationService.confirm({
       message: '¿Estás seguro que deseas generar la provisión?',
       header: 'Confirmar generación',
@@ -1911,6 +1920,62 @@ validar = false;
 
       }
     });
+  }
+
+  private tieneValor(valor: unknown): boolean {
+    if (valor === null || valor === undefined) {
+      return false;
+    }
+
+    if (typeof valor === 'string') {
+      return valor.trim() !== '';
+    }
+
+    return true;
+  }
+
+  private validarCamposAprovisionar(carpeta: any): boolean {
+    if (!carpeta) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Documento no encontrado',
+        detail: 'No se encontró el documento a provisionar.'
+      });
+      return false;
+    }
+
+    const faltantes: string[] = [];
+    const importeBruto = Number(carpeta.importeBruto);
+    const idDocumento = carpeta.idDocumento ?? carpeta.iddocumento;
+    const srIgvValue = carpeta.srIgv ?? carpeta.srigv;
+
+    if (!this.tieneValor(carpeta.regimen)) faltantes.push('Régimen');
+    if (!this.tieneValor(carpeta.importeBruto) || Number.isNaN(importeBruto) || importeBruto <= 0) {
+      faltantes.push('Importe Bruto');
+    }
+    if (!this.tieneValor(carpeta.impuestos)) faltantes.push('Impuestos');
+    if (!this.tieneValor(carpeta.moneda)) faltantes.push('Moneda');
+    if (!this.tieneValor(idDocumento)) faltantes.push('T.DOC');
+    if (!this.tieneValor(carpeta.fechaEmision)) faltantes.push('Fecha Emisión');
+    if (!this.tieneValor(carpeta.sucursal)) faltantes.push('Sucursal');
+    if (!this.tieneValor(carpeta.periodo)) faltantes.push('Periodo');
+    if (!this.tieneValor(carpeta.tipoMovimiento)) faltantes.push('Tipo Movimiento');
+    if (!this.tieneValor(carpeta.clasificacionLe)) faltantes.push('Clasificación LE');
+
+    if (this.tieneValor(srIgvValue) && String(srIgvValue) === '2' && !this.tieneValor(carpeta.tipoDet)) {
+      faltantes.push('Tipo Det.');
+    }
+
+    if (faltantes.length > 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Campos obligatorios',
+        detail: `Complete los campos: ${faltantes.join(', ')}.`
+      });
+      return false;
+    }
+
+    return true;
   }
 
   calcularImpuesto(carpeta: any): number {
