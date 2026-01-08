@@ -1242,6 +1242,8 @@ validar = false;
     const newImporteB = 'importeBruto' in e.newData ? e.newData['importeBruto'] : e.oldData['importeBruto'];
     const oldTipoDet = e.oldData['tipoDet'];
     const newTipoDet = 'tipoDet' in e.newData ? e.newData['tipoDet'] : e.oldData['tipoDet'];
+    const oldMoneda = e.oldData['moneda'];
+    const newMoneda = 'moneda' in e.newData ? e.newData['moneda'] : e.oldData['moneda'];
 
     const normalizedOldIgv = oldIgv ?? '';
     const normalizedNewIgv = newIgv ?? '';
@@ -1249,11 +1251,19 @@ validar = false;
     const normalizedNewImporteB = newImporteB ?? '';
     const normalizedOldTipoDet = oldTipoDet ?? '';
     const normalizedNewTipoDet = newTipoDet ?? '';
+    const normalizedOldMoneda = oldMoneda ?? '';
+    const normalizedNewMoneda = newMoneda ?? '';
 
     // Solo si cambió el srIgv o cambiaron importes
-    if (normalizedOldIgv !== normalizedNewIgv || normalizedOldImporteB !== normalizedNewImporteB || normalizedOldTipoDet !== normalizedNewTipoDet) {
+    if (
+      normalizedOldIgv !== normalizedNewIgv
+      || normalizedOldImporteB !== normalizedNewImporteB
+      || normalizedOldTipoDet !== normalizedNewTipoDet
+      || normalizedOldMoneda !== normalizedNewMoneda
+    ) {
       const tipoIgv = (cleanedData['srIgv'] ?? newIgv ?? '').toString();
       const tipoDetId = cleanedData['tipoDet'] ?? newTipoDet;
+      const monedaSeleccionada = (cleanedData['moneda'] ?? newMoneda ?? '').toString();
       const tipoDetSeleccionado = this.tipoDet.find(det => det.id === tipoDetId);
       const porcentajeDet = tipoDetSeleccionado ? parseFloat(String(tipoDetSeleccionado.valor)) / 100 : 0;
       const importeBruto = parseFloat(String(cleanedData['importeBruto'] ?? newImporteB));
@@ -1262,8 +1272,14 @@ validar = false;
         let nuevoImporteNeto = importeBruto;
 
         if (tipoIgv === '2') {
-          const det = Math.floor(importeBruto * (isNaN(porcentajeDet) ? 0 : porcentajeDet));
-          nuevoImporteNeto = importeBruto - det;
+          const det = importeBruto * (isNaN(porcentajeDet) ? 0 : porcentajeDet);
+
+          if (!monedaSeleccionada || monedaSeleccionada === '01') {
+            const detFloor = Math.floor(det);
+            nuevoImporteNeto = importeBruto - detFloor;
+          } else {
+            nuevoImporteNeto = parseFloat((importeBruto - det).toFixed(2));
+          }
         } else if (tipoIgv === '3') {
           const ret = parseFloat((importeBruto * 0.03).toFixed(2));
           nuevoImporteNeto = importeBruto - ret;
@@ -1278,7 +1294,8 @@ validar = false;
         ...this.products[index],
         importeNeto: nuevoImporteNeto,
         srIgv: tipoIgv,
-        tipoDet: tipoDetId
+        tipoDet: tipoDetId,
+        moneda: monedaSeleccionada
       };
     }
       }
