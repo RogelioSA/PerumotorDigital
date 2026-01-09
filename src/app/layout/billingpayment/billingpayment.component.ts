@@ -188,6 +188,7 @@ validar = false;
   igvSeleccionado: string = '';
 
   ctb = [
+    { idCtb: '', descripcion: '' },
     { idCtb: '01', descripcion: 'PROV CTB' },
     { idCtb: '02', descripcion: 'RECHAZADO' },
     { idCtb: '03', descripcion: 'CERRADO' },
@@ -1953,7 +1954,7 @@ validar = false;
     if (!this.tieneValor(carpeta.importeBruto) || Number.isNaN(importeBruto) || importeBruto <= 0) {
       faltantes.push('Importe Bruto');
     }
-    if (!this.tieneValor(carpeta.impuestos)) faltantes.push('Impuestos');
+    if (!this.tieneValor(carpeta.impuestos) && idDocumento !='RHN') faltantes.push('Impuestos');
     if (!this.tieneValor(carpeta.moneda)) faltantes.push('Moneda');
     if (!this.tieneValor(idDocumento)) faltantes.push('T.DOC');
     if (!this.tieneValor(carpeta.fechaEmision)) faltantes.push('Fecha Emisión');
