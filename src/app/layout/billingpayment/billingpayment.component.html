@@ -76,7 +76,7 @@
       <dx-data-grid *ngIf="mostrarTablaCarpetas && !cargando"
         [filterRow]="{ visible: true, applyFilter: 'auto' }"
         class="tabla-reducida bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
-         [height]="'calc(140vh - 260px)'"
+         [height]="'calc(120vh - 240px)'"
         [selection]="{ mode: 'single' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [hoverStateEnabled]="true" [showColumnLines]="false" [showRowLines]="true" (onRowDblClick)="onVerClick($event)"
         (onRowUpdating)="onEditarDocumento($event)" noDataText="No hay elementos, ajusta tus filtros">

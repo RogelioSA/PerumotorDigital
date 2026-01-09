@@ -1987,7 +1987,23 @@ validar = false;
 
     return +impuesto.toFixed(2);
   }
-
+  //puede usarse para evita &
+  private xmlEscape(value: any): string {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')   // SIEMPRE primero &
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
+  }
+ //revisar funcionamiento
+  private xmlCData(value: any): string {
+  if (value === null || value === undefined) return '<![CDATA[]]>';
+  // Evita cerrar CDATA accidentalmente
+  const safe = String(value).replace(/]]>/g, ']]]]><![CDATA[>');
+  return `<![CDATA[${safe}]]>`;
+  }
   grabar() {
 
     if (!this.idCarpeta) {
@@ -2091,7 +2107,7 @@ validar = false;
               <idclieprov>${ruc}</idclieprov>
               <direccion/>
               <ruc>${ruc}</ruc>
-              <razonsocial>${carpeta?.razonSocial}</razonsocial>
+              <razonsocial>${this.xmlCData(carpeta?.razonSocial)}</razonsocial>
               <idclieprov2/>
               <lugargiro/>
               <idvendedor/>
@@ -2105,7 +2121,7 @@ validar = false;
               <idmotivo/>
               <idfpago>004</idfpago>
               <idarea>${carpeta?.idArea}</idarea>
-              <glosa>${carpeta?.observacionesGlosa}</glosa>
+              <glosa>${this.xmlCData(carpeta?.observacionesGlosa)}</glosa>
               <ocompra/>
               <vventa>${carpeta?.importeBruto-impuestoCalculado-totalInafecto}</vventa>
               <inafecto>${totalInafecto}</inafecto>
@@ -2334,7 +2350,7 @@ validar = false;
               <idtipotransaccion/>
               <idproducto>${p.producto}</idproducto>
               <idmedida>UNID</idmedida>
-              <descripcion>${p.descripcionp}</descripcion>
+              <descripcion>${this.xmlCData(p.descripcionp)}</descripcion>
               <idestadoproducto>0</idestadoproducto>
               <idlote/>
               <idserie>${response.data[0]?.idSerie}</idserie>
