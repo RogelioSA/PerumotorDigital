@@ -53,9 +53,9 @@ export class ApiService {
       return throwError(() => new Error('El archivo es nulo'));
     }
 
-    const MAX_SIZE = 10 * 1024 * 1024;
+    const MAX_SIZE = 25 * 1024 * 1024;
     if (archivo.size > MAX_SIZE) {
-      return throwError(() => new Error('El archivo excede el tamaño máximo permitido de 10 MB.'));
+      return throwError(() => new Error('El archivo excede el tamaño máximo permitido de 25 MB.'));
     }
 
     const extension = archivo.name.split('.').pop();
