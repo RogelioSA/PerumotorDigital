@@ -138,12 +138,12 @@
         </dxi-column>
         <dxi-column dataField="estado" caption="Estado" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="true">
         </dxi-column>
-        <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false" [allowSearch]="false" [editorOptions]="{ dropDownOptions: { width: 200 } }">
         <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
         <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
-        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="true" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
         <dxi-column dataField="comentario" caption="Comentario" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
@@ -153,7 +153,7 @@
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
           </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="lca" caption="LCA" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="lca" caption="LCA" [allowEditing]="true" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
         <dxi-column dataField="documento" caption="Documento" [allowHeaderFiltering]="false" [allowSearch]="true">
         </dxi-column>

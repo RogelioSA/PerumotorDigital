@@ -194,6 +194,10 @@ validar = false;
     { idCtb: '03', descripcion: 'CERRADO' },
     { idCtb: '04', descripcion: 'PROV CAJA CHICA' },
     { idCtb: '05', descripcion: 'PROV EAR VARIOS' },
+    { idCtb: '06', descripcion: 'PROV EAR VIATICOS' },
+    { idCtb: '07', descripcion: 'PROV ERT' },
+    { idCtb: '08', descripcion: 'PROV TARJETA CREDITO' },
+    { idCtb: '09', descripcion: 'PROV APR' }
   ];
   ctbSeleccionado: string = '';
 
@@ -746,7 +750,7 @@ validar = false;
     const numeroFormateado = this.obtenerNumeroFormateado(this.nuevoDocumento.numero);
 
     // Crear idCarpeta (ej. RUC_SERIE-NUMERO)
-    const idCarpeta = `${this.nuevoDocumento.ruc}_${this.nuevoDocumento.serie}-${numeroFormateado}`;
+    const idCarpeta = `${this.nuevoDocumento.ruc.trim()}_${this.nuevoDocumento.serie.trim()}-${numeroFormateado}`;
 
     // Obtener periodo actual (ej. 202505)
     const now = new Date();
