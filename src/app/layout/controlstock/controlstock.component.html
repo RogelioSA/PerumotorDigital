@@ -1,0 +1,89 @@
+<div class="min-h-screen bg-gray-100">
+  <app-topbar></app-topbar>
+
+  <div class="px-6 py-4">
+    <app-title [title]="'Control de Stock'" [subtitle]="'Seguimiento por procesos'"></app-title>
+
+    <div class="mx-4 my-3">
+      <div class="mb-4 flex flex-wrap gap-3 items-center">
+        <p-multiSelect
+          [options]="procesosDisponibles"
+          [(ngModel)]="procesosSeleccionados"
+          optionLabel="nombre"
+          display="chip"
+          placeholder="Selecciona procesos"
+          (onChange)="actualizarColumnas()">
+        </p-multiSelect>
+
+        <button
+          pButton
+          type="button"
+          label="Exportar Excel"
+          icon="pi pi-file-excel"
+          class="p-button-success"
+          (click)="exportarExcel()"
+          [disabled]="columnasVisibles.length === 0">
+        </button>
+      </div>
+
+      <div
+        class="d-flex flex-column justify-content-center align-items-center vh-50"
+        *ngIf="loadingVehiculos">
+        <p-progressSpinner ariaLabel="loading"></p-progressSpinner>
+        <p class="mt-2 text-center">
+          Obteniendo Datos, este proceso demora aproximadamente 25 segundos
+        </p>
+      </div>
+
+      <dx-data-grid
+        *ngIf="!loadingVehiculos"
+        class="tabla-reducida bg-white rounded-xl shadow-sm border border-gray-200"
+        [dataSource]="data"
+        [filterRow]="{ visible: true, applyFilter: 'auto' }"
+        [rowAlternationEnabled]="true"
+        [columnAutoWidth]="true"
+        [hoverStateEnabled]="true"
+        [showBorders]="false"
+        [showColumnLines]="false"
+        [showRowLines]="true"
+        [height]="'calc(120vh - 240px)'"
+        noDataText="No hay elementos, ajusta tus filtros">
+        <dxo-search-panel [visible]="true" [highlightCaseSensitive]="true"></dxo-search-panel>
+        <dxo-paging [pageSize]="50"></dxo-paging>
+        <dxo-header-filter [visible]="true"></dxo-header-filter>
+        <dxo-pager
+          [visible]="true"
+          [allowedPageSizes]="[50, 100, 250, 500]"
+          [displayMode]="'full'"
+          [showPageSizeSelector]="true"
+          [showInfo]="true"
+          [showNavigationButtons]="true">
+        </dxo-pager>
+
+        <dxi-column
+          dataField="Existencia"
+          caption="EXISTENCIA"
+          [fixed]="true"
+          fixedPosition="left"
+          [allowEditing]="false">
+        </dxi-column>
+        <dxi-column
+          dataField="IdSerie"
+          caption="SERIE"
+          [fixed]="true"
+          fixedPosition="left"
+          [allowEditing]="false">
+        </dxi-column>
+
+        <dxi-column *ngFor="let grupo of columnasVisibles" [caption]="grupo.proceso" [alignment]="'center'">
+          <dxi-column
+            *ngFor="let col of grupo.columnas"
+            [dataField]="col.field"
+            [caption]="col.header"
+            [allowEditing]="false">
+          </dxi-column>
+        </dxi-column>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>
