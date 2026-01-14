@@ -2117,7 +2117,9 @@ validar = false;
     if (!this.tieneValor(carpeta.importeBruto) || Number.isNaN(importeBruto) || importeBruto <= 0) {
       faltantes.push('Importe Bruto');
     }
-    if (!this.tieneValor(carpeta.impuestos) && idDocumento !='RHN'&& idDocumento !='ODC') faltantes.push('Impuestos');
+   // if (!this.tieneValor(carpeta.impuestos) && idDocumento !='RHN'&& idDocumento !='ODC') faltantes.push('Impuestos');
+      const impuestosTieneValor = this.tieneValor(carpeta.impuestos) || carpeta.impuestos === '';
+    if (!impuestosTieneValor && idDocumento !='RHN'&& idDocumento !='ODC') faltantes.push('Impuestos');
     if (!this.tieneValor(carpeta.moneda)) faltantes.push('Moneda');
     if (!this.tieneValor(idDocumento)) faltantes.push('T.DOC');
     if (!this.tieneValor(carpeta.fechaEmision)) faltantes.push('Fecha Emisión');
