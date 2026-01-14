@@ -123,6 +123,9 @@ validar = false;
   bulkImpuestos: string | null = null;
   bulkDocumento: string | null = null;
   bulkMoneda: string | null = null;
+  bulkRevCtb: string | null = null;
+  bulkTipoMovimiento: string | null = null;
+  bulkClasificacionLE: string | null = null;
 
   estructuraCarpeta: Carpeta[] = [];
   idEmpresa = '001';
@@ -689,7 +692,7 @@ validar = false;
       return;
     }
 
-    const hayAcciones = this.bulkApprove || this.bulkSrIgv || this.bulkRegimen || this.bulkImpuestos || this.bulkDocumento || this.bulkMoneda;
+    const hayAcciones = this.bulkApprove || this.bulkSrIgv || this.bulkRegimen || this.bulkImpuestos || this.bulkDocumento || this.bulkMoneda || this.bulkRevCtb || this.bulkTipoMovimiento || this.bulkClasificacionLE;
     if (!hayAcciones) {
       this.messageService.add({
         severity: 'warn',
@@ -779,6 +782,18 @@ validar = false;
     }
     if (this.bulkMoneda) {
       actualizado.moneda = this.bulkMoneda;
+      changed = true;
+    }
+    if (this.bulkRevCtb) {
+      actualizado.revCtb = this.bulkRevCtb;
+      changed = true;
+    }
+    if (this.bulkTipoMovimiento) {
+      actualizado.tipoMovimiento = this.bulkTipoMovimiento;
+      changed = true;
+    }
+    if (this.bulkClasificacionLE) {
+      actualizado.clasificacionLe = this.bulkClasificacionLE;
       changed = true;
     }
     if (estadoAprobado) {
