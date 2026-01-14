@@ -175,6 +175,7 @@ validar = false;
   impuestosSeleccionado: string = '';
 
   obs = [
+    { idObs: '00', descripcion: '  ' },
     { idObs: '01', descripcion: 'APL.NRC' },
     { idObs: '02', descripcion: 'PEND SUSTENTO' },
     { idObs: '03', descripcion: 'PUB.ASUM' },
