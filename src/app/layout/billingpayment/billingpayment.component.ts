@@ -1383,6 +1383,10 @@ validar = false;
     const newTipoDet = 'tipoDet' in e.newData ? e.newData['tipoDet'] : e.oldData['tipoDet'];
     const oldMoneda = e.oldData['moneda'];
     const newMoneda = 'moneda' in e.newData ? e.newData['moneda'] : e.oldData['moneda'];
+    const oldFechaPago = e.oldData['fechaPago'];
+    const newFechaPago = 'fechaPago' in e.newData ? e.newData['fechaPago'] : e.oldData['fechaPago'];
+    const oldLca = e.oldData['lca'];
+    const newLca = 'lca' in e.newData ? e.newData['lca'] : e.oldData['lca'];
 
     const normalizedOldIgv = oldIgv ?? '';
     const normalizedNewIgv = newIgv ?? '';
@@ -1392,6 +1396,17 @@ validar = false;
     const normalizedNewTipoDet = newTipoDet ?? '';
     const normalizedOldMoneda = oldMoneda ?? '';
     const normalizedNewMoneda = newMoneda ?? '';
+    const normalizedOldLca = oldLca ?? '';
+    const normalizedNewLca = newLca ?? '';
+    const normalizeFechaPago = (value: any) => {
+      if (!value) {
+        return '';
+      }
+      const dateValue = value instanceof Date ? value : new Date(value);
+      return Number.isNaN(dateValue.getTime()) ? String(value) : dateValue.toISOString();
+    };
+    const normalizedOldFechaPago = normalizeFechaPago(oldFechaPago);
+    const normalizedNewFechaPago = normalizeFechaPago(newFechaPago);
 
     // Solo si cambió el srIgv o cambiaron importes
     if (
@@ -1437,6 +1452,20 @@ validar = false;
         moneda: monedaSeleccionada
       };
     }
+      }
+    }
+
+    if (normalizedOldFechaPago !== normalizedNewFechaPago || normalizedOldLca !== normalizedNewLca) {
+      const idCarpetaDocumento = (cleanedData.idCarpeta ?? e.oldData.idCarpeta ?? e.newData.idCarpeta)?.trim();
+      if (idCarpetaDocumento) {
+        const index = this.products.findIndex(p => p.idCarpeta?.trim() === idCarpetaDocumento);
+        if (index !== -1) {
+          this.products[index] = {
+            ...this.products[index],
+            fechaPago: newFechaPago,
+            lca: newLca
+          };
+        }
       }
     }
     cleanedData['usuarioModificacion'] = this.cookieService.get('usuario') || 'Usuario';;
