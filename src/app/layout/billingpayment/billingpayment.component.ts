@@ -116,6 +116,12 @@ validar = false;
 
   products: any[] = [];
   selectedProduct: any;
+  selectedRows: any[] = [];
+  bulkApprove: boolean = false;
+  bulkSrIgv: string | null = null;
+  bulkRegimen: string | null = null;
+  bulkImpuestos: string | null = null;
+  bulkDocumento: string | null = null;
 
   estructuraCarpeta: Carpeta[] = [];
   idEmpresa = '001';
@@ -500,43 +506,7 @@ validar = false;
             acceptLabel: 'Sí',
             rejectLabel: 'No',
             accept: () => {
-              const usuario = this.cookieService.get('usuario') || 'Usuario';
-              const estadoAprobado = `APROBADO ${usuario}`;
-              const datosParaEditar = {
-                ...documento,
-                estado: estadoAprobado
-              };
-
-              this.cargandoc = true;
-              this.apiService.editarDocumento(datosParaEditar).subscribe({
-                next: () => {
-                  this.cargandoc = false;
-                  this.messageService.add({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: 'Documento aprobado correctamente.'
-                  });
-
-                  const index = this.products.findIndex(
-                    (producto) => String(producto.idCarpeta) === String(idCarpeta)
-                  );
-                  if (index !== -1) {
-                    this.products[index] = {
-                      ...this.products[index],
-                      estado: estadoAprobado
-                    };
-                  }
-                },
-                error: (err) => {
-                  this.cargandoc = false;
-                  this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo aprobar el documento.'
-                  });
-                  console.error('Error al aprobar documento:', err);
-                }
-              });
+              this.aprobarDocumento(documento);
             }
           });
         }
@@ -701,6 +671,160 @@ validar = false;
   private preventScroll(e: Event) {
       e.preventDefault();
       e.stopPropagation();
+  }
+
+  onSelectionChanged(event: any) {
+    this.selectedRows = event?.selectedRowsData ?? [];
+  }
+
+  aplicarAccionesMasivas() {
+    if (!this.selectedRows.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Aviso',
+        detail: 'Debe seleccionar al menos un documento.'
+      });
+      return;
+    }
+
+    const hayAcciones = this.bulkApprove || this.bulkSrIgv || this.bulkRegimen || this.bulkImpuestos || this.bulkDocumento;
+    if (!hayAcciones) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Aviso',
+        detail: 'Debe seleccionar al menos una acción masiva.'
+      });
+      return;
+    }
+
+    const totalSeleccionados = this.selectedRows.length;
+    this.confirmationService.confirm({
+      message: `Confirme que realiza la modificación de ${totalSeleccionados} documentos seleccionados`,
+      header: 'Confirmar acciones masivas',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
+      accept: () => {
+        const estadoAprobado = this.bulkApprove ? this.obtenerEstadoAprobado() : null;
+        const actualizaciones = this.selectedRows
+          .map((documento) => this.construirActualizacionMasiva(documento, estadoAprobado))
+          .filter((resultado) => resultado.changed)
+          .map((resultado) => resultado.updated);
+
+        if (!actualizaciones.length) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Aviso',
+            detail: 'No hay cambios para aplicar.'
+          });
+          return;
+        }
+
+        this.cargandoc = true;
+        forkJoin(actualizaciones.map((documento) => this.apiService.editarDocumento(documento))).subscribe({
+          next: () => {
+            this.cargandoc = false;
+            actualizaciones.forEach((documento) => {
+              const index = this.products.findIndex(
+                (producto) => String(producto.idCarpeta) === String(documento.idCarpeta)
+              );
+              if (index !== -1) {
+                this.products[index] = {
+                  ...this.products[index],
+                  ...documento
+                };
+              }
+            });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Operaciones masivas aplicadas correctamente.'
+            });
+          },
+          error: (err) => {
+            this.cargandoc = false;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudieron aplicar las operaciones masivas.'
+            });
+            console.error('Error al aplicar acciones masivas:', err);
+          }
+        });
+      }
+    });
+  }
+
+  private construirActualizacionMasiva(documento: any, estadoAprobado: string | null) {
+    const actualizado = { ...documento };
+    let changed = false;
+
+    if (this.bulkSrIgv) {
+      actualizado.srIgv = this.bulkSrIgv;
+      changed = true;
+    }
+    if (this.bulkRegimen) {
+      actualizado.regimen = this.bulkRegimen;
+      changed = true;
+    }
+    if (this.bulkImpuestos) {
+      actualizado.impuestos = this.bulkImpuestos;
+      changed = true;
+    }
+    if (this.bulkDocumento) {
+      actualizado.idDocumento = this.bulkDocumento;
+      changed = true;
+    }
+    if (estadoAprobado) {
+      actualizado.estado = estadoAprobado;
+      changed = true;
+    }
+
+    return { updated: actualizado, changed };
+  }
+
+  private obtenerEstadoAprobado(): string {
+    const usuario = this.cookieService.get('usuario') || 'Usuario';
+    return `APROBADO ${usuario}`;
+  }
+
+  private aprobarDocumento(documento: any) {
+    const estadoAprobado = this.obtenerEstadoAprobado();
+    const datosParaEditar = {
+      ...documento,
+      estado: estadoAprobado
+    };
+
+    this.cargandoc = true;
+    this.apiService.editarDocumento(datosParaEditar).subscribe({
+      next: () => {
+        this.cargandoc = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: 'Documento aprobado correctamente.'
+        });
+
+        const index = this.products.findIndex(
+          (producto) => String(producto.idCarpeta) === String(documento.idCarpeta)
+        );
+        if (index !== -1) {
+          this.products[index] = {
+            ...this.products[index],
+            estado: estadoAprobado
+          };
+        }
+      },
+      error: (err) => {
+        this.cargandoc = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo aprobar el documento.'
+        });
+        console.error('Error al aprobar documento:', err);
+      }
+    });
   }
   onRowEditInit(product: Product) {
     // Si ya hay una fila editándose, cancela la anterior

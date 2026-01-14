@@ -73,13 +73,35 @@
     <div class="max-w-8xl mx-auto">
       <p-button *ngIf=" mostrarTablaCarpetas " label="Regresar" icon="pi pi-angle-left" variant="text"
         (click)="cerrarVistaCarpeta()"></p-button>
+      <div *ngIf="mostrarTablaCarpetas && !cargando"
+        class="flex flex-wrap items-center gap-4 bg-white border border-gray-200 rounded-xl p-3 mb-3">
+        <div class="flex items-center gap-2">
+          <p-checkbox [(ngModel)]="bulkApprove" binary="true"></p-checkbox>
+          <label class="text-sm font-medium text-gray-700">Aprobar</label>
+        </div>
+        <p-dropdown [options]="igv" optionLabel="descripcion" optionValue="idigv" placeholder="Sr IGV"
+          [(ngModel)]="bulkSrIgv" [showClear]="true" styleClass="w-40"></p-dropdown>
+        <p-dropdown [options]="regimen" optionLabel="descripcion" optionValue="idRegimen" placeholder="Régimen"
+          [(ngModel)]="bulkRegimen" [showClear]="true" styleClass="w-48"></p-dropdown>
+        <p-dropdown [options]="impuestos" optionLabel="descripcion" optionValue="idImpuestos" placeholder="Impuestos"
+          [(ngModel)]="bulkImpuestos" [showClear]="true" styleClass="w-40"></p-dropdown>
+        <p-dropdown [options]="docs" optionLabel="descripcion" optionValue="iddoc" placeholder="T.Doc"
+          [(ngModel)]="bulkDocumento" [showClear]="true" styleClass="w-40"></p-dropdown>
+        <div class="ml-auto">
+          <button (click)="aplicarAccionesMasivas()"
+            class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2">
+            Ejecutar
+          </button>
+        </div>
+      </div>
       <dx-data-grid *ngIf="mostrarTablaCarpetas && !cargando"
         [filterRow]="{ visible: true, applyFilter: 'auto' }"
         class="tabla-reducida bg-white rounded-xl shadow-sm border border-gray-200" [dataSource]="products" keyExpr="idCarpeta"
          [height]="'calc(120vh - 240px)'"
-        [selection]="{ mode: 'single' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
+        [selection]="{ mode: 'multiple', showCheckBoxesMode: 'always' }" [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true"
         [hoverStateEnabled]="true" [showColumnLines]="false" [showRowLines]="true" (onRowDblClick)="onVerClick($event)"
-        (onRowUpdating)="onEditarDocumento($event)" noDataText="No hay elementos, ajusta tus filtros">
+        (onRowUpdating)="onEditarDocumento($event)" (onSelectionChanged)="onSelectionChanged($event)"
+        noDataText="No hay elementos, ajusta tus filtros">
         <dxo-search-panel [visible]="true" [highlightCaseSensitive]="true"></dxo-search-panel>
         <dxo-paging [pageSize]="100"></dxo-paging>
         <dxo-header-filter [visible]="true"></dxo-header-filter>
@@ -89,13 +111,15 @@
 
         <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true"></dxo-editing>
 
+        <dxi-column type="selection" [width]="50" [fixed]="true" fixedPosition="left"></dxi-column>
+
         <dxi-column type="buttons" [width]="60" caption="">
           <dxi-button name="edit" icon="edit"></dxi-button>
           <dxi-button name="save" icon="save"></dxi-button>
           <dxi-button name="cancel" icon="revert"></dxi-button>
         </dxi-column>
 
-        <dxo-selection mode="single"></dxo-selection>
+        <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
 
         <!-- Nombre con ícono tipo carpeta -->
 
