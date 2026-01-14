@@ -2224,7 +2224,7 @@ validar = false;
               <numoperacion>9999900660</numoperacion>
               <idsubdiario/>
               <voucher/>
-              <fecharegistro>${carpeta?.fechaCreacion}</fecharegistro>
+              <fecharegistro>${carpeta?.fechaEmision}</fecharegistro>
               <idsucursal>${carpeta?.sucursal}</idsucursal>
               <idalmacen/>
               <idcaja/>
@@ -2326,7 +2326,7 @@ validar = false;
               <totaldetalle3>0</totaldetalle3>
               <idretencion/>
               <idmediopago/>
-              <fecha_entrega>${carpeta?.fechaCreacion}</fecha_entrega>
+              <fecha_entrega>${carpeta?.fechaEmision}</fecha_entrega>
               <feci_4ta5ta/>
               <fecf_4ta5ta/>
               <dua/>
