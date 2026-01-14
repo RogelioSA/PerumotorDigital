@@ -165,7 +165,7 @@ validar = false;
   monedaSeleccionado: string = '';
 
   impuestos = [
-    { idImpuestos: '', descripcion: '0', valor: 0 },
+    { idImpuestos: '999', descripcion: '0', valor: 0 },
     { idImpuestos: '027', descripcion: '10%', valor: 10 },
     { idImpuestos: '003', descripcion: '18%', valor: 18 }
   ];
