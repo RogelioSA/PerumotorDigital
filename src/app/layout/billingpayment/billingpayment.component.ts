@@ -165,8 +165,9 @@ validar = false;
   monedaSeleccionado: string = '';
 
   impuestos = [
-    { idImpuestos: '027', descripcion: '10%' },
-    { idImpuestos: '003', descripcion: '18%' }
+    { idImpuestos: '', descripcion: '0', valor: 0 },
+    { idImpuestos: '027', descripcion: '10%', valor: 10 },
+    { idImpuestos: '003', descripcion: '18%', valor: 18 }
   ];
   impuestosSeleccionado: string = '';
 
@@ -2112,12 +2113,21 @@ validar = false;
     return true;
   }
 
-  calcularImpuesto(carpeta: any): number {
-    const impuestoItem = this.impuestos.find(i => i.idImpuestos === carpeta?.impuestos);
-    if (!impuestoItem) return 0;
+  private getImpuestoValor(id?: string): number {
+    const impuestoItem = this.impuestos.find(i => i.idImpuestos === id);
+    return impuestoItem ? Number(impuestoItem.valor) : 0;
+  }
 
-    const porcentaje = parseFloat(impuestoItem.descripcion.replace('%', '')) / 100;
-    const impuesto = carpeta.importeBruto * (porcentaje / (1 + porcentaje));
+  private formatPimpuesto(valor: number): string {
+    return Number(valor).toFixed(4);
+  }
+
+  calcularImpuesto(carpeta: any): number {
+    const porcentaje = this.getImpuestoValor(carpeta?.impuestos) / 100;
+    if (!porcentaje) return 0;
+
+    const importeBruto = Number(carpeta?.importeBruto) || 0;
+    const impuesto = importeBruto * (porcentaje / (1 + porcentaje));
 
     return +impuesto.toFixed(2);
   }
@@ -2208,6 +2218,7 @@ validar = false;
           detail: 'Asignado con éxito'
         });
         const impuestoCalculado = this.calcularImpuesto(carpeta);
+        const impuestoValor = this.getImpuestoValor(response.data[0]?.impuestos);
         const body = {
 
           lcEmpresa: this.idEmpresa,
@@ -2261,7 +2272,7 @@ validar = false;
               <inafecto>${totalInafecto}</inafecto>
               <otros>0</otros>
               <impuesto>${impuestoCalculado}</impuesto>
-              <pimpuesto>18.0000</pimpuesto>
+              <pimpuesto>${this.formatPimpuesto(impuestoValor)}</pimpuesto>
               <descuento>0.00</descuento>
               <pdescuento>0.0000</pdescuento>
               <descuentodoc>0.00</descuentodoc>
@@ -2626,22 +2637,22 @@ validar = false;
             </dcobrarpagardoc>
             `).join('')}
           </VFPData>`,
-          xmlImp: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
+          xmlImp: impuestoValor > 0 ? `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
           <VFPData>
-          ${this.productosSeleccionados.map((p, index) => `
+          ${this.productosSeleccionados.map((p, index) => {
+            const porcentaje = impuestoValor / 100;
+            return `
             <icobrarpagardoc>
               <idempresa>${this.idEmpresa}</idempresa>
               <idcobrarpagardoc>${response.data[0]?.idCobrarPagarDoc}</idcobrarpagardoc>
               <item>${p.item}</item>
               <idimpuesto>${response.data[0]?.impuestos}</idimpuesto>
               <subitem/>
-              <valor>${response.data[0]?.impuestos === '027'? '10.00':'18.00'}</valor>
+              <valor>${impuestoValor.toFixed(2)}</valor>
               <baseimponible>${
                 Number(p.importe).toFixed(2)
               }</baseimponible>
-              <impuesto>${response.data[0]?.impuestos === '027'
-                ? (Number(p.importe) * 0.10).toFixed(2)
-                : (Number(p.importe)* 0.18).toFixed(2)}</impuesto>
+              <impuesto>${(Number(p.importe) * porcentaje).toFixed(2)}</impuesto>
               <idcuenta/>
               <idccosto/>
               <orden>0</orden>
@@ -2653,9 +2664,9 @@ validar = false;
               <calculo_especifico>0</calculo_especifico>
               <baseimponible_ant>0</baseimponible_ant>
               <impuesto_ant>0</impuesto_ant>
-            </icobrarpagardoc>
-            `).join('')}
-          </VFPData>`,
+            </icobrarpagardoc>`;
+          }).join('')}
+          </VFPData>` : `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?><VFPData/>`,
           xmlRef: `<?xml version = "1.0" encoding="Windows-1252" standalone="yes"?>
           <VFPData>
            ${this.documentosConfirmados.map((p: any) => `
@@ -2824,13 +2835,8 @@ validar = false;
     const id = this.productoSeleccionadoResumen?.impuestos?.trim();
     const total = this.productoSeleccionadoResumen?.baseImponible || 0;
 
-    if (id === '027') {
-      return total * 0.10;
-    } else if (id === '003') {
-      return total * 0.18;
-    } else {
-      return 0;
-    }
+    const porcentaje = this.getImpuestoValor(id) / 100;
+    return total * porcentaje;
   }
 
   cargarResumenProducto(idCarpeta: string) {
@@ -2846,9 +2852,11 @@ validar = false;
     console.log(productoRelacionado);
     const moneda = productoRelacionado.moneda || '';
     const regimen = productoRelacionado.regimen || '';
-    const baseImponible = productoRelacionado.impuestos === '003'
-                          ? productoRelacionado.importeBruto / 1.18
-                          : productoRelacionado.importeBruto / 1.10;
+    const porcentaje = this.getImpuestoValor(productoRelacionado.impuestos) / 100;
+    const importeBruto = Number(productoRelacionado.importeBruto) || 0;
+    const baseImponible = porcentaje > 0
+      ? importeBruto / (1 + porcentaje)
+      : importeBruto;
     const totalProvisionado = productoRelacionado.importeBruto || '';
     const total = productoRelacionado.total || '';
     const impuestos = productoRelacionado.impuestos || '';
