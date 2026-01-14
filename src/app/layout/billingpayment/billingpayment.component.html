@@ -80,21 +80,21 @@
           <label class="text-sm font-medium text-gray-700">Aprobar</label>
         </div>
         <p-dropdown [options]="ctb" optionLabel="descripcion" optionValue="idCtb" placeholder="Rev. Cont."
-          [(ngModel)]="bulkRevCtb" [showClear]="true" styleClass="w-40"></p-dropdown>
+          [(ngModel)]="bulkRevCtb" [showClear]="true" styleClass="w-30"></p-dropdown>
         <p-dropdown [options]="igv" optionLabel="descripcion" optionValue="idigv" placeholder="Sr IGV"
-          [(ngModel)]="bulkSrIgv" [showClear]="true" styleClass="w-40"></p-dropdown>
+          [(ngModel)]="bulkSrIgv" [showClear]="true" styleClass="w-20"></p-dropdown>
         <p-dropdown [options]="regimen" optionLabel="descripcion" optionValue="idRegimen" placeholder="Régimen"
-          [(ngModel)]="bulkRegimen" [showClear]="true" styleClass="w-48"></p-dropdown>
+          [(ngModel)]="bulkRegimen" [showClear]="true" styleClass="w-30"></p-dropdown>
         <p-dropdown [options]="impuestos" optionLabel="descripcion" optionValue="idImpuestos" placeholder="Impuestos"
-          [(ngModel)]="bulkImpuestos" [showClear]="true" styleClass="w-40"></p-dropdown>
+          [(ngModel)]="bulkImpuestos" [showClear]="true" styleClass="w-20"></p-dropdown>
         <p-dropdown [options]="docs" optionLabel="descripcion" optionValue="iddoc" placeholder="T.Doc"
-          [(ngModel)]="bulkDocumento" [showClear]="true" styleClass="w-40"></p-dropdown>
+          [(ngModel)]="bulkDocumento" [showClear]="true" styleClass="w-20"></p-dropdown>
         <p-dropdown [options]="moneda" optionLabel="descripcion" optionValue="idMoneda" placeholder="Moneda"
-          [(ngModel)]="bulkMoneda" [showClear]="true" styleClass="w-40"></p-dropdown>
+          [(ngModel)]="bulkMoneda" [showClear]="true" styleClass="w-20"></p-dropdown>
         <p-dropdown [options]="tipoMovimiento" optionLabel="descripcion" optionValue="id" placeholder="Tipo Movimiento"
-          [(ngModel)]="bulkTipoMovimiento" [showClear]="true" styleClass="w-48"></p-dropdown>
+          [(ngModel)]="bulkTipoMovimiento" [showClear]="true" styleClass="w-50"></p-dropdown>
         <p-dropdown [options]="clasificacionLE" optionLabel="descripcion" optionValue="id" placeholder="Clasificación LE"
-          [(ngModel)]="bulkClasificacionLE" [showClear]="true" styleClass="w-48"></p-dropdown>
+          [(ngModel)]="bulkClasificacionLE" [showClear]="true" styleClass="w-50"></p-dropdown>
         <div class="ml-auto">
           <button (click)="aplicarAccionesMasivas()"
             class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm flex items-center justify-center gap-2">
