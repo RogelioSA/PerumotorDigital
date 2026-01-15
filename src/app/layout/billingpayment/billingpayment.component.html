@@ -609,7 +609,8 @@
     </dxo-summary>
   </dx-data-grid>
   <div class="flex justify-end mt-5 mb-4">
-    <p-button label="Generar" icon="pi pi-file" class="p-button-primary" [disabled]="generarDeshabilitado"
+    <p-button label="Generar" icon="pi pi-file" class="p-button-primary"
+      [disabled]="generarDeshabilitado || generarEnProceso" [loading]="generarEnProceso"
       (onClick)="generar()">
     </p-button>
   </div>
