@@ -2128,6 +2128,17 @@ validar = false;
     const importeBruto = Number(carpeta.importeBruto);
     const idDocumento = carpeta.idDocumento ?? carpeta.iddocumento;
     const srIgvValue = carpeta.srIgv ?? carpeta.srigv;
+    const validadoValue = carpeta.validado;
+    const validadoOk = validadoValue === true || validadoValue === 1 || String(validadoValue) === '1';
+
+    if (!validadoOk) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Documento no validado',
+        detail: 'Debe validar el documento antes de continuar con la provisión.'
+      });
+      return false;
+    }
 
     if (!this.tieneValor(carpeta.regimen)) faltantes.push('Régimen');
     if (!this.tieneValor(carpeta.importeBruto) || Number.isNaN(importeBruto) || importeBruto <= 0) {
