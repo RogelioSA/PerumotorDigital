@@ -1,0 +1,30 @@
+::ng-deep .tabla-reducida .dx-datagrid {
+  font-size: 12px !important;
+  line-height: 12px !important;
+  letter-spacing: -0.2px;
+  font-family: 'Arial Narrow', Arial, sans-serif;
+}
+
+::ng-deep .tabla-reducida .dx-row > td {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+
+::ng-deep .tabla-reducida .dx-header-row > td {
+  padding-top: 3px !important;
+  padding-bottom: 3px !important;
+}
+
+::ng-deep .tabla-reducida .dx-row {
+  height: auto !important;
+  min-height: 20px !important;
+}
+
+::ng-deep .tabla-reducida .dx-datagrid-headers .dx-header-row > td,
+::ng-deep .tabla-reducida .dx-datagrid-headers .dx-datagrid-table-fixed .dx-header-row > td {
+  height: auto !important;
+  min-height: 22px !important;
+  font-weight: bold !important;
+  background-color: black !important;
+  color: white !important;
+}

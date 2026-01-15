@@ -278,4 +278,8 @@ export class ApiService {
   listarSucursales(): Observable<any>{
     return this.https.get(`${this.apiUrl}/ResumeBySeller/GetSucursal`,{});
   }
+
+  ListarVehiculosProcesos(): Observable<any> {
+    return this.https.get(`${this.apiUrl}/ControlStock/ListarVehiculosProcesos`, {});
+  }
 }
