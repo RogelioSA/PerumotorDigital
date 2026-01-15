@@ -280,6 +280,6 @@ export class ApiService {
   }
 
   ListarVehiculosProcesos(): Observable<any> {
-    return this.https.get(`${this.apiUrl}/ControlStock/ListarVehiculosProcesos`, {});
+    return this.https.get(`${this.apiUrl}/Pricing/ListarVehiculosProcesos`, {});
   }
 }
