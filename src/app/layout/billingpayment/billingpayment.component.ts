@@ -527,16 +527,21 @@ validar = false;
         label: 'Validación SUNAT',
         icon: 'pi pi-search',
         command: () => {
-          const partes = idCarpeta.split('_');
+          const idCarpetaLimpia = String(idCarpeta ?? '').replace(/\s+/g, '');
+          const partes = idCarpetaLimpia.split('_');
           const ruc_emisor = partes[0];
-          const parteSerieNumero = partes[1];
+          const parteSerieNumero = partes[1] ?? '';
           const [serie_documento, numero_documentoRaw] = parteSerieNumero.split('-') ?? [];
 
-          if (!serie_documento || !numero_documentoRaw) {
+          const rucValido = /^\d{11}$/.test(ruc_emisor ?? '');
+          const serieValida = /^[A-Za-z0-9]{1,4}$/.test(serie_documento ?? '');
+          const numeroValido = /^\d+$/.test(numero_documentoRaw ?? '');
+
+          if (!rucValido || !serieValida || !numeroValido) {
             this.messageService.add({
               severity: 'error',
               summary: 'Error en formato',
-              detail: `No se pudo extraer serie o número de documento de: ${parteSerieNumero}`
+              detail: 'formato de carpeta inválido'
             });
             return;
           }
