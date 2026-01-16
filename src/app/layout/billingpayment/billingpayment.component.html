@@ -347,7 +347,8 @@
 
       </p-drawer>
 
-      <p-dialog [(visible)]="mostrarVisor" [modal]="true" [style]="{width: '80vw'}" [closable]="false"
+      <p-dialog [(visible)]="mostrarVisor" [modal]="true" [style]="{ width: '50vw', height: '100vh' }"
+        [contentStyle]="{ height: '100%' }" styleClass="visor-dialog" [closable]="false"
         [resizable]="false">
 
         <ng-template pTemplate="header">

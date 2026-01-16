@@ -39,3 +39,12 @@
   color: white !important;             /* Texto blanco */
 }
 
+::ng-deep .visor-dialog .p-dialog {
+  width: 50vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
+::ng-deep .visor-dialog .p-dialog-content {
+  height: 100% !important;
+}
