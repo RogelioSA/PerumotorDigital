@@ -281,6 +281,7 @@ validar = false;
   tituloDialogAprovisionar: string = '';
   idCarpeta: string = '';
   generarDeshabilitado: boolean = false;
+  generarEnProceso: boolean = false;
 
   nombreCarpeta: string = '';
   final: boolean = false;
@@ -2080,11 +2081,16 @@ validar = false;
   }
 
   generar() {
+    if (this.generarEnProceso) {
+      return;
+    }
+
     const carpeta = this.products.find(p => p.idCarpeta === this.idCarpeta);
     if (!this.validarCamposAprovisionar(carpeta)) {
       return;
     }
 
+    this.generarEnProceso = true;
     this.confirmationService.confirm({
       message: '¿Estás seguro que deseas generar la provisión?',
       header: 'Confirmar generación',
@@ -2097,7 +2103,7 @@ validar = false;
         this.grabar();
       },
       reject: () => {
-
+        this.finalizarGeneracion();
       }
     });
   }
@@ -2210,6 +2216,7 @@ validar = false;
 
     if (!this.idCarpeta) {
       console.error('No se ha definido idCarpeta.');
+      this.finalizarGeneracion();
       return;
     }
     const carpeta = this.products.find(p => p.idCarpeta === this.idCarpeta);
@@ -2245,6 +2252,7 @@ validar = false;
                 summary: 'Error en producto',
                 detail: `LA PROVISIÓN CUENTA CON DETRACCIÓN, SE DEBE ESPECIFICAR EL TIPO DE DETRACCIÓN`
               });
+              this.finalizarGeneracion();
               return;
     }
   this.productosSeleccionados.forEach(item => {
@@ -2266,6 +2274,7 @@ validar = false;
               summary: 'Error en producto',
               detail: `El detalle item ${i + 1} no tiene un importe válido.`
             });
+            this.finalizarGeneracion();
             return;
           }
 
@@ -2787,6 +2796,7 @@ validar = false;
               summary: 'Éxito',
               detail: 'Provisión registrada correctamente.'
             });
+            this.finalizarGeneracion();
           },
           error: (err) => {
             console.error('Error al grabar Provision:', err);
@@ -2795,6 +2805,7 @@ validar = false;
               summary: 'Error',
               detail: 'No se pudo registrar el Provisión.'
             });
+            this.finalizarGeneracion();
           }
         });
       },
@@ -2805,9 +2816,14 @@ validar = false;
           summary: 'Error',
           detail: 'No se pudo crear el documento'
         });
+        this.finalizarGeneracion();
       }
 
     });
+  }
+
+  private finalizarGeneracion(): void {
+    this.generarEnProceso = false;
   }
 
   crearCarpeta() {
