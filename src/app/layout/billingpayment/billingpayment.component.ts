@@ -1451,7 +1451,7 @@ validar = false;
           const det = importeBruto * (isNaN(porcentajeDet) ? 0 : porcentajeDet);
 
           if (!monedaSeleccionada || monedaSeleccionada === '01') {
-            const detFloor = Math.floor(det);
+            const detFloor = Math.round(det);
             nuevoImporteNeto = importeBruto - detFloor;
           } else {
             nuevoImporteNeto = parseFloat((importeBruto - det).toFixed(2));
