@@ -347,7 +347,8 @@
 
       </p-drawer>
 
-      <p-dialog [(visible)]="mostrarVisor" [modal]="true" [style]="{ width: '50vw', height: '100vh' }"
+      <p-dialog [(visible)]="mostrarVisor" [modal]="true"
+        [style]="{ width: '50vw', height: '100vh', maxHeight: '100vh', top: '0' }"
         [contentStyle]="{ height: '100%' }" styleClass="visor-dialog" [closable]="false"
         [resizable]="false">
 

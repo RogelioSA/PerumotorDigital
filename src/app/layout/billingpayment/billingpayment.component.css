@@ -40,11 +40,15 @@
 }
 
 ::ng-deep .visor-dialog .p-dialog {
+  display: flex;
+  flex-direction: column;
   width: 50vw !important;
   height: 100vh !important;
   max-height: 100vh !important;
+  margin: 0 !important;
 }
 
 ::ng-deep .visor-dialog .p-dialog-content {
+  flex: 1 1 auto;
   height: 100% !important;
 }
