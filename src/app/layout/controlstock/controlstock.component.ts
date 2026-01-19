@@ -52,7 +52,7 @@ export class ControlstockComponent implements OnInit {
       nombre: 'COMERCIAL Y TRAMITES',
       columnas: [
         { field: 'Sucursal', header: 'Sucursal' },
-        { field: 'Vendedor', header: 'Solicitante' },
+        // { field: 'Vendedor', header: 'Solicitante' },
         { field: 'Ant', header: 'Ant.' },
         { field: 'Tef', header: 'TEF' },
         { field: 'Marca', header: 'Marca' },
