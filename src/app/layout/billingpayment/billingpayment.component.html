@@ -508,80 +508,113 @@
 
 
 <p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true"
-  [style]="{width: '80vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
+  [style]="{width: '75vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
   <!-- Contenedor principal con distribución horizontal -->
-  <div class="flex gap-4 mb-4 items-start">
+  <div class="flex gap-4 items-start h-full min-h-0">
+    <div class="w-[25vw] flex flex-col min-h-0">
+      <div class="flex justify-between items-center h-full min-h-0">
+        <!-- Flecha izquierda -->
+        <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="verAnterior()"
+          [disabled]="indiceArchivoActual === 0"></button>
 
-    <!-- Columna izquierda con botones -->
-    <div class="flex flex-col gap-2">
-        <!-- Spinner centrado sobre todos los botones -->
-      <div *ngIf="loadingDialog"
-          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
-        <p-progressSpinner styleClass="w-6 h-6" strokeWidth="4"></p-progressSpinner>
+        <!-- Contenido del visor -->
+        <div class="flex-1 text-center h-full min-h-0 flex flex-col">
+          <div *ngIf="cargandoArchivo" class="flex justify-center items-center h-[300px]">
+            <p-progressSpinner></p-progressSpinner>
+          </div>
+          <div *ngIf="archivoSeleccionadoUrl && !cargandoArchivo" class="flex-1 min-h-0 flex items-center justify-center">
+            <ng-container>
+              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
+                style="max-width: 100%; max-height: 70vh;" />
+              <iframe *ngIf="!esImagen(archivoSeleccionadoUrl)"
+                  [src]="safeUrl"
+                  width="100%" height="100%"
+                  style="border: none;"></iframe>
+              <p
+                *ngIf="!esImagen(archivoSeleccionadoUrl) && !safeUrl">
+                Tipo de archivo no soportado para vista previa.
+              </p>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Flecha derecha -->
+        <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="verSiguiente()"
+          [disabled]="indiceArchivoActual === archivosCarpeta.length - 1"></button>
       </div>
-      <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48"
-        (click)="abrirDialogo('GRP')"></button>
-      <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48"
-        (click)="abrirDialogo('OCO')"></button>
-      <button pButton type="button" label="+ Orden de servicio" class="p-button-outlined p-button-secondary w-48"
-        (click)="abrirDialogo('OSR')"></button>
-      <button pButton type="button" label="+ Orden de pago" class="p-button-outlined p-button-secondary w-48"
-        (click)="abrirDialogo('OPA')"></button>
-      <button pButton type="button" label="+ Factura" class="p-button-outlined p-button-secondary w-48"
-        (click)="abrirDialogo('FAC')"></button>
     </div>
 
-    <!-- Columna derecha con el Card -->
-    <p-card header="Documentos seleccionados" styleClass="w-full md:w-100">
-      <ng-template pTemplate="content">
-        <div *ngIf="documentosConfirmados.length">
-          <ul>
-            <li *ngFor="let doc of documentosConfirmados">
-              <strong>Tipo:</strong> {{ doc.tipo }} |
-              <strong>Serie:</strong> {{ doc.serie }} |
-              <strong>Número:</strong> {{ doc.numero }} |
-              <strong>Fecha:</strong> {{ doc.fecha }}
-            </li>
-          </ul>
+    <div class="flex-1 min-w-0">
+    <div class="flex gap-4 mb-4 items-start">
+      <!-- Columna izquierda con botones -->
+      <div class="flex flex-col gap-2">
+        <!-- Spinner centrado sobre todos los botones -->
+        <div *ngIf="loadingDialog"
+          class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+          <p-progressSpinner styleClass="w-6 h-6" strokeWidth="4"></p-progressSpinner>
         </div>
-        <div *ngIf="!documentosConfirmados.length">
-          <em>No hay documentos seleccionados.</em>
-        </div>
-      </ng-template>
-    </p-card>
+        <button pButton type="button" label="+ Guía de remisión" class="p-button-outlined p-button-secondary w-48"
+          (click)="abrirDialogo('GRP')"></button>
+        <button pButton type="button" label="+ Orden de compra" class="p-button-outlined p-button-secondary w-48"
+          (click)="abrirDialogo('OCO')"></button>
+        <button pButton type="button" label="+ Orden de servicio" class="p-button-outlined p-button-secondary w-48"
+          (click)="abrirDialogo('OSR')"></button>
+        <button pButton type="button" label="+ Orden de pago" class="p-button-outlined p-button-secondary w-48"
+          (click)="abrirDialogo('OPA')"></button>
+        <button pButton type="button" label="+ Factura" class="p-button-outlined p-button-secondary w-48"
+          (click)="abrirDialogo('FAC')"></button>
+      </div>
 
-    <p-card header="Resumen de Productos Seleccionados" styleClass="w-full md:w-100">
-      <ng-template pTemplate="content">
-        <div *ngIf="productoSeleccionadoResumen">
-          <p>
-            <strong>Moneda:</strong>
-            {{ productoSeleccionadoResumen.moneda.trim() }} -
-            {{ getDescripcionMoneda(productoSeleccionadoResumen.moneda.trim()) }}
-          </p>
-          <p>
-            <strong>Régimen:</strong>
-            {{ productoSeleccionadoResumen.regimen.trim() }} -
-            {{ getDescripcionRegimen(productoSeleccionadoResumen.regimen.trim()) }}
-          </p>
-          <p><strong>Base Imponible:</strong> {{ productoSeleccionadoResumen.baseImponible || 0 | number: '1.2-2' }}</p>
-          <p>
-            <strong>Impuestos:</strong>
-            {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
-            S/ {{ getMontoImpuesto() | number: '1.2-2' }}
-          </p>
-          <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}
-          </p>
-        </div>
-        <ng-template #sinProductos>
-          <em>No hay productos seleccionados.</em>
+      <!-- Columna derecha con el Card -->
+      <p-card header="Documentos seleccionados" styleClass="w-full md:w-100">
+        <ng-template pTemplate="content">
+          <div *ngIf="documentosConfirmados.length">
+            <ul>
+              <li *ngFor="let doc of documentosConfirmados">
+                <strong>Tipo:</strong> {{ doc.tipo }} |
+                <strong>Serie:</strong> {{ doc.serie }} |
+                <strong>Número:</strong> {{ doc.numero }} |
+                <strong>Fecha:</strong> {{ doc.fecha }}
+              </li>
+            </ul>
+          </div>
+          <div *ngIf="!documentosConfirmados.length">
+            <em>No hay documentos seleccionados.</em>
+          </div>
         </ng-template>
-      </ng-template>
-    </p-card>
+      </p-card>
+
+      <p-card header="Resumen de Productos Seleccionados" styleClass="w-full md:w-100">
+        <ng-template pTemplate="content">
+          <div *ngIf="productoSeleccionadoResumen">
+            <p>
+              <strong>Moneda:</strong>
+              {{ productoSeleccionadoResumen.moneda.trim() }} -
+              {{ getDescripcionMoneda(productoSeleccionadoResumen.moneda.trim()) }}
+            </p>
+            <p>
+              <strong>Régimen:</strong>
+              {{ productoSeleccionadoResumen.regimen.trim() }} -
+              {{ getDescripcionRegimen(productoSeleccionadoResumen.regimen.trim()) }}
+            </p>
+            <p><strong>Base Imponible:</strong> {{ productoSeleccionadoResumen.baseImponible || 0 | number: '1.2-2' }}</p>
+            <p>
+              <strong>Impuestos:</strong>
+              {{ getDescripcionImpuestos(productoSeleccionadoResumen.impuestos.trim()) }} -
+              S/ {{ getMontoImpuesto() | number: '1.2-2' }}
+            </p>
+            <p><strong>Total Provisionado</strong> {{ productoSeleccionadoResumen.totalProvisionado | number: '1.2-2' }}
+            </p>
+          </div>
+          <ng-template #sinProductos>
+            <em>No hay productos seleccionados.</em>
+          </ng-template>
+        </ng-template>
+      </p-card>
+    </div>
 
 
 
-
-  </div>
 
   <!-- Tabla -->
   <dx-data-grid [dataSource]="productosSeleccionados"
@@ -618,6 +651,8 @@
       [disabled]="generarDeshabilitado || generarEnProceso" [loading]="generarEnProceso"
       (onClick)="generar()">
     </p-button>
+  </div>
+    </div>
   </div>
 </p-dialog>
 
