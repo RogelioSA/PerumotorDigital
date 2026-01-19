@@ -326,6 +326,7 @@ validar = false;
             this.archivosCarpeta = Array.isArray(response) ? response : [response];
             this.mostrarTablaArchivos = true;
             this.mostrarTablaCarpetas = true;
+            this.seleccionarArchivoInicial();
           },
           error: (err) => {
             console.error('Error al obtener archivos desde la URL:', err);
@@ -1357,6 +1358,7 @@ validar = false;
     this.apiService.filtrarDocumentos(idCarpeta).subscribe({
       next: (response) => {
         this.archivosCarpeta = response;
+        this.seleccionarArchivoInicial();
       },
       error: (error) => {
         console.error('Error al filtrar documentos:', error);
@@ -1644,6 +1646,7 @@ validar = false;
         this.archivosCarpeta = Array.isArray(response) ? response : [response];
         this.cargandoArchivos = false;
         this.mostrarTablaArchivos = true;
+        this.seleccionarArchivoInicial();
 
       },
       error: (err) => {
@@ -1673,13 +1676,30 @@ validar = false;
   }
 
 
-  verArchivo(url: string, name: string , index: number) {
+  seleccionarArchivoInicial() {
+    if (!this.archivosCarpeta || this.archivosCarpeta.length === 0) {
+      this.archivoSeleccionadoUrl = '';
+      this.archivoSeleccionadoNombre = '';
+      this.safeUrl = null;
+      this.indiceArchivoActual = 0;
+      return;
+    }
+
+    const primerArchivo = this.archivosCarpeta[0];
+    if (primerArchivo?.url) {
+      this.verArchivo(primerArchivo.url, primerArchivo.name ?? 'Archivo', 0, false);
+    }
+  }
+
+  verArchivo(url: string, name: string, index: number, abrirVisor: boolean = true) {
     this.cargandoArchivo = true;
     this.indiceArchivoActual = index;
     this.archivoSeleccionadoNombre = name;
     this.archivoSeleccionadoUrl = url;
 
-    this.mostrarVisor = true;
+    if (abrirVisor) {
+      this.mostrarVisor = true;
+    }
     if (this.esPDF(url) || this.esImagen(url)) {
       this.safeUrl = this.getSafeUrl(url);
     } else if (this.esExcel(url) ||this.esWord(url)) {
@@ -1702,14 +1722,14 @@ validar = false;
     if (this.indiceArchivoActual < this.archivosCarpeta.length - 1) {
       const nuevo = this.archivosCarpeta[this.indiceArchivoActual + 1];
       console.log(nuevo)
-      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual + 1);
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual + 1, false);
     }
   }
 
   verAnterior() {
     if (this.indiceArchivoActual > 0) {
       const nuevo = this.archivosCarpeta[this.indiceArchivoActual - 1];
-      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual - 1);
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual - 1, false);
     }
   }
 
