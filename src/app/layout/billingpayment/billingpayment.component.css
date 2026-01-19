@@ -39,7 +39,7 @@
   color: white !important;             /* Texto blanco */
 }
 
-::ng-deep .visor-dialog .p-dialog {
+::ng-deep .visor-dialog.p-dialog {
   display: flex;
   flex-direction: column;
   width: 50vw !important;
@@ -48,7 +48,16 @@
   margin: 0 !important;
 }
 
-::ng-deep .visor-dialog .p-dialog-content {
+@media (max-width: 1024px) {
+  ::ng-deep .visor-dialog.p-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+}
+
+::ng-deep .visor-dialog.p-dialog .p-dialog-content {
   flex: 1 1 auto;
   height: 100% !important;
 }
