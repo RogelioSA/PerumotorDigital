@@ -507,9 +507,42 @@
 
 
 <p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true"
-  [style]="{width: '80vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
-  <!-- Contenedor principal con distribución horizontal -->
-  <div class="flex gap-4 mb-4 items-start">
+  [style]="{width: '75vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
+  <div class="flex gap-4 h-full min-h-0">
+    <div class="w-1/4 h-full min-h-0 flex flex-col">
+      <div class="flex justify-between items-center h-full min-h-0">
+        <!-- Flecha izquierda -->
+        <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="verAnterior()"
+          [disabled]="indiceArchivoActual === 0"></button>
+
+        <!-- Contenido del visor -->
+        <div class="flex-1 text-center h-full min-h-0 flex flex-col">
+          <div *ngIf="cargandoArchivo" class="flex justify-center items-center h-[300px]">
+            <p-progressSpinner></p-progressSpinner>
+          </div>
+          <div *ngIf="archivoSeleccionadoUrl && !cargandoArchivo"
+            class="flex-1 min-h-0 flex items-center justify-center">
+            <ng-container>
+              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
+                style="max-width: 100%; max-height: 70vh;" />
+              <iframe *ngIf="!esImagen(archivoSeleccionadoUrl)" [src]="safeUrl" width="100%" height="100%"
+                style="border: none;"></iframe>
+              <p *ngIf="!esImagen(archivoSeleccionadoUrl) && !safeUrl">
+                Tipo de archivo no soportado para vista previa.
+              </p>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Flecha derecha -->
+        <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="verSiguiente()"
+          [disabled]="indiceArchivoActual === archivosCarpeta.length - 1"></button>
+      </div>
+    </div>
+
+    <div class="w-3/4 h-full min-h-0 flex flex-col">
+      <!-- Contenedor principal con distribución horizontal -->
+      <div class="flex gap-4 mb-4 items-start">
 
     <!-- Columna izquierda con botones -->
     <div class="flex flex-col gap-2">
@@ -582,41 +615,44 @@
 
   </div>
 
-  <!-- Tabla -->
-  <dx-data-grid [dataSource]="productosSeleccionados"
-    (onEditorPreparing)="onEditorPreparing($event)" (onInitNewRow)="inicializarNuevaFila($event)"
-    class="bg-white rounded-xl shadow-sm border border-gray-200 w-full" [selection]="{ mode: 'single' }"
-    [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true" [hoverStateEnabled]="true"
-    [showColumnLines]="false" [showRowLines]="true" (onRowUpdating)="editar($event)" noDataText="No hay elementos">
-    <dxo-paging [pageSize]="10"></dxo-paging>
-    <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 30, 50]" [displayMode]="'full'"
-      [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true"></dxo-pager>
-    <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true" [allowDeleting]="true" ></dxo-editing>
-    <dxo-selection mode="single"></dxo-selection>
+      <!-- Tabla -->
+      <dx-data-grid [dataSource]="productosSeleccionados"
+        (onEditorPreparing)="onEditorPreparing($event)" (onInitNewRow)="inicializarNuevaFila($event)"
+        class="bg-white rounded-xl shadow-sm border border-gray-200 w-full" [selection]="{ mode: 'single' }"
+        [showBorders]="false" [rowAlternationEnabled]="true" [columnAutoWidth]="true" [hoverStateEnabled]="true"
+        [showColumnLines]="false" [showRowLines]="true" (onRowUpdating)="editar($event)" noDataText="No hay elementos">
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [visible]="true" [allowedPageSizes]="[10, 20, 30, 50]" [displayMode]="'full'"
+          [showPageSizeSelector]="true" [showInfo]="true" [showNavigationButtons]="true"></dxo-pager>
+        <dxo-editing mode="cell" [allowUpdating]="true" [useIcons]="true" [allowAdding]="true"
+          [allowDeleting]="true"></dxo-editing>
+        <dxo-selection mode="single"></dxo-selection>
 
 
-    <dxi-column dataField="item" caption="Item"></dxi-column>
-    <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
-    <dxi-column dataField="descripcionp" caption="Descripción"></dxi-column>
-    <dxi-column dataField="costos" caption="C.Costos"></dxi-column>
-    <dxi-column dataField="descripcioncc" caption="Centro de Costos"></dxi-column>
-    <dxi-column dataField="destino" caption="Destino"></dxi-column>
-    <dxi-column dataField="importe" caption="Importe"></dxi-column>
-    <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
-    <dxi-column dataField="producto" caption="Producto"></dxi-column>
+        <dxi-column dataField="item" caption="Item"></dxi-column>
+        <dxi-column dataField="cuenta" caption="Cuenta"></dxi-column>
+        <dxi-column dataField="descripcionp" caption="Descripción"></dxi-column>
+        <dxi-column dataField="costos" caption="C.Costos"></dxi-column>
+        <dxi-column dataField="descripcioncc" caption="Centro de Costos"></dxi-column>
+        <dxi-column dataField="destino" caption="Destino"></dxi-column>
+        <dxi-column dataField="importe" caption="Importe"></dxi-column>
+        <dxi-column dataField="cantidad" caption="Cantidad"></dxi-column>
+        <dxi-column dataField="producto" caption="Producto"></dxi-column>
 
-    <dxo-summary>
-      <dxi-total-item column="destino" summaryType="count"> </dxi-total-item>
+        <dxo-summary>
+          <dxi-total-item column="destino" summaryType="count"> </dxi-total-item>
 
-      <dxi-total-item column="importe" summaryType="sum">
-      </dxi-total-item>
-    </dxo-summary>
-  </dx-data-grid>
-  <div class="flex justify-end mt-5 mb-4">
-    <p-button label="Generar" icon="pi pi-file" class="p-button-primary"
-      [disabled]="generarDeshabilitado || generarEnProceso" [loading]="generarEnProceso"
-      (onClick)="generar()">
-    </p-button>
+          <dxi-total-item column="importe" summaryType="sum">
+          </dxi-total-item>
+        </dxo-summary>
+      </dx-data-grid>
+      <div class="flex justify-end mt-5 mb-4">
+        <p-button label="Generar" icon="pi pi-file" class="p-button-primary"
+          [disabled]="generarDeshabilitado || generarEnProceso" [loading]="generarEnProceso"
+          (onClick)="generar()">
+        </p-button>
+      </div>
+    </div>
   </div>
 </p-dialog>
 
