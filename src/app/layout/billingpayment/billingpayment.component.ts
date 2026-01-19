@@ -226,10 +226,8 @@ validar = false;
   mostrarVisor: boolean = false;
   archivoSeleccionadoUrl: string = '';
   archivoSeleccionadoNombre: string = '';
-  archivosPdf: any[] = [];
   safeUrl: SafeResourceUrl | null = null;
   indiceArchivoActual: number = 0;
-  indicePdfActual: number = 0;
 
 
   mostrarDialogAprovisionar: boolean = false;
@@ -326,7 +324,6 @@ validar = false;
         this.apiService.listarArchivosCarpeta(idDocumento.trim()).subscribe({
           next: (response) => {
             this.archivosCarpeta = Array.isArray(response) ? response : [response];
-            this.actualizarArchivosPdf();
             this.mostrarTablaArchivos = true;
             this.mostrarTablaCarpetas = true;
           },
@@ -1360,7 +1357,6 @@ validar = false;
     this.apiService.filtrarDocumentos(idCarpeta).subscribe({
       next: (response) => {
         this.archivosCarpeta = response;
-        this.actualizarArchivosPdf();
       },
       error: (error) => {
         console.error('Error al filtrar documentos:', error);
@@ -1537,7 +1533,6 @@ validar = false;
     this.mostrarTablaArchivos = false;
     this.cargandoArchivos = false;
     this.archivosCarpeta = [];
-    this.archivosPdf = [];
     this.carpetaSeleccionada = '';
     this.router.navigate([], {
       relativeTo: this.route,
@@ -1647,7 +1642,6 @@ validar = false;
     this.apiService.listarArchivosCarpeta(idDocumento.trim()).subscribe({
       next: (response) => {
         this.archivosCarpeta = Array.isArray(response) ? response : [response];
-        this.actualizarArchivosPdf();
         this.cargandoArchivos = false;
         this.mostrarTablaArchivos = true;
 
@@ -1684,12 +1678,6 @@ validar = false;
     this.indiceArchivoActual = index;
     this.archivoSeleccionadoNombre = name;
     this.archivoSeleccionadoUrl = url;
-    if (this.esPDF(url)) {
-      const pdfIndex = this.archivosPdf.findIndex(archivo => archivo.url === url && archivo.name === name);
-      if (pdfIndex !== -1) {
-        this.indicePdfActual = pdfIndex;
-      }
-    }
 
     this.mostrarVisor = true;
     if (this.esPDF(url) || this.esImagen(url)) {
@@ -1711,18 +1699,17 @@ validar = false;
   }
 
   verSiguiente() {
-    if (this.indicePdfActual < this.archivosPdf.length - 1) {
-      const nuevo = this.archivosPdf[this.indicePdfActual + 1];
-      this.indicePdfActual += 1;
-      this.verArchivo(nuevo.url, nuevo.name, this.archivosCarpeta.indexOf(nuevo));
+    if (this.indiceArchivoActual < this.archivosCarpeta.length - 1) {
+      const nuevo = this.archivosCarpeta[this.indiceArchivoActual + 1];
+      console.log(nuevo)
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual + 1);
     }
   }
 
   verAnterior() {
-    if (this.indicePdfActual > 0) {
-      const nuevo = this.archivosPdf[this.indicePdfActual - 1];
-      this.indicePdfActual -= 1;
-      this.verArchivo(nuevo.url, nuevo.name, this.archivosCarpeta.indexOf(nuevo));
+    if (this.indiceArchivoActual > 0) {
+      const nuevo = this.archivosCarpeta[this.indiceArchivoActual - 1];
+      this.verArchivo(nuevo.url, nuevo.name, this.indiceArchivoActual - 1);
     }
   }
 
@@ -1758,37 +1745,6 @@ validar = false;
         return 'application/vnd.ms-outlook';
       default:
         return 'application/octet-stream';
-    }
-  }
-
-  seleccionarPrimerPdf(): void {
-    if (this.archivosPdf.length === 0) {
-      this.archivoSeleccionadoUrl = '';
-      this.archivoSeleccionadoNombre = '';
-      this.safeUrl = null;
-      this.indicePdfActual = 0;
-      return;
-    }
-
-    if (!this.archivoSeleccionadoUrl || !this.esPDF(this.archivoSeleccionadoUrl)) {
-      const primerPdf = this.archivosPdf[0];
-      this.indicePdfActual = 0;
-      this.verArchivo(primerPdf.url, primerPdf.name, this.archivosCarpeta.indexOf(primerPdf));
-    }
-  }
-
-  asegurarPrimerPdfSeleccionado(): boolean {
-    this.seleccionarPrimerPdf();
-    return true;
-  }
-
-  private actualizarArchivosPdf(): void {
-    this.archivosPdf = this.archivosCarpeta.filter((archivo) => this.esPDF(archivo?.url ?? archivo?.name ?? ''));
-    if (this.archivosPdf.length === 0) {
-      this.archivoSeleccionadoUrl = '';
-      this.archivoSeleccionadoNombre = '';
-      this.safeUrl = null;
-      this.indicePdfActual = 0;
     }
   }
   getSafeUrl(url: string): SafeResourceUrl {
@@ -2929,7 +2885,6 @@ validar = false;
             this.messageService.add({ severity: 'success', summary: 'Archivo eliminado' });
             // Vuelve a cargar archivos (o simplemente los filtras si ya están en memoria)
             this.archivosCarpeta = this.archivosCarpeta.filter(a => a.name !== nombreArchivo);
-            this.actualizarArchivosPdf();
           },
           error: (err) => {
             this.messageService.add({ severity: 'error', summary: 'Error al eliminar archivo' });
