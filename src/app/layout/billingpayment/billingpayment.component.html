@@ -509,31 +509,28 @@
 
 <p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true"
   [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{height: '100%'}" styleClass="aprovisionar-dialog"
-  [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
+  [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()" (onShow)="seleccionarPrimerPdf()">
   <!-- Contenedor principal con distribución horizontal -->
   <div class="flex gap-4 items-start h-full min-h-0">
     <div class="w-[25vw] flex flex-col min-h-0">
       <div class="flex justify-between items-center h-full min-h-0">
         <!-- Flecha izquierda -->
         <button pButton icon="pi pi-chevron-left" class="p-button-text" (click)="verAnterior()"
-          [disabled]="indiceArchivoActual === 0"></button>
+          [disabled]="indicePdfActual === 0"></button>
 
         <!-- Contenido del visor -->
         <div class="flex-1 text-center h-full min-h-0 flex flex-col">
           <div *ngIf="cargandoArchivo" class="flex justify-center items-center h-[300px]">
             <p-progressSpinner></p-progressSpinner>
           </div>
-          <div *ngIf="archivoSeleccionadoUrl && !cargandoArchivo" class="flex-1 min-h-0 flex items-center justify-center">
-            <ng-container>
-              <img *ngIf="esImagen(archivoSeleccionadoUrl)" [src]="safeUrl"
-                style="max-width: 100%; max-height: 70vh;" />
-              <iframe *ngIf="!esImagen(archivoSeleccionadoUrl)"
-                  [src]="safeUrl"
-                  width="100%" height="100%"
-                  style="border: none;"></iframe>
-              <p
-                *ngIf="!esImagen(archivoSeleccionadoUrl) && !safeUrl">
-                Tipo de archivo no soportado para vista previa.
+          <div *ngIf="!cargandoArchivo" class="flex-1 min-h-0 flex items-center justify-center">
+            <ng-container *ngIf="asegurarPrimerPdfSeleccionado()">
+              <iframe *ngIf="archivoSeleccionadoUrl && esPDF(archivoSeleccionadoUrl)"
+                [src]="safeUrl"
+                width="100%" height="100%"
+                style="border: none;"></iframe>
+              <p *ngIf="!archivoSeleccionadoUrl">
+                No hay archivos PDF disponibles para vista previa.
               </p>
             </ng-container>
           </div>
@@ -541,7 +538,7 @@
 
         <!-- Flecha derecha -->
         <button pButton icon="pi pi-chevron-right" class="p-button-text" (click)="verSiguiente()"
-          [disabled]="indiceArchivoActual === archivosCarpeta.length - 1"></button>
+          [disabled]="indicePdfActual >= archivosPdf.length - 1"></button>
       </div>
     </div>
 
