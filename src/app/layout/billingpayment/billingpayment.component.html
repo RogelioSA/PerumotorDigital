@@ -508,7 +508,8 @@
 
 
 <p-dialog [header]="'Carpeta: ' + this.idCarpeta" [(visible)]="mostrarDialogAprovisionar" [modal]="true"
-  [style]="{width: '75vw', height: '80vh'}" [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
+  [style]="{width: '100vw', height: '100vh'}" [contentStyle]="{height: '100%'}" styleClass="aprovisionar-dialog"
+  [closable]="true" [resizable]="false" (onHide)="cerrarDialogo()">
   <!-- Contenedor principal con distribución horizontal -->
   <div class="flex gap-4 items-start h-full min-h-0">
     <div class="w-[25vw] flex flex-col min-h-0">
