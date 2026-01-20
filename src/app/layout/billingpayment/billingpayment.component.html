@@ -347,7 +347,7 @@
 
       </p-drawer>
 
-      <p-dialog [(visible)]="mostrarVisor" [modal]="true"
+      <p-dialog *ngIf="!mostrarDialogAprovisionar" [(visible)]="mostrarVisor" [modal]="true"
         [style]="{ width: '50vw', height: '100vh', maxHeight: '100vh', top: '0' }"
         [breakpoints]="{ '1024px': '100vw', '768px': '100vw' }"
         [contentStyle]="{ height: '100%' }" styleClass="visor-dialog" [closable]="false"
