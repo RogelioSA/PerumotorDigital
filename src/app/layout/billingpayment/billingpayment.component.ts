@@ -326,7 +326,7 @@ validar = false;
             this.archivosCarpeta = Array.isArray(response) ? response : [response];
             this.mostrarTablaArchivos = true;
             this.mostrarTablaCarpetas = true;
-            this.seleccionarArchivoInicial();
+           // this.seleccionarArchivoInicial();
           },
           error: (err) => {
             console.error('Error al obtener archivos desde la URL:', err);
@@ -1358,7 +1358,7 @@ validar = false;
     this.apiService.filtrarDocumentos(idCarpeta).subscribe({
       next: (response) => {
         this.archivosCarpeta = response;
-        this.seleccionarArchivoInicial();
+        //this.seleccionarArchivoInicial();
       },
       error: (error) => {
         console.error('Error al filtrar documentos:', error);
@@ -1631,11 +1631,11 @@ validar = false;
     const documento = this.products.find(c => c.idCarpeta === idCarpeta);
     this.carpetaSeleccionada = idDocumento;
 
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { idCarpeta: idCarpeta, idDocumento: idDocumento },
-      replaceUrl: true
-    });
+    // this.router.navigate([], {
+    //   relativeTo: this.route,
+    //   queryParams: { idCarpeta: idCarpeta, idDocumento: idDocumento },
+    //   replaceUrl: true
+    // });
 
     this.cargandoArchivos = true;
     this.archivosCarpeta = []; // Limpiar archivos anteriores mientras se cargan los nuevos
@@ -1646,7 +1646,7 @@ validar = false;
         this.archivosCarpeta = Array.isArray(response) ? response : [response];
         this.cargandoArchivos = false;
         this.mostrarTablaArchivos = true;
-        this.seleccionarArchivoInicial();
+        // this.seleccionarArchivoInicial();
 
       },
       error: (err) => {
