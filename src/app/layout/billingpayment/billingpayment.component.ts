@@ -38,6 +38,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'
 import { CookieService } from 'ngx-cookie-service';
+import MsgReader from '@kenjiuno/msgreader';
 interface Product {
   id?: string;
   code?: string;
@@ -228,6 +229,7 @@ validar = false;
   archivoSeleccionadoNombre: string = '';
   safeUrl: SafeResourceUrl | null = null;
   indiceArchivoActual: number = 0;
+  msgPreviewUrl: string | null = null;
 
 
   mostrarDialogAprovisionar: boolean = false;
@@ -1724,6 +1726,7 @@ validar = false;
     this.indiceArchivoActual = index;
     this.archivoSeleccionadoNombre = name;
     this.archivoSeleccionadoUrl = url;
+    this.revokeMsgPreviewUrl();
 
     if (abrirVisor ) {
       this.mostrarVisor = true;
@@ -1735,8 +1738,9 @@ validar = false;
         this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
 
     } else if (this.esMensajeOutlook(url)) {
-      const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl);
+      this.safeUrl = null;
+      this.cargarMensajeOutlook(url);
+      return;
     } else {
       this.safeUrl = null;
     }
@@ -1781,6 +1785,99 @@ validar = false;
     return url.toLowerCase().endsWith('.msg');
   }
 
+  private revokeMsgPreviewUrl(): void {
+    if (this.msgPreviewUrl) {
+      URL.revokeObjectURL(this.msgPreviewUrl);
+      this.msgPreviewUrl = null;
+    }
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private construirHtmlMensaje(data: Record<string, any>): string {
+    const subjectValue = data['subject'];
+    const senderNameValue = data['senderName'];
+    const senderEmailValue = data['senderEmail'];
+    const recipientsValue = data['recipients'];
+    const submitTimeValue = data['clientSubmitTime'];
+    const bodyHtmlValue = data['bodyHTML'];
+    const bodyValue = data['body'];
+    const subject = subjectValue ? this.escapeHtml(String(subjectValue)) : 'Sin asunto';
+    const senderName = senderNameValue ? this.escapeHtml(String(senderNameValue)) : '';
+    const senderEmail = senderEmailValue ? this.escapeHtml(String(senderEmailValue)) : '';
+    const sender = senderName || senderEmail ? `${senderName}${senderName && senderEmail ? ' ' : ''}${senderEmail ? `&lt;${senderEmail}&gt;` : ''}` : 'Remitente desconocido';
+    const recipients = Array.isArray(recipientsValue)
+      ? recipientsValue
+          .map((recipient: Record<string, any>) => recipient?.['email'] || recipient?.['name'])
+          .filter(Boolean)
+          .map((value: string) => this.escapeHtml(String(value)))
+          .join(', ')
+      : '';
+    const submitTime = submitTimeValue ? this.escapeHtml(String(submitTimeValue)) : '';
+
+    const bodyHtml = bodyHtmlValue
+      ? String(bodyHtmlValue)
+      : `<pre style="white-space: pre-wrap; font-family: inherit;">${this.escapeHtml(String(bodyValue ?? ''))}</pre>`;
+
+    return `<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${subject}</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; color: #1f2937; }
+      .meta { margin-bottom: 16px; font-size: 14px; line-height: 1.5; }
+      .meta div { margin: 2px 0; }
+      .label { font-weight: 600; color: #374151; }
+      .body { border-top: 1px solid #e5e7eb; padding-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="meta">
+      <div><span class="label">Asunto:</span> ${subject}</div>
+      <div><span class="label">De:</span> ${sender}</div>
+      ${recipients ? `<div><span class="label">Para:</span> ${recipients}</div>` : ''}
+      ${submitTime ? `<div><span class="label">Fecha:</span> ${submitTime}</div>` : ''}
+    </div>
+    <div class="body">
+      ${bodyHtml}
+    </div>
+  </body>
+</html>`;
+  }
+
+  private async cargarMensajeOutlook(url: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('No se pudo descargar el mensaje de Outlook.');
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const msgReader = new MsgReader(arrayBuffer);
+      const data = msgReader.getFileData();
+      const html = this.construirHtmlMensaje(data ?? {});
+      const blob = new Blob([html], { type: 'text/html' });
+      this.msgPreviewUrl = URL.createObjectURL(blob);
+      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.msgPreviewUrl);
+    } catch (error) {
+      console.error('Error al transformar mensaje Outlook:', error);
+      this.safeUrl = null;
+    } finally {
+      this.cargandoArchivo = false;
+      if (!this.mostrarDialogAprovisionar) {
+        this.mostrarVisor = true;
+      }
+    }
+  }
+
   obtenerTipoArchivo(archivo: File): string {
     const extension = archivo.name.split('.').pop()?.toLowerCase();
 
@@ -1802,11 +1899,6 @@ validar = false;
           lowerUrl.endsWith('.xls') || lowerUrl.endsWith('.xlsx') ||
           lowerUrl.endsWith('.ppt') || lowerUrl.endsWith('.pptx')) {
 
-        const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
-        return this.sanitizer.bypassSecurityTrustResourceUrl(officeViewerUrl);
-      }
-
-      if (this.esMensajeOutlook(url)) {
         const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
         return this.sanitizer.bypassSecurityTrustResourceUrl(officeViewerUrl);
       }
