@@ -440,6 +440,7 @@ validar = false;
         this.generarDeshabilitado = false;
         this.tituloDialogAprovisionar = `ID Carpeta: ${idCarpeta}`;
         this.cargarResumenProducto(idCarpeta);
+        this.listarDigitalesProvision(idCarpeta);
         this.mostrarDialogAprovisionar = true;
 
         }
@@ -1657,6 +1658,23 @@ validar = false;
     //this.mostrarTablaArchivos = true;
   }
 
+  listarDigitalesProvision(idDocumento: string) {
+    this.cargandoArchivos = true;
+    this.archivosCarpeta = [];
+
+    this.apiService.listarArchivosCarpeta(idDocumento.trim()).subscribe({
+      next: (response) => {
+        this.archivosCarpeta = Array.isArray(response) ? response : [response];
+        this.cargandoArchivos = false;
+        this.seleccionarArchivoInicial();
+      },
+      error: (err) => {
+        console.error('Error al obtener archivos digitales:', err);
+        this.cargandoArchivos = false;
+      }
+    });
+  }
+
 
   cerrarVistaCarpeta() {
     const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
@@ -1685,9 +1703,19 @@ validar = false;
       return;
     }
 
-    const primerArchivo = this.archivosCarpeta[0];
-    if (primerArchivo?.url) {
-      this.verArchivo(primerArchivo.url, primerArchivo.name ?? 'Archivo', 0, false);
+    const indicePdf = this.archivosCarpeta.findIndex((archivo) =>
+      this.esPDF(archivo?.url ?? '')
+    );
+    const indiceSeleccionado = indicePdf === -1 ? 0 : indicePdf;
+    const archivoSeleccionado = this.archivosCarpeta[indiceSeleccionado];
+
+    if (archivoSeleccionado?.url) {
+      this.verArchivo(
+        archivoSeleccionado.url,
+        archivoSeleccionado.name ?? 'Archivo',
+        indiceSeleccionado,
+        false
+      );
     }
   }
 
