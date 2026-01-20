@@ -38,7 +38,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'
 import { CookieService } from 'ngx-cookie-service';
-import { MsgReader } from '@kenjiuno/msgreader';
+import MsgReader from '@kenjiuno/msgreader';
 interface Product {
   id?: string;
   code?: string;
