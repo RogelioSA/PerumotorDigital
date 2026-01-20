@@ -1802,22 +1802,29 @@ validar = false;
   }
 
   private construirHtmlMensaje(data: Record<string, any>): string {
-    const subject = data.subject ? this.escapeHtml(String(data.subject)) : 'Sin asunto';
-    const senderName = data.senderName ? this.escapeHtml(String(data.senderName)) : '';
-    const senderEmail = data.senderEmail ? this.escapeHtml(String(data.senderEmail)) : '';
+    const subjectValue = data['subject'];
+    const senderNameValue = data['senderName'];
+    const senderEmailValue = data['senderEmail'];
+    const recipientsValue = data['recipients'];
+    const submitTimeValue = data['clientSubmitTime'];
+    const bodyHtmlValue = data['bodyHTML'];
+    const bodyValue = data['body'];
+    const subject = subjectValue ? this.escapeHtml(String(subjectValue)) : 'Sin asunto';
+    const senderName = senderNameValue ? this.escapeHtml(String(senderNameValue)) : '';
+    const senderEmail = senderEmailValue ? this.escapeHtml(String(senderEmailValue)) : '';
     const sender = senderName || senderEmail ? `${senderName}${senderName && senderEmail ? ' ' : ''}${senderEmail ? `&lt;${senderEmail}&gt;` : ''}` : 'Remitente desconocido';
-    const recipients = Array.isArray(data.recipients)
-      ? data.recipients
-          .map((recipient: Record<string, any>) => recipient.email || recipient.name)
+    const recipients = Array.isArray(recipientsValue)
+      ? recipientsValue
+          .map((recipient: Record<string, any>) => recipient?.email || recipient?.name)
           .filter(Boolean)
           .map((value: string) => this.escapeHtml(String(value)))
           .join(', ')
       : '';
-    const submitTime = data.clientSubmitTime ? this.escapeHtml(String(data.clientSubmitTime)) : '';
+    const submitTime = submitTimeValue ? this.escapeHtml(String(submitTimeValue)) : '';
 
-    const bodyHtml = data.bodyHTML
-      ? String(data.bodyHTML)
-      : `<pre style="white-space: pre-wrap; font-family: inherit;">${this.escapeHtml(String(data.body ?? ''))}</pre>`;
+    const bodyHtml = bodyHtmlValue
+      ? String(bodyHtmlValue)
+      : `<pre style="white-space: pre-wrap; font-family: inherit;">${this.escapeHtml(String(bodyValue ?? ''))}</pre>`;
 
     return `<!DOCTYPE html>
 <html lang="es">
