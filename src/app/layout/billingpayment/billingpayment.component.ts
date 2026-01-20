@@ -1815,7 +1815,7 @@ validar = false;
     const sender = senderName || senderEmail ? `${senderName}${senderName && senderEmail ? ' ' : ''}${senderEmail ? `&lt;${senderEmail}&gt;` : ''}` : 'Remitente desconocido';
     const recipients = Array.isArray(recipientsValue)
       ? recipientsValue
-          .map((recipient: Record<string, any>) => recipient?.email || recipient?.name)
+          .map((recipient: Record<string, any>) => recipient?.['email'] || recipient?.['name'])
           .filter(Boolean)
           .map((value: string) => this.escapeHtml(String(value)))
           .join(', ')
