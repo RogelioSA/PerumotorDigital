@@ -442,7 +442,7 @@ validar = false;
         this.cargarResumenProducto(idCarpeta);
         this.listarDigitalesProvision(idCarpeta);
         this.mostrarDialogAprovisionar = true;
-
+        this.mostrarVisor = false;
         }
       },
       {
@@ -1725,7 +1725,7 @@ validar = false;
     this.archivoSeleccionadoNombre = name;
     this.archivoSeleccionadoUrl = url;
 
-    if (abrirVisor) {
+    if (abrirVisor ) {
       this.mostrarVisor = true;
     }
     if (this.esPDF(url) || this.esImagen(url)) {
@@ -1742,7 +1742,7 @@ validar = false;
     }
     setTimeout(() => {
       this.cargandoArchivo = false;
-      this.mostrarVisor = true;
+      if ( !this.mostrarDialogAprovisionar){this.mostrarVisor = true;}
     }, 500);
   }
 
