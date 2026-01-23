@@ -1027,8 +1027,10 @@ validar = false;
         const enlace = `${window.location.origin}/billingpayment?idCarpeta=${doc.idCarpetaPadre}&idDocumento=${doc.idCarpeta?.trim()}`;
         const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
         const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
+        const fechaPagoSource = doc.fechaPago ?? doc.FechaPago;
         const fechaEmisionExcel = this.formatDateYMD(fechaEmisionSource);
         const fechaVencimientoExcel = this.formatDateYMD(fechaVencimientoSource);
+        const fechaPagoExcel = this.formatDateDMY(fechaPagoSource);
 
         return {
           ...doc,
@@ -1046,14 +1048,29 @@ validar = false;
           fechaEmision: doc.fechaEmision ? fechaEmisionExcel : doc.fechaEmision,
           FechaEmision: doc.FechaEmision ? fechaEmisionExcel : doc.FechaEmision,
           fechaVencimiento: doc.fechaVencimiento ? fechaVencimientoExcel : doc.fechaVencimiento,
-          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto
+          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto,
+          fechaPago: doc.fechaPago ? fechaPagoExcel : doc.fechaPago,
+          FechaPago: doc.FechaPago ? fechaPagoExcel : doc.FechaPago
         };
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
+      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: true });
       const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
       if (worksheetRange) {
         const headerRow = worksheetRange.s.r;
+        const dateColumns = ['fechaEmision', 'FechaEmision', 'fechaVencimiento', 'fechaVcto'];
+        dateColumns.forEach((columnName) => {
+          const dateColumnIndex = this.getWorksheetColumnIndex(worksheet, headerRow, columnName);
+          if (dateColumnIndex !== null) {
+            for (let r = headerRow + 1; r <= worksheetRange.e.r; r += 1) {
+              const cellAddress = XLSX.utils.encode_cell({ r, c: dateColumnIndex });
+              const cell = worksheet[cellAddress];
+              if (cell?.t === 'd') {
+                cell.z = 'yyyy-mm-dd';
+              }
+            }
+          }
+        });
         const enlaceColumnIndex = this.getWorksheetColumnIndex(worksheet, headerRow, 'enlace');
         if (enlaceColumnIndex !== null) {
           for (let r = headerRow + 1; r <= worksheetRange.e.r; r += 1) {
@@ -1076,7 +1093,7 @@ validar = false;
     });
   }
 
-  private formatDateYMD(value: unknown): string {
+  private formatDateYMD(value: unknown): Date | string {
     if (!value) {
       return '';
     }
@@ -1084,10 +1101,21 @@ validar = false;
     if (Number.isNaN(dateValue.getTime())) {
       return String(value);
     }
-    const year = dateValue.getFullYear();
-    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+    return dateValue;
+  }
+
+  private formatDateDMY(value: unknown): string {
+    if (!value) {
+      return '';
+    }
+    const dateValue = new Date(value as string);
+    if (Number.isNaN(dateValue.getTime())) {
+      return String(value);
+    }
     const day = String(dateValue.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+    const year = dateValue.getFullYear();
+    return `${day}/${month}/${year}`;
   }
 
   private getWorksheetColumnIndex(
