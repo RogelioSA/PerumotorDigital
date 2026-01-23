@@ -1029,9 +1029,9 @@ validar = false;
         const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
         const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
         const fechaPagoSource = doc.fechaPago ?? doc.FechaPago;
-        const fechaEmisionExcel = this.formatDateYMD(fechaEmisionSource);
-        const fechaVencimientoExcel = this.formatDateYMD(fechaVencimientoSource);
-        const fechaPagoExcel = this.formatDateYMD(fechaPagoSource);
+        const fechaEmisionExcel = this.coerceExcelDate(fechaEmisionSource);
+        const fechaVencimientoExcel = this.coerceExcelDate(fechaVencimientoSource);
+        const fechaPagoExcel = this.coerceExcelDate(fechaPagoSource);
         return {
           ...doc,
           idArea: areaDesc,
@@ -1054,7 +1054,7 @@ validar = false;
         };
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: false });
+      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: true });
       const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
       if (worksheetRange) {
         const headerRow = worksheetRange.s.r;
@@ -1074,10 +1074,11 @@ validar = false;
             dateColumnIndexes.forEach(c => {
               const cellAddress = XLSX.utils.encode_cell({ r, c });
               const cell = worksheet[cellAddress];
-              if (cell?.v) {
+              if (cell?.v instanceof Date) {
                 worksheet[cellAddress] = {
-                  t: 's',
-                  v: String(cell.v)
+                  t: 'd',
+                  v: cell.v,
+                  z: 'yyyy-mm-dd'
                 };
               }
             });
@@ -1105,23 +1106,35 @@ validar = false;
     });
   }
 
-  private formatDateYMD(value: unknown): string {
+  private coerceExcelDate(value: unknown): Date | string {
     if (!value) {
       return '';
+    }
+    if (value instanceof Date) {
+      return new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0));
     }
     const valueString = String(value).trim();
     const dateOnlyMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (dateOnlyMatch) {
-      return valueString;
+      const year = Number(dateOnlyMatch[1]);
+      const month = Number(dateOnlyMatch[2]) - 1;
+      const day = Number(dateOnlyMatch[3]);
+      return new Date(Date.UTC(year, month, day, 0, 0, 0));
     }
     const dateValue = new Date(valueString);
     if (Number.isNaN(dateValue.getTime())) {
       return valueString;
     }
-    const year = dateValue.getFullYear();
-    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
-    const day = String(dateValue.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return new Date(
+      Date.UTC(
+        dateValue.getUTCFullYear(),
+        dateValue.getUTCMonth(),
+        dateValue.getUTCDate(),
+        0,
+        0,
+        0
+      )
+    );
   }
 
   private getWorksheetColumnIndex(
