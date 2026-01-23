@@ -1111,7 +1111,7 @@ validar = false;
       return '';
     }
     if (value instanceof Date) {
-      return new Date(Date.UTC(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0));
+      return new Date(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0);
     }
     const valueString = String(value).trim();
     const dateOnlyMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -1119,7 +1119,7 @@ validar = false;
       const year = Number(dateOnlyMatch[1]);
       const month = Number(dateOnlyMatch[2]) - 1;
       const day = Number(dateOnlyMatch[3]);
-      return new Date(Date.UTC(year, month, day, 0, 0, 0));
+      return new Date(year, month, day, 0, 0, 0);
     }
     const dateTimeMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s].*)?$/);
     if (dateTimeMatch) {
@@ -1131,14 +1131,12 @@ validar = false;
         const parsedDateTime = new Date(valueString);
         if (!Number.isNaN(parsedDateTime.getTime())) {
           return new Date(
-            Date.UTC(
-              parsedDateTime.getUTCFullYear(),
-              parsedDateTime.getUTCMonth(),
-              parsedDateTime.getUTCDate(),
-              0,
-              0,
-              0
-            )
+            parsedDateTime.getFullYear(),
+            parsedDateTime.getMonth(),
+            parsedDateTime.getDate(),
+            0,
+            0,
+            0
           );
         }
       }
@@ -1148,16 +1146,7 @@ validar = false;
     if (Number.isNaN(dateValue.getTime())) {
       return valueString;
     }
-    return new Date(
-      Date.UTC(
-        dateValue.getFullYear(),
-        dateValue.getMonth(),
-        dateValue.getDate(),
-        0,
-        0,
-        0
-      )
-    );
+    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0);
   }
 
   private getWorksheetColumnIndex(
