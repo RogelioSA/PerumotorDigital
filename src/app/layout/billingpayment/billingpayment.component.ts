@@ -1028,8 +1028,10 @@ validar = false;
         const enlace = `${window.location.origin}/billingpayment?idCarpeta=${doc.idCarpetaPadre}&idDocumento=${doc.idCarpeta?.trim()}`;
         const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
         const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
+        const fechaPagoSource = doc.fechaPago ?? doc.FechaPago;
         const fechaEmisionExcel = this.formatDateYMD(fechaEmisionSource);
         const fechaVencimientoExcel = this.formatDateYMD(fechaVencimientoSource);
+        const fechaPagoExcel = this.formatDateYMD(fechaPagoSource);
         return {
           ...doc,
           idArea: areaDesc,
@@ -1046,11 +1048,13 @@ validar = false;
           fechaEmision: doc.fechaEmision ? fechaEmisionExcel : doc.fechaEmision,
           FechaEmision: doc.FechaEmision ? fechaEmisionExcel : doc.FechaEmision,
           fechaVencimiento: doc.fechaVencimiento ? fechaVencimientoExcel : doc.fechaVencimiento,
-          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto
+          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto,
+          fechaPago: doc.fechaPago ? fechaPagoExcel : doc.fechaPago,
+          FechaPago: doc.FechaPago ? fechaPagoExcel : doc.FechaPago
         };
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(data);
+      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: true, dateNF: 'yyyy-mm-dd' });
       const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
       if (worksheetRange) {
         const headerRow = worksheetRange.s.r;
@@ -1076,7 +1080,7 @@ validar = false;
     });
   }
 
-  private formatDateYMD(value: unknown): string {
+  private formatDateYMD(value: unknown): Date | string {
     if (!value) {
       return '';
     }
@@ -1085,9 +1089,9 @@ validar = false;
       return String(value);
     }
     const year = dateValue.getFullYear();
-    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
-    const day = String(dateValue.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const month = dateValue.getMonth();
+    const day = dateValue.getDate();
+    return new Date(year, month, day);
   }
 
   private getWorksheetColumnIndex(
