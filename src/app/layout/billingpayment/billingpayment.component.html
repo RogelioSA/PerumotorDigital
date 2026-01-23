@@ -131,12 +131,12 @@
 
         <!-- Nombre con ícono tipo carpeta -->
 
-        <dxi-column dataField="idCarpeta" [allowFiltering]="false" [allowSorting]="false" [allowSearch]="true" cellTemplate="cellTemplate"
+        <dxi-column dataField="idCarpeta" [allowSorting]="true" [allowSearch]="true" cellTemplate="cellTemplate"
           caption="Nombre" [allowEditing]="false" [width]="230"  [fixed]="true"
           fixedPosition="left">
-          <dxo-header-filter [allowSelectAll]="false">
+          <!-- <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+          </dxo-header-filter> -->
         </dxi-column>
 
         <dxi-column dataField="validado" caption="" [width]="40" [allowFiltering]="false" [allowSorting]="false" [allowSearch]="false"
@@ -145,9 +145,9 @@
 
 
         <div *dxTemplate="let data of 'cellTemplate'">
-          <dxo-header-filter [allowSelectAll]="false">
+          <!-- <dxo-header-filter [allowSelectAll]="false">
             <dxo-search [enabled]="true"></dxo-search>
-          </dxo-header-filter>
+          </dxo-header-filter> -->
           <a #contextAnchor (click)="verArchivos(data.value)" (contextmenu)="onRightClick($event, data.value, cm)"
             class="flex items-center space-x-2 text-gray-700 hover:text-blue-700 font-medium cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-500" fill="currentColor"
@@ -164,22 +164,22 @@
         <!-- Resto de columnas -->
         <dxi-column dataField="idCobrarPagarDoc" caption="Operación" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
-        <dxi-column dataField="idArea" caption="Área" [allowHeaderFiltering]="false" [allowSearch]="true" [editorOptions]="{ dropDownOptions: { width: 200 } }">
+        <dxi-column dataField="idArea" caption="Área" [allowSearch]="true" [editorOptions]="{ dropDownOptions: { width: 200 } }">
         <dxo-lookup [dataSource]="area" displayExpr="descripcion" valueExpr="id">
         </dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="estado" caption="Estado" [allowEditing]="false" [allowHeaderFiltering]="false" [allowSearch]="true">
+        <dxi-column dataField="estado" caption="Estado" [allowEditing]="false" [allowSearch]="true">
         </dxi-column>
-        <dxi-column dataField="revCtb" caption="Rev. Cont." [allowHeaderFiltering]="false" [allowSearch]="false" [editorOptions]="{ dropDownOptions: { width: 200 } }">
+        <dxi-column dataField="revCtb" caption="Rev. Cont." [allowSearch]="false" [editorOptions]="{ dropDownOptions: { width: 200 } }">
         <dxo-lookup [dataSource]="ctb" displayExpr="descripcion" valueExpr="idCtb"></dxo-lookup>
         </dxi-column>
-        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'" [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="fechaVcto" caption="Fecha Vcto" dataType="date" [format]="'dd/MM/yyyy'"  [allowSearch]="false">
         </dxi-column>
-        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="true" [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="fechaPago" caption="Fecha Pago" dataType="date" [format]="'dd/MM/yyyy'" [allowEditing]="true" [allowSearch]="false">
         </dxi-column>
         <dxi-column dataField="comentario" caption="Comentario" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
-        <dxi-column dataField="idSerie" caption="Vehículo" [allowHeaderFiltering]="false" [allowSearch]="false">
+        <dxi-column dataField="idSerie" caption="Vehículo" [allowSearch]="false">
         </dxi-column>
         <dxi-column dataField="revControl" caption="Rev. Control" [allowHeaderFiltering]="false" [allowSearch]="false">
           <dxo-lookup [dataSource]="rev" displayExpr="descripcion" valueExpr="idRev">
@@ -187,9 +187,9 @@
         </dxi-column>
         <dxi-column dataField="lca" caption="LCA" [allowEditing]="true" [allowHeaderFiltering]="false" [allowSearch]="false">
         </dxi-column>
-        <dxi-column dataField="documento" caption="Documento" [allowHeaderFiltering]="false" [allowSearch]="true">
+        <dxi-column dataField="documento" caption="Documento"  [allowSearch]="true">
         </dxi-column>
-        <dxi-column dataField="razonSocial" caption="Razón Social" [allowHeaderFiltering]="false" [allowSearch]="true">
+        <dxi-column dataField="razonSocial" caption="Razón Social"  [allowSearch]="true">
         </dxi-column>
         <dxi-column dataField="srIgv" caption="Sr IGV" [allowHeaderFiltering]="false" [allowSearch]="false">
           <dxo-lookup [dataSource]="igv" displayExpr="descripcion" valueExpr="idigv">

@@ -412,6 +412,35 @@ validar = false;
         icon: 'pi pi-search',
         command: () => this.verArchivos(idCarpeta)
       },
+            {
+        label: 'Aprobar',
+        icon: 'pi pi-check',
+        command: () => {
+          // Suponiendo que tienes el idCarpeta del documento a aprobar (ejemplo: this.selectedIdCarpeta)
+          const documento = this.products.find(p => p.idCarpeta === idCarpeta);
+
+          if (!documento) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Aviso',
+              detail: 'Debe seleccionar un documento para aprobar.'
+            });
+            return;
+          }
+
+          // Puedes incluir confirmación si quieres
+          this.confirmationService.confirm({
+            message: '¿Estás seguro que deseas aprobar este documento?',
+            header: 'Confirmar aprobación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí',
+            rejectLabel: 'No',
+            accept: () => {
+              this.aprobarDocumento(documento);
+            }
+          });
+        }
+      },
       {
         label: 'Provisionar',
         icon: 'pi pi-file',
@@ -493,35 +522,7 @@ validar = false;
           });
         }
       },
-      {
-        label: 'Aprobar',
-        icon: 'pi pi-check',
-        command: () => {
-          // Suponiendo que tienes el idCarpeta del documento a aprobar (ejemplo: this.selectedIdCarpeta)
-          const documento = this.products.find(p => p.idCarpeta === idCarpeta);
 
-          if (!documento) {
-            this.messageService.add({
-              severity: 'warn',
-              summary: 'Aviso',
-              detail: 'Debe seleccionar un documento para aprobar.'
-            });
-            return;
-          }
-
-          // Puedes incluir confirmación si quieres
-          this.confirmationService.confirm({
-            message: '¿Estás seguro que deseas aprobar este documento?',
-            header: 'Confirmar aprobación',
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí',
-            rejectLabel: 'No',
-            accept: () => {
-              this.aprobarDocumento(documento);
-            }
-          });
-        }
-      },
       {
         label: 'Ver historial',
         icon: 'pi pi-bars',
@@ -1027,9 +1028,10 @@ validar = false;
         const enlace = `${window.location.origin}/billingpayment?idCarpeta=${doc.idCarpetaPadre}&idDocumento=${doc.idCarpeta?.trim()}`;
         const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
         const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
+        const fechaPagoSource = doc.fechaPago ?? doc.FechaPago;
         const fechaEmisionExcel = this.formatDateYMD(fechaEmisionSource);
         const fechaVencimientoExcel = this.formatDateYMD(fechaVencimientoSource);
-
+        const fechaPagoExcel = this.formatDateYMD(fechaPagoSource);
         return {
           ...doc,
           idArea: areaDesc,
@@ -1046,7 +1048,9 @@ validar = false;
           fechaEmision: doc.fechaEmision ? fechaEmisionExcel : doc.fechaEmision,
           FechaEmision: doc.FechaEmision ? fechaEmisionExcel : doc.FechaEmision,
           fechaVencimiento: doc.fechaVencimiento ? fechaVencimientoExcel : doc.fechaVencimiento,
-          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto
+          fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto,
+          fechaPago: doc.fechaPago ? fechaPagoExcel : doc.fechaPago,
+          FechaPago: doc.FechaPago ? fechaPagoExcel : doc.FechaPago
         };
       });
 
@@ -1087,7 +1091,8 @@ validar = false;
     const year = dateValue.getFullYear();
     const month = String(dateValue.getMonth() + 1).padStart(2, '0');
     const day = String(dateValue.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  //  return `${year}-${month}-${day}`;
+    return `${day}/${month}/${year}`;
   }
 
   private getWorksheetColumnIndex(
