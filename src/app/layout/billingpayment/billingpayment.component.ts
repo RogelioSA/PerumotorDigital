@@ -1084,14 +1084,20 @@ validar = false;
     if (!value) {
       return '';
     }
-    const dateValue = new Date(value as string);
-    if (Number.isNaN(dateValue.getTime())) {
-      return String(value);
+    if (value instanceof Date) {
+      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
     }
-    const year = dateValue.getFullYear();
-    const month = dateValue.getMonth();
-    const day = dateValue.getDate();
-    return new Date(year, month, day);
+    const valueString = String(value);
+    const dateOnlyMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dateOnlyMatch) {
+      const [, year, month, day] = dateOnlyMatch;
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+    const dateValue = new Date(valueString);
+    if (Number.isNaN(dateValue.getTime())) {
+      return valueString;
+    }
+    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
   }
 
   private getWorksheetColumnIndex(
