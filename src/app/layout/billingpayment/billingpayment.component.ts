@@ -1054,10 +1054,35 @@ validar = false;
         };
       });
 
-      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: true, dateNF: 'yyyy-mm-dd' });
+      const worksheet = XLSX.utils.json_to_sheet(data, { cellDates: false });
       const worksheetRange = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
       if (worksheetRange) {
         const headerRow = worksheetRange.s.r;
+        const dateHeaders = [
+          'fechaEmision',
+          'FechaEmision',
+          'fechaVencimiento',
+          'fechaVcto',
+          'fechaPago',
+          'FechaPago'
+        ];
+        const dateColumnIndexes = dateHeaders
+          .map(header => this.getWorksheetColumnIndex(worksheet, headerRow, header))
+          .filter((index): index is number => index !== null);
+        if (dateColumnIndexes.length > 0) {
+          for (let r = headerRow + 1; r <= worksheetRange.e.r; r += 1) {
+            dateColumnIndexes.forEach(c => {
+              const cellAddress = XLSX.utils.encode_cell({ r, c });
+              const cell = worksheet[cellAddress];
+              if (cell?.v) {
+                worksheet[cellAddress] = {
+                  t: 's',
+                  v: String(cell.v)
+                };
+              }
+            });
+          }
+        }
         const enlaceColumnIndex = this.getWorksheetColumnIndex(worksheet, headerRow, 'enlace');
         if (enlaceColumnIndex !== null) {
           for (let r = headerRow + 1; r <= worksheetRange.e.r; r += 1) {
@@ -1080,24 +1105,23 @@ validar = false;
     });
   }
 
-  private formatDateYMD(value: unknown): Date | string {
+  private formatDateYMD(value: unknown): string {
     if (!value) {
       return '';
     }
-    if (value instanceof Date) {
-      return new Date(value.getFullYear(), value.getMonth(), value.getDate());
-    }
-    const valueString = String(value);
+    const valueString = String(value).trim();
     const dateOnlyMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (dateOnlyMatch) {
-      const [, year, month, day] = dateOnlyMatch;
-      return new Date(Number(year), Number(month) - 1, Number(day));
+      return valueString;
     }
     const dateValue = new Date(valueString);
     if (Number.isNaN(dateValue.getTime())) {
       return valueString;
     }
-    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
+    const year = dateValue.getFullYear();
+    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+    const day = String(dateValue.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private getWorksheetColumnIndex(
