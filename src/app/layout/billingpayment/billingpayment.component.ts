@@ -1126,7 +1126,23 @@ validar = false;
       const year = Number(dateTimeMatch[1]);
       const month = Number(dateTimeMatch[2]) - 1;
       const day = Number(dateTimeMatch[3]);
-      return new Date(Date.UTC(year, month, day, 0, 0, 0));
+      const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}/.test(valueString);
+      if (hasTimezone) {
+        const parsedDateTime = new Date(valueString);
+        if (!Number.isNaN(parsedDateTime.getTime())) {
+          return new Date(
+            Date.UTC(
+              parsedDateTime.getUTCFullYear(),
+              parsedDateTime.getUTCMonth(),
+              parsedDateTime.getUTCDate(),
+              0,
+              0,
+              0
+            )
+          );
+        }
+      }
+      return new Date(year, month, day, 0, 0, 0);
     }
     const dateValue = new Date(valueString);
     if (Number.isNaN(dateValue.getTime())) {
