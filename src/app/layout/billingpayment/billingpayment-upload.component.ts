@@ -69,18 +69,8 @@ export class BillingpaymentUploadComponent {
     );
     const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
     const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
-    let serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
-    let numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
-
-    if (!serie || !numero) {
-      const spacedSerieNumeroMatch = text.match(
-        /\b([A-Z0-9]{2,4})\s*(?:[-–—−‑‐·/]\s*)?(\d{1,8})\b/
-      );
-      if (spacedSerieNumeroMatch) {
-        serie = serie ?? spacedSerieNumeroMatch[1];
-        numero = numero ?? spacedSerieNumeroMatch[2];
-      }
-    }
+    const serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
+    const numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
 
     return {
       archivo: file.name,
