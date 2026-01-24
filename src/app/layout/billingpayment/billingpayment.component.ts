@@ -103,7 +103,6 @@ validar = false;
   menuItems: MenuItem[] = [];
 
   vehiculosPdfInfo: VehiculoPdfInfo[] = [];
-  mostrarDialogVehiculos: boolean = false;
 
 
   seleccionados: any[] = [];
@@ -391,7 +390,9 @@ validar = false;
 
   onVehiculosParsed(vehiculos: VehiculoPdfInfo[]): void {
     this.vehiculosPdfInfo = vehiculos;
-    this.mostrarDialogVehiculos = true;
+    vehiculos.forEach((vehiculo) => {
+      console.log('RUC:', vehiculo.rucProveedor, 'Serie:', vehiculo.serie, 'Número:', vehiculo.numero);
+    });
   }
 
   onVehiculosParseError(message: string): void {
