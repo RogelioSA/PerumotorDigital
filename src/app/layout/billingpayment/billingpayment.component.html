@@ -906,27 +906,3 @@
     </ng-template>
   </p-table>
 </p-dialog>
-
-<p-dialog header="Datos leídos del PDF" [(visible)]="mostrarVehiculosDialog" [modal]="true" [style]="{width: '520px'}">
-  <div class="vehiculos-dialog">
-    <table class="vehiculos-table" *ngIf="vehiculosPdfInfo.length > 0; else sinVehiculos">
-      <thead>
-        <tr>
-          <th>RUC</th>
-          <th>SERIE</th>
-          <th>NUMERO</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let vehiculo of vehiculosPdfInfo">
-          <td>{{ vehiculo.rucProveedor || '-' }}</td>
-          <td>{{ vehiculo.serie || '-' }}</td>
-          <td>{{ vehiculo.numero || '-' }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <ng-template #sinVehiculos>
-      <p>No se encontraron datos para mostrar.</p>
-    </ng-template>
-  </div>
-</p-dialog>
