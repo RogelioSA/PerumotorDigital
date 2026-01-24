@@ -86,7 +86,7 @@ export class BillingpaymentUploadComponent {
   }
 
   private extractSerieNumeroBelowFactura(
-    items: pdfjsLib.TextContent['items']
+    items: Array<{ str?: string; transform?: number[] }>
   ): { serie: string; numero: string } | null {
     const normalized = (value: string) =>
       value
@@ -95,14 +95,10 @@ export class BillingpaymentUploadComponent {
         .toLowerCase();
 
     const textItems = items
-      .filter(
-        (item): item is pdfjsLib.TextItem =>
-          'str' in item && typeof item.str === 'string' && 'transform' in item
-      )
       .map((item) => ({
-        text: item.str,
-        x: item.transform[4] ?? 0,
-        y: item.transform[5] ?? 0
+        text: item.str ?? '',
+        x: item.transform?.[4] ?? 0,
+        y: item.transform?.[5] ?? 0
       }))
       .filter((item) => item.text.trim().length > 0);
 
