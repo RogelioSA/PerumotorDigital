@@ -69,13 +69,8 @@ export class BillingpaymentUploadComponent {
     );
     const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
     const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
-    let serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
-    let numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
-    const serieNumeroFromFactura = this.extractSerieNumeroBelowFactura(textContent.items);
-    if (serieNumeroFromFactura) {
-      serie = serie ?? serieNumeroFromFactura.serie;
-      numero = numero ?? serieNumeroFromFactura.numero;
-    }
+    const serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
+    const numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
 
     return {
       archivo: file.name,
@@ -83,75 +78,5 @@ export class BillingpaymentUploadComponent {
       serie: serie ? serie.trim() : null,
       numero: numero ? numero.trim() : null
     };
-  }
-
-  private extractSerieNumeroBelowFactura(
-    items: Array<{ str?: string; transform?: number[] }>
-  ): { serie: string; numero: string } | null {
-    const normalized = (value: string) =>
-      value
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
-
-    const textItems = items
-      .map((item) => ({
-        text: item.str ?? '',
-        x: item.transform?.[4] ?? 0,
-        y: item.transform?.[5] ?? 0
-      }))
-      .filter((item) => item.text.trim().length > 0);
-
-    const lines = this.groupItemsByLine(textItems);
-    const facturaLine = lines.find((line) => {
-      const lineText = normalized(line.text);
-      return lineText.includes('factura') && lineText.includes('electronica');
-    });
-
-    if (!facturaLine) {
-      return null;
-    }
-
-    const candidateLines = lines
-      .filter((line) => line.y < facturaLine.y && Math.abs(line.x - facturaLine.x) <= 30)
-      .sort((a, b) => b.y - a.y);
-
-    for (const line of candidateLines) {
-      const match = line.text.match(/([A-Z0-9]{2,4})\s*-?\s*(\d{1,8})/);
-      if (match) {
-        return { serie: match[1], numero: match[2] };
-      }
-    }
-
-    return null;
-  }
-
-  private groupItemsByLine(items: Array<{ text: string; x: number; y: number }>): Array<{
-    text: string;
-    x: number;
-    y: number;
-  }> {
-    const tolerance = 2;
-    const lines: Array<{ y: number; items: Array<{ text: string; x: number; y: number }> }> =
-      [];
-
-    for (const item of items) {
-      const line = lines.find((entry) => Math.abs(entry.y - item.y) <= tolerance);
-      if (line) {
-        line.items.push(item);
-      } else {
-        lines.push({ y: item.y, items: [item] });
-      }
-    }
-
-    return lines
-      .map((line) => {
-        const sorted = [...line.items].sort((a, b) => a.x - b.x);
-        const text = sorted.map((item) => item.text).join(' ').replace(/\s+/g, ' ').trim();
-        const x = Math.min(...sorted.map((item) => item.x));
-        return { text, x, y: line.y };
-      })
-      .filter((line) => line.text.length > 0)
-      .sort((a, b) => b.y - a.y);
   }
 }
