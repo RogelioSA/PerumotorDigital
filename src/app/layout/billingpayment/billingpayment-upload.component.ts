@@ -65,25 +65,12 @@ export class BillingpaymentUploadComponent {
 
     const rucMatch = text.match(/\b\d{11}\b/);
     const facturaMatch = text.match(
-      /FACTURA\s+ELECTR[ÓO]NICA[\s\S]*?N[°º]?\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})/i
+      /FACTURA\s+ELECTRONICA[\s\S]*?N[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})/i
     );
-    const numeroMatch = text.match(/\bN[°º]?\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
-    const facturaLineaMatch = text.match(
-      /FACTURA\s+ELECTR[ÓO]NICA[\s\S]*?\b([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i
-    );
+    const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
     const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
-    const serie =
-      facturaMatch?.[1] ??
-      numeroMatch?.[1] ??
-      facturaLineaMatch?.[1] ??
-      serieNumeroMatch?.[0]?.split('-')[0] ??
-      null;
-    const numero =
-      facturaMatch?.[2] ??
-      numeroMatch?.[2] ??
-      facturaLineaMatch?.[2] ??
-      serieNumeroMatch?.[0]?.split('-')[1] ??
-      null;
+    const serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
+    const numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
 
     return {
       archivo: file.name,
