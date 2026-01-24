@@ -76,3 +76,23 @@
   flex: 1 1 auto;
   height: 100% !important;
 }
+
+.vehiculos-dialog {
+  padding: 0.5rem 0;
+}
+
+.vehiculos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vehiculos-table th,
+.vehiculos-table td {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.vehiculos-table th {
+  font-weight: 600;
+}
