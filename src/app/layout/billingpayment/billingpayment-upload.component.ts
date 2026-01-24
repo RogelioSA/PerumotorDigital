@@ -64,14 +64,19 @@ export class BillingpaymentUploadComponent {
     const text = textContent.items.map((item) => ('str' in item ? item.str : '')).join(' ');
 
     const rucMatch = text.match(/\b\d{11}\b/);
-    const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}-\d{1,8}\b/);
-    const serieNumero = serieNumeroMatch?.[0] ?? null;
+    const facturaMatch = text.match(
+      /FACTURA\s+ELECTRONICA[\s\S]*?N[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})/i
+    );
+    const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
+    const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
+    const serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
+    const numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
 
     return {
       archivo: file.name,
       rucProveedor: rucMatch?.[0] ?? null,
-      serie: serieNumero ? serieNumero.split('-')[0] : null,
-      numero: serieNumero ? serieNumero.split('-')[1] : null
+      serie: serie ? serie.trim() : null,
+      numero: numero ? numero.trim() : null
     };
   }
 }
