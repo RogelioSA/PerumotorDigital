@@ -39,6 +39,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'
 import { CookieService } from 'ngx-cookie-service';
 import MsgReader from '@kenjiuno/msgreader';
+import { BillingpaymentUploadComponent, VehiculoPdfInfo } from './billingpayment-upload.component';
 interface Product {
   id?: string;
   code?: string;
@@ -73,7 +74,8 @@ interface Carpeta {
     FileUpload,ToastModule,
     ContextMenuModule,
     DxDataGridModule,
-    DxButtonModule,DrawerModule,ProgressSpinnerModule,DropdownModule,ConfirmDialogModule
+    DxButtonModule,DrawerModule,ProgressSpinnerModule,DropdownModule,ConfirmDialogModule,
+    BillingpaymentUploadComponent
   ],
   providers: [MessageService,ConfirmationService],
   templateUrl: './billingpayment.component.html',
@@ -96,8 +98,12 @@ validar = false;
 
   @ViewChild('dt') table!: Table;
   @ViewChild('fileUploader') fileUploader!: FileUpload;
+  @ViewChild('vehiculosUpload') vehiculosUpload!: BillingpaymentUploadComponent;
 
   menuItems: MenuItem[] = [];
+
+  vehiculosPdfInfo: VehiculoPdfInfo[] = [];
+  mostrarDialogVehiculos: boolean = false;
 
 
   seleccionados: any[] = [];
@@ -374,9 +380,22 @@ validar = false;
     this.clasificacionLE = res.data;
   });
 
-    this.apiService.listarSucursales().subscribe(res => {
+  this.apiService.listarSucursales().subscribe(res => {
     this.sucursal = res.data;
   });
+  }
+
+  abrirSubidaVehiculos(): void {
+    this.vehiculosUpload?.openDialog();
+  }
+
+  onVehiculosParsed(vehiculos: VehiculoPdfInfo[]): void {
+    this.vehiculosPdfInfo = vehiculos;
+    this.mostrarDialogVehiculos = true;
+  }
+
+  onVehiculosParseError(message: string): void {
+    console.error('Error al leer PDFs:', message);
   }
 
   cargarCarpetas() {
