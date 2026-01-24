@@ -1074,9 +1074,20 @@ validar = false;
             dateColumnIndexes.forEach(c => {
               const cellAddress = XLSX.utils.encode_cell({ r, c });
               const cell = worksheet[cellAddress];
-              if (cell?.v instanceof Date) {
+              if (!cell) {
+                return;
+              }
+              if (cell.v instanceof Date) {
                 worksheet[cellAddress] = {
                   t: 'd',
+                  v: cell.v,
+                  z: 'yyyy-mm-dd'
+                };
+                return;
+              }
+              if (typeof cell.v === 'number') {
+                worksheet[cellAddress] = {
+                  t: 'n',
                   v: cell.v,
                   z: 'yyyy-mm-dd'
                 };
@@ -1106,47 +1117,59 @@ validar = false;
     });
   }
 
-  private coerceExcelDate(value: unknown): Date | string {
+  private coerceExcelDate(value: unknown): number | string {
     if (!value) {
       return '';
     }
+    const dateParts = this.extractDateParts(value);
+    if (!dateParts) {
+      return String(value).trim();
+    }
+    return this.toExcelSerial(dateParts.year, dateParts.month, dateParts.day);
+  }
+
+  private extractDateParts(
+    value: unknown
+  ): { year: number; month: number; day: number } | null {
     if (value instanceof Date) {
-      return new Date(value.getFullYear(), value.getMonth(), value.getDate(), 0, 0, 0);
+      return {
+        year: value.getFullYear(),
+        month: value.getMonth(),
+        day: value.getDate()
+      };
     }
     const valueString = String(value).trim();
-    const dateOnlyMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const dateOnlyMatch = valueString.match(/^(\d{4})[-/](\d{2})[-/](\d{2})$/);
     if (dateOnlyMatch) {
-      const year = Number(dateOnlyMatch[1]);
-      const month = Number(dateOnlyMatch[2]) - 1;
-      const day = Number(dateOnlyMatch[3]);
-      return new Date(year, month, day, 0, 0, 0);
+      return {
+        year: Number(dateOnlyMatch[1]),
+        month: Number(dateOnlyMatch[2]) - 1,
+        day: Number(dateOnlyMatch[3])
+      };
     }
-    const dateTimeMatch = valueString.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s].*)?$/);
+    const dateTimeMatch = valueString.match(/^(\d{4})[-/](\d{2})[-/](\d{2})(?:[T\s].*)?$/);
     if (dateTimeMatch) {
-      const year = Number(dateTimeMatch[1]);
-      const month = Number(dateTimeMatch[2]) - 1;
-      const day = Number(dateTimeMatch[3]);
-      const hasTimezone = /[zZ]|[+-]\d{2}:?\d{2}/.test(valueString);
-      if (hasTimezone) {
-        const parsedDateTime = new Date(valueString);
-        if (!Number.isNaN(parsedDateTime.getTime())) {
-          return new Date(
-            parsedDateTime.getFullYear(),
-            parsedDateTime.getMonth(),
-            parsedDateTime.getDate(),
-            0,
-            0,
-            0
-          );
-        }
-      }
-      return new Date(year, month, day, 0, 0, 0);
+      return {
+        year: Number(dateTimeMatch[1]),
+        month: Number(dateTimeMatch[2]) - 1,
+        day: Number(dateTimeMatch[3])
+      };
     }
     const dateValue = new Date(valueString);
-    if (Number.isNaN(dateValue.getTime())) {
-      return valueString;
+    if (!Number.isNaN(dateValue.getTime())) {
+      return {
+        year: dateValue.getFullYear(),
+        month: dateValue.getMonth(),
+        day: dateValue.getDate()
+      };
     }
-    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate(), 0, 0, 0);
+    return null;
+  }
+
+  private toExcelSerial(year: number, month: number, day: number): number {
+    const utcDate = Date.UTC(year, month, day);
+    const excelEpoch = Date.UTC(1899, 11, 30);
+    return (utcDate - excelEpoch) / 86400000;
   }
 
   private getWorksheetColumnIndex(
