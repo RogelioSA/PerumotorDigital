@@ -134,7 +134,7 @@ export class BillingpaymentUploadComponent {
       serie = getItemText(textContent.items, 7);
       numero = getItemText(textContent.items, 12);
     }
-    if (rucProveedor === '20430500521') {
+    if (rucProveedor === '20430500521'|| rucProveedor === '20472468147') {
       const serieNumeroSplitMatch = text.match(/\b([A-Z0-9]{2,4})\s*N[°º]\s*(\d{1,8})\b/i);
       serie = serieNumeroSplitMatch?.[1] ?? serie;
       numero = serieNumeroSplitMatch?.[2] ?? numero;
