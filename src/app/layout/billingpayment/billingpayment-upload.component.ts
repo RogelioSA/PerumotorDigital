@@ -138,7 +138,7 @@ export class BillingpaymentUploadComponent {
       numero = serieNumeroSplitMatch?.[2] ?? numero;
     }
     const vin = vinMatch?.[0] ?? null;
-    console.log('VIN detectado', { archivo: file.name, vin });
+    // console.log('VIN detectado', { archivo: file.name, vin });
 
     return {
       archivo: file.name,
