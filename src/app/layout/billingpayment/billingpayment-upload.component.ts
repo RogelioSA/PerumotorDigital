@@ -69,8 +69,26 @@ export class BillingpaymentUploadComponent {
     );
     const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
     const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
-    const serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
-    const numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
+  const rucProveedor = rucMatch?.[0] ?? null;
+    let serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
+    let numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
+    if (rucProveedor === '20168544252' && !serie && !numero) {
+      const getItemText = (items: typeof textContent.items, index: number): string | null => {
+        const item = items[index];
+        if (!item || !('str' in item)) {
+          return null;
+        }
+        const value = item.str?.trim();
+        return value ? value : null;
+      };
+      serie = getItemText(textContent.items, 7);
+      numero = getItemText(textContent.items, 12);
+    }
+    if (rucProveedor === '20430500521') {
+      const serieNumeroSplitMatch = text.match(/\b([A-Z0-9]{2,4})\s*N[°º]\s*(\d{1,8})\b/i);
+      serie = serieNumeroSplitMatch?.[1] ?? serie;
+      numero = serieNumeroSplitMatch?.[2] ?? numero;
+    }
 
     return {
       archivo: file.name,
