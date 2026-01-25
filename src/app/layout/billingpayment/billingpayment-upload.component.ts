@@ -1,4 +1,7 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import * as pdfjsLib from 'pdfjs-dist';
 
 export interface VehiculoPdfInfo {
@@ -7,11 +10,13 @@ export interface VehiculoPdfInfo {
   serie: string | null;
   numero: string | null;
   vin: string | null;
+  importeTotal: string | null;
 }
 
 @Component({
   selector: 'app-billingpayment-upload',
   standalone: true,
+  imports: [CommonModule, DialogModule, ButtonModule],
   template: `
     <input
       #fileInput
@@ -21,12 +26,48 @@ export interface VehiculoPdfInfo {
       hidden
       (change)="onFilesSelected($event)"
     />
+
+    <p-dialog header="Resumen de factura" [(visible)]="mostrarResumen" [modal]="true" [style]="{ width: '520px' }">
+      <ng-container *ngIf="vehiculosPdfInfo.length; else sinDatos">
+        <div class="p-fluid" *ngFor="let info of vehiculosPdfInfo; let last = last">
+          <div class="field">
+            <label>RUC</label>
+            <div>{{ info.rucProveedor ?? '-' }}</div>
+          </div>
+          <div class="field">
+            <label>Serie</label>
+            <div>{{ info.serie ?? '-' }}</div>
+          </div>
+          <div class="field">
+            <label>Número</label>
+            <div>{{ info.numero ?? '-' }}</div>
+          </div>
+          <div class="field">
+            <label>VIN</label>
+            <div>{{ info.vin ?? '-' }}</div>
+          </div>
+          <div class="field">
+            <label>Importe total</label>
+            <div>{{ info.importeTotal ?? '-' }}</div>
+          </div>
+          <hr *ngIf="!last" />
+        </div>
+      </ng-container>
+      <ng-template #sinDatos>
+        <p>No se encontraron datos para mostrar.</p>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="PROCESAR" (click)="onProcesar()"></button>
+      </ng-template>
+    </p-dialog>
   `
 })
 export class BillingpaymentUploadComponent {
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
   @Output() parsed = new EventEmitter<VehiculoPdfInfo[]>();
   @Output() parseError = new EventEmitter<string>();
+  vehiculosPdfInfo: VehiculoPdfInfo[] = [];
+  mostrarResumen = false;
 
   constructor() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -48,6 +89,8 @@ export class BillingpaymentUploadComponent {
 
     try {
       const results = await Promise.all(files.map((file) => this.parsePdf(file)));
+      this.vehiculosPdfInfo = results;
+      this.mostrarResumen = true;
       this.parsed.emit(results);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al leer los PDFs.';
@@ -93,13 +136,76 @@ export class BillingpaymentUploadComponent {
     }
     const vin = vinMatch?.[0] ?? null;
     console.log('VIN detectado', { archivo: file.name, vin });
+    const importeTotal = this.obtenerImporteTotal(text);
 
     return {
       archivo: file.name,
       rucProveedor: rucMatch?.[0] ?? null,
       serie: serie ? serie.trim() : null,
       numero: numero ? numero.trim() : null,
-      vin
+      vin,
+      importeTotal
     };
+  }
+
+  private obtenerImporteTotal(texto: string): string | null {
+    const matches = [...texto.matchAll(/(\d[\d.,]*)\s*\$/g)];
+    if (!matches.length) {
+      return null;
+    }
+    const valores = matches
+      .map((match) => match[1])
+      .map((valor) => ({ valor, numero: this.normalizarNumero(valor) }))
+      .filter((item) => Number.isFinite(item.numero));
+    if (!valores.length) {
+      return null;
+    }
+    const mayor = valores.reduce((acc, item) => (item.numero > acc.numero ? item : acc));
+    return `${mayor.valor} $`;
+  }
+
+  private normalizarNumero(valor: string): number {
+    const limpio = valor.trim();
+    if (!limpio) {
+      return Number.NaN;
+    }
+    const tienePunto = limpio.includes('.');
+    const tieneComa = limpio.includes(',');
+    let normalizado = limpio;
+    if (tienePunto && tieneComa) {
+      const ultimoSeparador = Math.max(limpio.lastIndexOf('.'), limpio.lastIndexOf(','));
+      const separadorDecimal = limpio[ultimoSeparador];
+      normalizado = limpio
+        .split('')
+        .filter((char, index) => {
+          if (char === '.' || char === ',') {
+            return index === ultimoSeparador;
+          }
+          return true;
+        })
+        .join('');
+      if (separadorDecimal === ',') {
+        normalizado = normalizado.replace(',', '.');
+      }
+    } else if (tieneComa) {
+      const partes = limpio.split(',');
+      if (partes[1]?.length === 2) {
+        normalizado = `${partes[0].replace(/\./g, '')}.${partes[1]}`;
+      } else {
+        normalizado = limpio.replace(/,/g, '');
+      }
+    } else if (tienePunto) {
+      const partes = limpio.split('.');
+      if (partes[1]?.length === 2) {
+        normalizado = `${partes[0].replace(/,/g, '')}.${partes[1]}`;
+      } else {
+        normalizado = limpio.replace(/\./g, '');
+      }
+    }
+    return Number.parseFloat(normalizado.replace(/,/g, ''));
+  }
+
+  onProcesar(): void {
+    // TODO: agregar lógica de procesamiento
   }
 }
