@@ -6,6 +6,7 @@ export interface VehiculoPdfInfo {
   rucProveedor: string | null;
   serie: string | null;
   numero: string | null;
+  vin: string | null;
 }
 
 @Component({
@@ -64,12 +65,13 @@ export class BillingpaymentUploadComponent {
     const text = textContent.items.map((item) => ('str' in item ? item.str : '')).join(' ');
 
     const rucMatch = text.match(/\b\d{11}\b/);
+    const vinMatch = text.match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
     const facturaMatch = text.match(
       /FACTURA\s+ELECTRONICA[\s\S]*?N[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})/i
     );
     const numeroMatch = text.match(/\bN[°º]\s*([A-Z0-9]{2,4})\s*-\s*(\d{1,8})\b/i);
     const serieNumeroMatch = text.match(/\b[A-Z0-9]{2,4}\s*-\s*\d{1,8}\b/);
-  const rucProveedor = rucMatch?.[0] ?? null;
+    const rucProveedor = rucMatch?.[0] ?? null;
     let serie = facturaMatch?.[1] ?? numeroMatch?.[1] ?? serieNumeroMatch?.[0]?.split('-')[0] ?? null;
     let numero = facturaMatch?.[2] ?? numeroMatch?.[2] ?? serieNumeroMatch?.[0]?.split('-')[1] ?? null;
     if (rucProveedor === '20168544252' && !serie && !numero) {
@@ -89,12 +91,15 @@ export class BillingpaymentUploadComponent {
       serie = serieNumeroSplitMatch?.[1] ?? serie;
       numero = serieNumeroSplitMatch?.[2] ?? numero;
     }
+    const vin = vinMatch?.[0] ?? null;
+    console.log('VIN detectado', { archivo: file.name, vin });
 
     return {
       archivo: file.name,
       rucProveedor: rucMatch?.[0] ?? null,
       serie: serie ? serie.trim() : null,
-      numero: numero ? numero.trim() : null
+      numero: numero ? numero.trim() : null,
+      vin
     };
   }
 }
