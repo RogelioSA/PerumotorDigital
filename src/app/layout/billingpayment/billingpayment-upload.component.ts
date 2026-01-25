@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { DialogModule } from 'primeng/dialog';
 import * as pdfjsLib from 'pdfjs-dist';
 
 export interface VehiculoPdfInfo {
@@ -12,6 +14,7 @@ export interface VehiculoPdfInfo {
 @Component({
   selector: 'app-billingpayment-upload',
   standalone: true,
+  imports: [CommonModule, DialogModule],
   template: `
     <input
       #fileInput
@@ -21,12 +24,54 @@ export interface VehiculoPdfInfo {
       hidden
       (change)="onFilesSelected($event)"
     />
+    <p-dialog
+      [(visible)]="mostrarDialogVehiculos"
+      [modal]="true"
+      [style]="{ width: '700px' }"
+      header="Vehículos detectados"
+      [closable]="true"
+    >
+      <div class="max-h-80 overflow-auto border border-gray-200 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-700">
+          <thead class="bg-gray-50 text-xs font-semibold text-gray-600 uppercase">
+            <tr>
+              <th class="px-4 py-2">RUC</th>
+              <th class="px-4 py-2">Serie</th>
+              <th class="px-4 py-2">Número</th>
+              <th class="px-4 py-2">VIN</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let vehiculo of vehiculosPdfInfo">
+              <td class="px-4 py-2">{{ vehiculo.rucProveedor || '-' }}</td>
+              <td class="px-4 py-2">{{ vehiculo.serie || '-' }}</td>
+              <td class="px-4 py-2">{{ vehiculo.numero || '-' }}</td>
+              <td class="px-4 py-2">{{ vehiculo.vin || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 flex items-center justify-between">
+        <p class="text-sm text-gray-600">
+          Total de filas leídas: <span class="font-semibold">{{ vehiculosPdfInfo.length }}</span>
+        </p>
+        <button
+          type="button"
+          class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"
+          (click)="procesarVehiculos()"
+        >
+          PROCESAR
+        </button>
+      </div>
+    </p-dialog>
   `
 })
 export class BillingpaymentUploadComponent {
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
   @Output() parsed = new EventEmitter<VehiculoPdfInfo[]>();
   @Output() parseError = new EventEmitter<string>();
+  mostrarDialogVehiculos = false;
+  vehiculosPdfInfo: VehiculoPdfInfo[] = [];
 
   constructor() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -48,7 +93,8 @@ export class BillingpaymentUploadComponent {
 
     try {
       const results = await Promise.all(files.map((file) => this.parsePdf(file)));
-      this.parsed.emit(results);
+      this.vehiculosPdfInfo = results;
+      this.mostrarDialogVehiculos = true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al leer los PDFs.';
       this.parseError.emit(message);
@@ -101,5 +147,9 @@ export class BillingpaymentUploadComponent {
       numero: numero ? numero.trim() : null,
       vin
     };
+  }
+
+  procesarVehiculos(): void {
+    console.log('Procesar vehículos pendiente', this.vehiculosPdfInfo);
   }
 }
