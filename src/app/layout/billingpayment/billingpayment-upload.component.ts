@@ -5,6 +5,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 export interface VehiculoPdfInfo {
   archivo: string;
+  file: File;
   rucProveedor: string | null;
   serie: string | null;
   numero: string | null;
@@ -70,6 +71,7 @@ export class BillingpaymentUploadComponent {
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
   @Output() parsed = new EventEmitter<VehiculoPdfInfo[]>();
   @Output() parseError = new EventEmitter<string>();
+  @Output() procesar = new EventEmitter<VehiculoPdfInfo[]>();
   mostrarDialogVehiculos = false;
   vehiculosPdfInfo: VehiculoPdfInfo[] = [];
 
@@ -142,6 +144,7 @@ export class BillingpaymentUploadComponent {
 
     return {
       archivo: file.name,
+      file,
       rucProveedor: rucMatch?.[0] ?? null,
       serie: serie ? serie.trim() : null,
       numero: numero ? numero.trim() : null,
@@ -150,6 +153,7 @@ export class BillingpaymentUploadComponent {
   }
 
   procesarVehiculos(): void {
-    console.log('Procesar vehículos pendiente', this.vehiculosPdfInfo);
+    this.procesar.emit(this.vehiculosPdfInfo);
+    this.mostrarDialogVehiculos = false;
   }
 }

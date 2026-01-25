@@ -395,8 +395,47 @@ validar = false;
     });
   }
 
+  procesarVehiculos(vehiculos: VehiculoPdfInfo[]): void {
+    const estructura = vehiculos
+      .map((vehiculo) => {
+        const idCarpeta = this.buildVehiculoFolderId(vehiculo);
+        if (!idCarpeta) {
+          return null;
+        }
+        return {
+          nombre: idCarpeta,
+          archivos: [vehiculo.archivo],
+          files: [vehiculo.file]
+        };
+      })
+      .filter((carpeta): carpeta is Carpeta => Boolean(carpeta));
+
+    if (!estructura.length) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sin datos completos',
+        detail: 'No se encontraron vehículos con RUC, serie y número válidos.'
+      });
+      return;
+    }
+
+    this.estructuraCarpeta = estructura;
+    this.estructuraCarpetas = estructura;
+    this.subirCarpetas();
+  }
+
   onVehiculosParseError(message: string): void {
     console.error('Error al leer PDFs:', message);
+  }
+
+  private buildVehiculoFolderId(vehiculo: VehiculoPdfInfo): string | null {
+    const ruc = vehiculo.rucProveedor?.trim();
+    const serie = vehiculo.serie?.trim();
+    const numero = vehiculo.numero?.trim();
+    if (!ruc || !serie || !numero) {
+      return null;
+    }
+    return `${ruc}_${serie}-${numero}`.replace(/\s+/g, '');
   }
 
   cargarCarpetas() {
