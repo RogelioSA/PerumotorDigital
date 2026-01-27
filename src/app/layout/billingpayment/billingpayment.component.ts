@@ -403,7 +403,7 @@ validar = false;
 
   procesarVehiculos(vehiculos: VehiculoPdfInfo[]): void {
     const estructura = vehiculos
-      .map((vehiculo) => {
+      .map((vehiculo): Carpeta | null => {
         const idCarpeta = this.buildVehiculoFolderId(vehiculo);
         if (!idCarpeta) {
           return null;
@@ -420,7 +420,7 @@ validar = false;
           vin: vehiculo.vin
         };
       })
-      .filter((carpeta): carpeta is Carpeta => Boolean(carpeta));
+      .filter((carpeta): carpeta is Carpeta => carpeta !== null);
 
     if (!estructura.length) {
       this.messageService.add({
