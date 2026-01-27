@@ -56,6 +56,12 @@ interface Carpeta {
   nombre: string;
   archivos: string[];
   files: File[]; // Para subir
+  idArea?: string;
+  srIgv?: number;
+  regimen?: string;
+  moneda?: string;
+  idDocumento?: string;
+  vin?: string | null;
 }
 @Component({
   selector: 'app-billingpayment',
@@ -397,7 +403,7 @@ validar = false;
 
   procesarVehiculos(vehiculos: VehiculoPdfInfo[]): void {
     const estructura = vehiculos
-      .map((vehiculo) => {
+      .map((vehiculo): Carpeta | null => {
         const idCarpeta = this.buildVehiculoFolderId(vehiculo);
         if (!idCarpeta) {
           return null;
@@ -405,10 +411,16 @@ validar = false;
         return {
           nombre: idCarpeta,
           archivos: [vehiculo.archivo],
-          files: [vehiculo.file]
+          files: [vehiculo.file],
+          idArea: '012',
+          srIgv: 1,
+          regimen: '01',
+          moneda: '02',
+          idDocumento: 'FAC',
+          vin: vehiculo.vin
         };
       })
-      .filter((carpeta): carpeta is Carpeta => Boolean(carpeta));
+      .filter((carpeta): carpeta is Carpeta => carpeta !== null);
 
     if (!estructura.length) {
       this.messageService.add({
@@ -422,6 +434,45 @@ validar = false;
     this.estructuraCarpeta = estructura;
     this.estructuraCarpetas = estructura;
     this.subirCarpetas();
+  }
+
+  private buildDocumentoMetadata(carpeta: Partial<Carpeta>): {
+    idArea?: string;
+    srIgv?: number;
+    regimen?: string;
+    moneda?: string;
+    idDocumento?: string;
+    vin?: string | null;
+  } | undefined {
+    const metadata: {
+      idArea?: string;
+      srIgv?: number;
+      regimen?: string;
+      moneda?: string;
+      idDocumento?: string;
+      vin?: string | null;
+    } = {};
+
+    if (carpeta.idArea) {
+      metadata.idArea = carpeta.idArea;
+    }
+    if (carpeta.srIgv !== undefined && carpeta.srIgv !== null) {
+      metadata.srIgv = carpeta.srIgv;
+    }
+    if (carpeta.regimen) {
+      metadata.regimen = carpeta.regimen;
+    }
+    if (carpeta.moneda) {
+      metadata.moneda = carpeta.moneda;
+    }
+    if (carpeta.idDocumento) {
+      metadata.idDocumento = carpeta.idDocumento;
+    }
+    if (carpeta.vin) {
+      metadata.vin = carpeta.vin;
+    }
+
+    return Object.keys(metadata).length ? metadata : undefined;
   }
 
   onVehiculosParseError(message: string): void {
@@ -1361,11 +1412,19 @@ validar = false;
       const periodo = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}`;
       const idCarpetaPadre: number = this.carpetaActual.idCarpeta!;
       const usuarioCreacion: string = this.cookieService.get('usuario') || 'Usuario';
+      const metadata = this.buildDocumentoMetadata(carpeta);
       this.apiService.existeDocumento(this.idEmpresa, idCarpeta).subscribe({
         next: (res) => {
           if (res.success === false) {
             // Crear carpeta si no existe
-            this.apiService.crearDocumento(this.idEmpresa, idCarpeta, periodo, idCarpetaPadre,usuarioCreacion).subscribe({
+            this.apiService.crearDocumento(
+              this.idEmpresa,
+              idCarpeta,
+              periodo,
+              idCarpetaPadre,
+              usuarioCreacion,
+              metadata
+            ).subscribe({
               next: () => {
                 // Subir todos los archivos
                 carpeta.files.forEach(file => {
