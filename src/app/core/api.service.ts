@@ -21,13 +21,28 @@ export class ApiService {
   }
 
 
-  crearDocumento(idEmpresa: string, idCarpeta: string, periodo: string, idCarpetaPadre:number, usuarioCreacion:string): Observable<any> {
+  crearDocumento(
+    idEmpresa: string,
+    idCarpeta: string,
+    periodo: string,
+    idCarpetaPadre:number,
+    usuarioCreacion:string,
+    metadata?: {
+      idArea?: string;
+      srIgv?: number;
+      regimen?: string;
+      moneda?: string;
+      idDocumento?: string;
+      vin?: string | null;
+    }
+  ): Observable<any> {
     const body = {
       idEmpresa,
       idCarpeta,
       periodo,
       idCarpetaPadre,
-      usuarioCreacion
+      usuarioCreacion,
+      ...(metadata ?? {})
     };
 
     return this.https.post(`${this.apiUrl}/BillingPayment/crearDocumento`, body);
