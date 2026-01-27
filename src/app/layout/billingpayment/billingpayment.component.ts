@@ -1088,9 +1088,11 @@ validar = false;
         const fechaEmisionSource = doc.fechaEmision ?? doc.FechaEmision;
         const fechaVencimientoSource = doc.fechaVencimiento ?? doc.fechaVcto;
         const fechaPagoSource = doc.fechaPago ?? doc.FechaPago;
+        const fechaProgSource = doc.fechaProg ?? doc.FechaProg;
         const fechaEmisionExcel = this.coerceExcelDate(fechaEmisionSource);
         const fechaVencimientoExcel = this.coerceExcelDate(fechaVencimientoSource);
         const fechaPagoExcel = this.coerceExcelDate(fechaPagoSource);
+        const fechaProgExcel = this.coerceExcelDate(fechaProgSource);
         return {
           ...doc,
           idArea: areaDesc,
@@ -1109,7 +1111,9 @@ validar = false;
           fechaVencimiento: doc.fechaVencimiento ? fechaVencimientoExcel : doc.fechaVencimiento,
           fechaVcto: doc.fechaVcto ? fechaVencimientoExcel : doc.fechaVcto,
           fechaPago: doc.fechaPago ? fechaPagoExcel : doc.fechaPago,
-          FechaPago: doc.FechaPago ? fechaPagoExcel : doc.FechaPago
+          FechaPago: doc.FechaPago ? fechaPagoExcel : doc.FechaPago,
+          fechaProg: doc.fechaProg ? fechaProgExcel : doc.fechaProg,
+          FechaProg: doc.FechaProg ? fechaProgExcel : doc.FechaProg
         };
       });
 
@@ -1123,7 +1127,9 @@ validar = false;
           'fechaVencimiento',
           'fechaVcto',
           'fechaPago',
-          'FechaPago'
+          'FechaPago',
+          'fechaProg',
+          'FechaProg'
         ];
         const dateColumnIndexes = dateHeaders
           .map(header => this.getWorksheetColumnIndex(worksheet, headerRow, header))
