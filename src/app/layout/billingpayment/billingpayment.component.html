@@ -309,6 +309,30 @@
 
             <div class="flex-grow flex flex-col">
 
+              <div *ngIf="vehiculoSeleccionado?.trim()" class="mb-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Archivos relacionados</p>
+                <div class="mt-2 space-y-2">
+                  <a
+                    [href]="stockSharepointUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-sky-300 hover:text-sky-700"
+                  >
+                    <i class="pi pi-file text-sky-600"></i>
+                    <span>STOCK2025</span>
+                  </a>
+                  <a
+                    [href]="stockSharepointUrl"
+                    target="_blank"
+                    rel="noopener"
+                    class="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-sky-300 hover:text-sky-700"
+                  >
+                    <i class="pi pi-file text-sky-600"></i>
+                    <span>STOCK2026</span>
+                  </a>
+                </div>
+              </div>
+
               <div *ngIf="cargandoArchivos" class="flex-grow flex items-center justify-center">
                 <p-progressSpinner strokeWidth="4" animationDuration=".5s" styleClass="w-12 h-12"></p-progressSpinner>
               </div>

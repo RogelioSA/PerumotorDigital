@@ -124,6 +124,9 @@ validar = false;
 
   estructuraCarpetas: any[] = [];
   carpetaSeleccionada: string = '';
+  vehiculoSeleccionado: string | null = null;
+  private readonly stockSharepointBaseUrl = 'https://perumotorsac.sharepoint.com/sites/COMERCIALPM/Documentos%20compartidos/Forms/AllItems.aspx?id=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos%2FFILES%20STOCK%202026%2F';
+  private readonly stockSharepointSuffix = '%2FCOMPRA&viewid=b7b45ec2%2Dfaa4%2D4397%2Dadfa%2D5f15c082ea1e&newTargetListUrl=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos&viewpath=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos%2FForms%2FAllItems%2Easpx';
   dropActive = false;
 
   products: any[] = [];
@@ -1745,6 +1748,7 @@ validar = false;
     this.cargandoArchivos = false;
     this.archivosCarpeta = [];
     this.carpetaSeleccionada = '';
+    this.vehiculoSeleccionado = null;
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { idDocumento: null },
@@ -1836,9 +1840,9 @@ validar = false;
 
 
   verArchivos(idDocumento: string) {
-    const idCarpeta = this.route.snapshot.queryParamMap.get('idcarpeta') || this.route.snapshot.queryParamMap.get('idCarpeta');
-    const documento = this.products.find(c => c.idCarpeta === idCarpeta);
+    const documento = this.products.find(c => c.idCarpeta === idDocumento);
     this.carpetaSeleccionada = idDocumento;
+    this.vehiculoSeleccionado = documento?.idSerie ?? null;
 
     // this.router.navigate([], {
     //   relativeTo: this.route,
@@ -1864,6 +1868,15 @@ validar = false;
       }
     });
     //this.mostrarTablaArchivos = true;
+  }
+
+  get stockSharepointUrl(): string {
+    if (!this.vehiculoSeleccionado?.trim()) {
+      return '';
+    }
+
+    const vehiculoEncoded = encodeURIComponent(this.vehiculoSeleccionado.trim());
+    return `${this.stockSharepointBaseUrl}${vehiculoEncoded}${this.stockSharepointSuffix}`;
   }
 
   listarDigitalesProvision(idDocumento: string) {
