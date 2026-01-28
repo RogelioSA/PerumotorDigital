@@ -127,7 +127,7 @@ validar = false;
   carpetaSeleccionada: string = '';
   vehiculoSeleccionado: string | null = null;
   private readonly stockSharepointBaseUrl = 'https://perumotorsac.sharepoint.com/sites/COMERCIALPM/Documentos%20compartidos/Forms/AllItems.aspx?id=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos%2FFILES%20STOCK%202026%2F';
-  private readonly stockSharepointSuffix = '%2FCOMPRA&viewid=b7b45ec2%2Dfaa4%2D4397%2Dadfa%2D5f15c082ea1e&newTargetListUrl=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos&viewpath=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos%2FForms%2FAllItems%2Easpx';
+  private readonly stockSharepointSuffix = '&viewid=b7b45ec2%2Dfaa4%2D4397%2Dadfa%2D5f15c082ea1e&newTargetListUrl=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos&viewpath=%2Fsites%2FCOMERCIALPM%2FDocumentos%20compartidos%2FForms%2FAllItems%2Easpx';
   dropActive = false;
 
   products: any[] = [];
@@ -483,15 +483,20 @@ validar = false;
     console.error('Error al leer PDFs:', message);
   }
 
-  private buildVehiculoFolderId(vehiculo: VehiculoPdfInfo): string | null {
-    const ruc = vehiculo.rucProveedor?.trim();
-    const serie = vehiculo.serie?.trim();
-    const numero = vehiculo.numero?.trim();
-    if (!ruc || !serie || !numero) {
-      return null;
-    }
-    return `${ruc}_${serie}-${numero}`.replace(/\s+/g, '');
+private buildVehiculoFolderId(vehiculo: VehiculoPdfInfo): string | null {
+  const ruc = vehiculo.rucProveedor?.trim();
+  const serie = vehiculo.serie?.trim();
+  let numero = vehiculo.numero?.trim();
+
+  if (!ruc || !serie || !numero) {
+    return null;
   }
+
+  // Completa con ceros a la izquierda hasta 7 caracteres
+  numero = numero.padStart(7, '0');
+
+  return `${ruc}_${serie}-${numero}`.replace(/\s+/g, '');
+}
 
   cargarCarpetas() {
     this.apiService.listarCarpeta('').subscribe((res) => {
