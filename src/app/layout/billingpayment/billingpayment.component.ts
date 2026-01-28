@@ -39,7 +39,11 @@ import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog'
 import { CookieService } from 'ngx-cookie-service';
 import MsgReader from '@kenjiuno/msgreader';
-import { BillingpaymentUploadComponent, VehiculoPdfInfo } from './billingpayment-upload.component';
+import {
+  BillingpaymentUploadComponent,
+  ProcesarVehiculosPayload,
+  VehiculoPdfInfo
+} from './billingpayment-upload.component';
 interface Product {
   id?: string;
   code?: string;
@@ -405,8 +409,8 @@ validar = false;
     });
   }
 
-  procesarVehiculos(vehiculos: VehiculoPdfInfo[]): void {
-    const estructura = vehiculos
+  procesarVehiculos(payload: ProcesarVehiculosPayload): void {
+    const estructura = payload.vehiculos
       .map((vehiculo): Carpeta | null => {
         const idCarpeta = this.buildVehiculoFolderId(vehiculo);
         if (!idCarpeta) {
@@ -416,11 +420,11 @@ validar = false;
           nombre: idCarpeta,
           archivos: [vehiculo.archivo],
           files: [vehiculo.file],
-          idArea: '012',
+          idArea: payload.areaSeleccionada || '012',
           srIgv: 1,
           regimen: '01',
           moneda: '02',
-          idDocumento: 'FAC',
+          idDocumento: payload.docSeleccionado || 'FAC',
           vin: vehiculo.vin
         };
       })
