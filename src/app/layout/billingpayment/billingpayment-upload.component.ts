@@ -24,6 +24,14 @@ export interface ProcesarVehiculosPayload {
   selector: 'app-billingpayment-upload',
   standalone: true,
   imports: [CommonModule, DialogModule, DropdownModule, FormsModule],
+  styles: [
+    `
+      :host ::ng-deep .upload-dropup-panel {
+        transform: translateY(-100%);
+        transform-origin: bottom;
+      }
+    `
+  ],
   template: `
     <input
       #fileInput
@@ -72,6 +80,7 @@ export interface ProcesarVehiculosPayload {
               optionLabel="descripcion"
               optionValue="id"
               [(ngModel)]="areaSeleccionada"
+              panelStyleClass="upload-dropup-panel"
               [style]="{ width: '120px' }"
             ></p-dropdown>
           </div>
@@ -82,6 +91,7 @@ export interface ProcesarVehiculosPayload {
               optionLabel="descripcion"
               optionValue="iddoc"
               [(ngModel)]="docSeleccionado"
+              panelStyleClass="upload-dropup-panel"
               [style]="{ width: '120px' }"
             ></p-dropdown>
           </div>
