@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import * as pdfjsLib from 'pdfjs-dist';
 
 export interface VehiculoPdfInfo {
@@ -12,10 +14,16 @@ export interface VehiculoPdfInfo {
   vin: string | null;
 }
 
+export interface ProcesarVehiculosPayload {
+  vehiculos: VehiculoPdfInfo[];
+  areaSeleccionada: string;
+  docSeleccionado: string;
+}
+
 @Component({
   selector: 'app-billingpayment-upload',
   standalone: true,
-  imports: [CommonModule, DialogModule],
+  imports: [CommonModule, DialogModule, DropdownModule, FormsModule],
   template: `
     <input
       #fileInput
@@ -52,10 +60,32 @@ export interface VehiculoPdfInfo {
           </tbody>
         </table>
       </div>
-      <div class="mt-4 flex items-center justify-between">
-        <p class="text-sm text-gray-600">
-          Total de filas leídas: <span class="font-semibold">{{ vehiculosPdfInfo.length }}</span>
-        </p>
+      <div class="mt-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <p class="text-sm text-gray-600">
+            Total de filas leídas: <span class="font-semibold">{{ vehiculosPdfInfo.length }}</span>
+          </p>
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600">Área</label>
+            <p-dropdown
+              [options]="areas"
+              optionLabel="descripcion"
+              optionValue="id"
+              [(ngModel)]="areaSeleccionada"
+              [style]="{ width: '120px' }"
+            ></p-dropdown>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600">T.Doc</label>
+            <p-dropdown
+              [options]="docs"
+              optionLabel="descripcion"
+              optionValue="iddoc"
+              [(ngModel)]="docSeleccionado"
+              [style]="{ width: '120px' }"
+            ></p-dropdown>
+          </div>
+        </div>
         <button
           type="button"
           class="bg-sky-900 text-white py-2 px-4 rounded-md text-sm"
@@ -68,12 +98,16 @@ export interface VehiculoPdfInfo {
   `
 })
 export class BillingpaymentUploadComponent {
+  @Input() areas: any[] = [];
+  @Input() docs: any[] = [];
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
   @Output() parsed = new EventEmitter<VehiculoPdfInfo[]>();
   @Output() parseError = new EventEmitter<string>();
-  @Output() procesar = new EventEmitter<VehiculoPdfInfo[]>();
+  @Output() procesar = new EventEmitter<ProcesarVehiculosPayload>();
   mostrarDialogVehiculos = false;
   vehiculosPdfInfo: VehiculoPdfInfo[] = [];
+  areaSeleccionada = '012';
+  docSeleccionado = 'FAC';
 
   constructor() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -153,7 +187,11 @@ export class BillingpaymentUploadComponent {
   }
 
   procesarVehiculos(): void {
-    this.procesar.emit(this.vehiculosPdfInfo);
+    this.procesar.emit({
+      vehiculos: this.vehiculosPdfInfo,
+      areaSeleccionada: this.areaSeleccionada,
+      docSeleccionado: this.docSeleccionado
+    });
     this.mostrarDialogVehiculos = false;
   }
 }

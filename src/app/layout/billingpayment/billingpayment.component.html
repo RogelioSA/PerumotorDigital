@@ -28,6 +28,8 @@
     </div>
     <app-billingpayment-upload
       #vehiculosUpload
+      [areas]="area"
+      [docs]="docs"
       (parsed)="onVehiculosParsed($event)"
       (parseError)="onVehiculosParseError($event)"
       (procesar)="procesarVehiculos($event)"
