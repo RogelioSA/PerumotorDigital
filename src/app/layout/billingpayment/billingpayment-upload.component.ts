@@ -108,7 +108,20 @@ export interface ProcesarVehiculosPayload {
   `
 })
 export class BillingpaymentUploadComponent {
-  @Input() areas: any[] = [];
+  private _areas: any[] = [];
+
+  @Input()
+  set areas(value: any[]) {
+    this._areas = (value ?? []).map((area) => ({
+      ...area,
+      id: this.normalizeAreaId(area)
+    }));
+    this.ensureDefaultArea();
+  }
+
+  get areas(): any[] {
+    return this._areas;
+  }
   @Input() docs: any[] = [];
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
   @Output() parsed = new EventEmitter<VehiculoPdfInfo[]>();
@@ -128,6 +141,24 @@ export class BillingpaymentUploadComponent {
 
   openDialog(): void {
     this.fileInput.nativeElement.click();
+  }
+
+  private normalizeAreaId(area: any): string {
+    return String(area?.id ?? area?.idArea ?? area?.codigo ?? '').trim();
+  }
+
+  private ensureDefaultArea(): void {
+    if (!this._areas.length) {
+      return;
+    }
+    const currentValue = String(this.areaSeleccionada ?? '').trim();
+    const hasCurrent = this._areas.some((area) => area.id === currentValue);
+    if (hasCurrent) {
+      this.areaSeleccionada = currentValue;
+      return;
+    }
+    const defaultArea = this._areas.find((area) => area.id === '012');
+    this.areaSeleccionada = defaultArea ? defaultArea.id : this._areas[0].id;
   }
 
   async onFilesSelected(event: Event): Promise<void> {
